@@ -1,16 +1,24 @@
 package stg.onyou.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Builder
 public class ExceptionResponse {
-    private LocalDateTime timestamp;
-    private String message;
-    private String details;
+    private final LocalDateTime timestamp = LocalDateTime.now();
+    private final String error;
+    private final String message;
+
+    public static ResponseEntity<ExceptionResponse> toResponseEntity(ErrorCode errorCode) {
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(ExceptionResponse.builder()
+                        .error(errorCode.getHttpStatus().name())
+                        .message(errorCode.getDetail())
+                        .build()
+                );
+    }
 }
