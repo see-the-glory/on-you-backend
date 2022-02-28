@@ -12,7 +12,7 @@ import stg.onyou.service.UserApiService;
 @Api(tags = {"User API Controller"})
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/ap")
 public class UserController {
 
     @Autowired
