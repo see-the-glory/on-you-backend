@@ -13,9 +13,14 @@ import java.time.LocalDateTime;
 @Builder
 public class UserApiResponse {
 
-    private Long id;
+    private Integer id;
     private String accountEmail;
     private LocalDateTime createdAt;
     private String createdBy;
+    private LocalDateTime updatedAt;
+    private String updatedBy;
+    private Integer organizationId;
+    private String sex;
+    private String name;
 
 }
