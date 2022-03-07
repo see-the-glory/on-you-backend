@@ -22,6 +22,7 @@ public class Feed {
     private Long userId;
     private Long groupId;
     private String title;
+    private String content;
     private String access;
     private char delYn;
     private LocalDateTime created;
