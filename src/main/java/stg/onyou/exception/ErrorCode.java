@@ -22,6 +22,7 @@ public enum ErrorCode {
 
     // 404 NOT_FOUND : Resource 를 찾을 수 없음
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다"),
+    CLUB_NOT_FOUND(NOT_FOUND, "존재하지 않는 클럽입니다"),
     ;
 
     private final HttpStatus httpStatus;

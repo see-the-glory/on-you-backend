@@ -30,6 +30,7 @@ public class Club {
     private LocalDateTime updated;
 
     @OneToMany(mappedBy = "club")
+    @JsonIgnore
     private List<UserClub> userClubs;
 
     @ManyToOne(fetch = FetchType.EAGER)
