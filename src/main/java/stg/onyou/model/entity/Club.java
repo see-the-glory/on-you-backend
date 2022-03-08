@@ -13,28 +13,31 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="user")
-public class User{
+@Table(name="club")
+public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    //private Integer organizationId;
-    private String nickName;
-    private LocalDateTime birthdate;
-    private char sex;
-    private String accountEmail;
+    private String information;
+    private char delYn;
+    private String thumbnail;
+    private String announcement;
+    private String recruitStatus;
+    private int maxNumber;
     private LocalDateTime created;
     private LocalDateTime updated;
 
-    //@OneToMany(mappedBy = "creator")
-    //private List<Club> clubs;
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
+    @OneToMany(mappedBy = "club")
     private List<UserClub> userClubs;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Category category;
     @ManyToOne(fetch = FetchType.EAGER)
     private Organization organization;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User creator;
 
 }

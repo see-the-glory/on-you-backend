@@ -18,9 +18,9 @@ public class Feed {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long userId;
-    private Long groupId;
+    private Integer id;
+    private Integer userId;
+    private Integer groupId;
     private String title;
     private String content;
     private String access;

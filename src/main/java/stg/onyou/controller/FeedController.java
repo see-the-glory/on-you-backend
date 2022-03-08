@@ -36,8 +36,8 @@ public class FeedController {
         feed.setAccess(form.getAccess());
         feed.setCreated(LocalDateTime.now());
 
-        feed.setGroupId(1L);
-        feed.setUserId(1L);
+        feed.setGroupId(1);
+        feed.setUserId(1);
 
         feedService.upload(feed);
 
