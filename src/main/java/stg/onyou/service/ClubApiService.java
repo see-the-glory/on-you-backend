@@ -41,7 +41,7 @@ public class ClubApiService {
 
             UserApiResponse user = UserApiResponse.builder()
                 .id(userClub.getUser().getId())
-                .organizationName(userClub.getUser().getOrganization().getName())
+//                .organizationName(userClub.getUser().getOrganization().getName())
                 .birthdate(userClub.getUser().getBirthdate())
                 .sex(userClub.getUser().getSex())
                 .accountEmail(userClub.getUser().getAccountEmail())
