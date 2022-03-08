@@ -15,7 +15,7 @@ public class UserApiService {
     @Autowired
     private UserRepository userRepository;
 
-    public Header<UserApiResponse> read(Long id){
+    public Header<UserApiResponse> selectUser(int id){
 
         return userRepository.findById(id)
                 .map(user -> response(user))
@@ -28,9 +28,11 @@ public class UserApiService {
 
         UserApiResponse userApiResponse = UserApiResponse.builder()
                 .id(user.getId())
+                .organizationName(user.getOrganization().getName())
+                .birthdate(user.getBirthdate())
+                .sex(user.getSex())
                 .accountEmail(user.getAccountEmail())
-                .createdAt(user.getCreatedAt())
-                .createdBy(user.getCreatedBy())
+                .created(user.getCreated())
                 .build();
 
         return Header.OK(userApiResponse);

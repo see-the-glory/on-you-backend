@@ -12,15 +12,15 @@ import stg.onyou.service.UserApiService;
 @Api(tags = {"User API Controller"})
 @Slf4j
 @RestController
-@RequestMapping("/ap")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
     private UserApiService userApiService;
 
-        @GetMapping("/user/{id}")
-        public Header<UserApiResponse> read(@PathVariable Long id){
-            return userApiService.read(id);
+        @GetMapping("/{id}")
+        public Header<UserApiResponse> selectUser(@PathVariable int id){
+            return userApiService.selectUser(id);
         }
 
 }

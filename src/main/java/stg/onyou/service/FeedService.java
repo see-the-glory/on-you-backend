@@ -20,7 +20,7 @@ public class FeedService {
      * feed upload
      */
 
-    public Long upload(Feed feed) {
+    public int upload(Feed feed) {
         feedRepository.save(feed);
         return feed.getId();
     }
