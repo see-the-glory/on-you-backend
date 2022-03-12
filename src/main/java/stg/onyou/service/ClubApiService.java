@@ -86,7 +86,7 @@ public class ClubApiService {
         club.getUserClubs()
                 .forEach(userClub -> {
                     members.add(selectUserResponse(userClub.getUser()));
-        });
+                 });
         recruitNumber = club.getUserClubs().size();
 
         //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
