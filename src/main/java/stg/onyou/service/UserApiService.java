@@ -2,8 +2,6 @@ package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import stg.onyou.exception.CustomException;
-import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserApiRequest;
 import stg.onyou.model.network.response.UserApiResponse;
@@ -21,8 +19,8 @@ public class UserApiService {
 
         return userRepository.findById(id)
                 .map(user -> response(user))
-                .orElseThrow(
-                        ()-> new CustomException(ErrorCode.USER_NOT_FOUND)
+                .orElseGet(
+                        ()->Header.ERROR("No data exist")
                 );
     }
 

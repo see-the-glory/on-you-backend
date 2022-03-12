@@ -1,6 +1,5 @@
 package stg.onyou.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,9 +24,7 @@ public class Organization {
     private LocalDateTime created;
 
     @OneToMany(mappedBy = "organization")
-    @JsonIgnore
     private List<User> users;
     @OneToMany(mappedBy = "organization")
-    @JsonIgnore
     private List<Club> clubs;
 }
