@@ -29,13 +29,13 @@ public class UserApiService {
     public Header<UserApiResponse> selectUser(int id){
 
         return userRepository.findById(id)
-                .map(user -> response(user))
+                .map(user -> Header.OK(selectUserResponse(user)))
                 .orElseThrow(
                         ()-> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
     }
 
-    private Header<UserApiResponse> response(User user){
+    private UserApiResponse selectUserResponse(User user){
 
         UserApiResponse userApiResponse = UserApiResponse.builder()
                 .id(user.getId())
@@ -46,7 +46,7 @@ public class UserApiService {
                 .created(user.getCreated())
                 .build();
 
-        return Header.OK(userApiResponse);
+        return userApiResponse;
 
     }
 

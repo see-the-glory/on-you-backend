@@ -29,6 +29,12 @@ public class ClubController {
     public Header<List<ClubApiResponse>> selectAllClubs(){
         return clubApiService.selectAllClubs();
     }
+
+   /* @PostMapping("/api/clubs")
+    public Header<ClubApiResponse> createClub(@RequestBody clubCreateRequest){
+        clubApiService.createClub(clubCreateRequest);
+    }*/
+
     /*
     @PostMapping("{id}/register")
     public*/
