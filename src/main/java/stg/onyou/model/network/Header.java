@@ -18,17 +18,17 @@ public class Header<T> {
     private T data;
 
     //OK
-    public static <T> Header<T> OK(){
-        return (Header<T>)Header.builder()
+    public static <T> Header<T> OK() {
+        return (Header<T>) Header.builder()
                 .transactionTime(String.valueOf(LocalDateTime.now()))
                 .resultCode("OK")
                 .build();
-        
+
     }
 
     //200 OK
-    public static <T> Header<T> OK(T data){
-        return (Header<T>)Header.builder()
+    public static <T> Header<T> OK(T data) {
+        return (Header<T>) Header.builder()
                 .transactionTime(String.valueOf(LocalDateTime.now()))
                 .resultCode("OK")
                 .data(data)
@@ -39,14 +39,9 @@ public class Header<T> {
         return (Header<T>)Header.builder()
                 .transactionTime(String.valueOf(LocalDateTime.now()))
                 .resultCode("ERROR")
-                .description(description)
                 .build();
     }*/
 
 
-
-
-
-
-
 }
+
