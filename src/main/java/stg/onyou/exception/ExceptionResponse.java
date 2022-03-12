@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class ExceptionResponse {
-    private final LocalDateTime timestamp = LocalDateTime.now();
+    private final LocalDateTime transactionTime = LocalDateTime.now();
     private final String error;
     private final String message;
 
