@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.repository.FeedRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,15 +47,18 @@ public class FeedService {
     /**
      * 특정그룹 내 전체 feed public feed 조회
      */
+    // TODO ClubFeed join
 
     /**
      * 해시태그로 feed 검색
      */
+    // TODO FeedHashtag join
 
     /**
      * input string 으로 hashtag list 검색
      * ㄱ -> 가정식
      */
+    // TODO FeedHashtag join
 
     /**
      * title + content 로 feed 검색
@@ -74,12 +78,20 @@ public class FeedService {
     /**
      * 특정 feed 수정
      */
+    public void updateById(int id, Feed updateFeed) {
+        Feed feed = feedRepository.getById(id);
+        feed.setTitle(updateFeed.getTitle());
+        feed.setContent(updateFeed.getContent());
+        feed.setAccess(updateFeed.getAccess());
+        feed.setUpdated(LocalDateTime.now());
+    }
 
     /**
      * 특정 feed (id) 삭제
      */
     public void deleteById(int id){
-        feedRepository.deleteById(id);
+        Feed feed = feedRepository.getById(id);
+        feed.setDelYn('Y');
     }
 
 
