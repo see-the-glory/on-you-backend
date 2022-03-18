@@ -39,6 +39,6 @@ jobs:
      -
         name: Docker Build and push
         run: |
-          docker build -t onyou .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/onyou .
           docker tag onyou ${{ secrets.DOCKER_USERNAME }}/onyou:${GITHUB_SHA::7}
           docker push ${{ secrets.DOCKER_USERNAME }}/onyou:${GITHUB_SHA::7}
