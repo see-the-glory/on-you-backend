@@ -1,10 +1,12 @@
 package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.RecuritStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,18 +28,20 @@ public class Club {
     private char delYn;
     private String thumbnail;
     private String announcement;
-    private String recruitStatus;
+    @Enumerated(EnumType.STRING)
+    private RecuritStatus recruitStatus;
     private int maxNumber;
     private LocalDateTime created;
     private LocalDateTime updated;
 
     @OneToMany(mappedBy = "club")
     @JsonIgnore
+    @JsonManagedReference
     private List<UserClub> userClubs;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore

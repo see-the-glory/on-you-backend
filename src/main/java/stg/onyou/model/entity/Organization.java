@@ -13,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="organization")
 public class Organization {
 
     @Id
@@ -24,10 +23,4 @@ public class Organization {
     private String pastorName;
     private LocalDateTime created;
 
-    @OneToMany(mappedBy = "organization")
-    @JsonIgnore
-    private List<User> users;
-    @OneToMany(mappedBy = "organization")
-    @JsonIgnore
-    private List<Club> clubs;
 }

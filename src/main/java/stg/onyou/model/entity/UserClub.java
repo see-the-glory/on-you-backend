@@ -1,8 +1,10 @@
 package stg.onyou.model.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.ApplyStatus;
 
 import javax.persistence.*;
 
@@ -10,6 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name="user_club")
 public class UserClub {
 
@@ -24,5 +27,6 @@ public class UserClub {
     @JoinColumn(name="club_id")
     private Club club;
 
-    private String applyStatus;
+    @Enumerated(EnumType.STRING)
+    private ApplyStatus applyStatus;
 }

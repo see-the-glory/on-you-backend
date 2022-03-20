@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Getter
 @AllArgsConstructor
@@ -18,11 +17,16 @@ public enum ErrorCode {
     */
     // 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
+    CLUB_MEMBER_FULL(CONFLICT, "클럽의 정원이 마감되었습니다"),
 
 
     // 404 NOT_FOUND : Resource 를 찾을 수 없음
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다"),
     CLUB_NOT_FOUND(NOT_FOUND, "존재하지 않는 클럽입니다"),
+
+    // 503 : Internal server error
+    CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽 생성에 실패하였습니다"),
+    CLUB_REGISTER_ERROR(INTERNAL_SERVER_ERROR, "클럽 등록에 실패하였습니"),
     ;
 
     private final HttpStatus httpStatus;
