@@ -27,5 +27,6 @@ public class Feed {
     private char delYn;
     private LocalDateTime created;
     private LocalDateTime updated;
+    private Integer reportCount = 0;
 
 }

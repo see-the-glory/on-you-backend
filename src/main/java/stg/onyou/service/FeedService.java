@@ -37,7 +37,6 @@ public class FeedService {
      * 검색 탭 클릭시, 특정 기준으로 public feed 조회
      * 무한스크롤을 위해 start index, windows size
      * ex. 1) 최신순
-     *
      */
     public List<Feed> findFeedsOrderByCreated(String access) {
         return feedRepository.findAllByAccessOrderByCreatedDesc(access);
@@ -63,22 +62,21 @@ public class FeedService {
     /**
      * title + content 로 feed 검색
      */
-    public List<Feed> findAllByTitleOrContent(String title, String content){
+    public List<Feed> findAllByTitleOrContent(String title, String content) {
         return feedRepository.findAllByTitleContainingOrContentContaining(title, content);
     }
 
     /**
      * 특정 feed id -> feed 정보 값을 return
-     *
      */
-    public Optional<Feed> findById(int id){
+    public Optional<Feed> findById(int id) {
         return feedRepository.findById(id);
     }
 
     /**
      * 특정 feed 수정
      */
-    public void updateById(int id, Feed updateFeed) {
+    public void updateFeed(int id, Feed updateFeed) {
         Feed feed = feedRepository.getById(id);
         feed.setTitle(updateFeed.getTitle());
         feed.setContent(updateFeed.getContent());
@@ -89,15 +87,18 @@ public class FeedService {
     /**
      * 특정 feed (id) 삭제
      */
-    public void deleteById(int id){
+    public void deleteById(int id) {
         Feed feed = feedRepository.getById(id);
         feed.setDelYn('Y');
     }
 
 
     /**
-     * 특정 feed 신고
+     * 특정 feed 신고. user는 feed에 대해 1번만 신고 가능.
      */
-
+//    public void reportFeed(int id) {
+//        Feed feed = feedRepository.getById(id);
+//        feed.setReportCount(feed.getReportCount() + 1);
+//    }
 
 }
