@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.RecuritStatus;
 import stg.onyou.model.entity.User;
 
 import javax.persistence.Entity;
@@ -29,7 +30,7 @@ public class ClubApiResponse {
     private int maxNumber;
     private int recruitNumber;
     private String thumbnail;
-    private String recruitStatus; //BEGIN, RECRUITING, CLOSED
+    private RecuritStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String applyStatus; //AVAILABLE, APPLIED, APPROVED
     private String creatorName;
     private String categoryName;

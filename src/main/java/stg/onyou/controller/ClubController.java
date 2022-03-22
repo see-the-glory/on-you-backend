@@ -4,8 +4,12 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Club;
+import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.request.ClubCreateRequest;
 import stg.onyou.model.network.response.ClubApiResponse;
 import stg.onyou.service.ClubApiService;
 
@@ -30,10 +34,25 @@ public class ClubController {
         return clubApiService.selectAllClubs();
     }
 
-   /* @PostMapping("/api/clubs")
-    public Header<ClubApiResponse> createClub(@RequestBody clubCreateRequest){
-        clubApiService.createClub(clubCreateRequest);
-    }*/
+    @PostMapping("")
+    public Header<String> createClub(@RequestBody ClubCreateRequest clubCreateRequest){
+
+        Club club = clubApiService.createClub(clubCreateRequest);
+        if(club == null){
+            throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
+        }
+        return Header.OK("club id: "+ club.getId());
+    }
+
+    @PostMapping("/{id}/register")
+    public Header<String> registerClub(@PathVariable Integer id){
+
+        UserClub userClub = clubApiService.registerClub(1,id);
+        if(userClub == null){
+            throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
+        }
+        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+    }
 
     /*
     @PostMapping("{id}/register")
