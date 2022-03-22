@@ -6,8 +6,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
     
 jobs:
   build:
@@ -40,6 +38,5 @@ jobs:
         name: Docker Build and push
         run: |
           docker build -t onyou .
-
-          docker tag onyou ${{ secrets.DOCKER_USERNAME }}/onyou::${GITHUB_SHA::7}
-          docker push ${{ secrets.DOCKER_USERNAME }}/onyou::${GITHUB_SHA::7}
+          docker tag onyou ${{ secrets.DOCKER_USERNAME }}/onyou:${GITHUB_SHA::7}
+          docker push ${{ secrets.DOCKER_USERNAME }}/onyou:${GITHUB_SHA::7}
