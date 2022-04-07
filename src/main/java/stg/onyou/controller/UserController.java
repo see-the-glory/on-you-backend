@@ -19,10 +19,18 @@ public class UserController {
     @Autowired
     private UserApiService userApiService;
 
-    @ResponseBody
+   /* @ResponseBody
     @GetMapping("/kakao")
     public Header<User> kakaoCallback(@RequestParam String code) throws CustomException {
         String token = userApiService.getKaKaoAccessToken(code);
+        JsonElement kakaoUserInfo = userApiService.getKakaoUser(token);
+        User user = userApiService.join(kakaoUserInfo);
+        return Header.OK(user);
+    }*/
+
+    @ResponseBody
+    @PostMapping("/kakao")
+    public Header<User> kakaoCallback(@RequestParam String token) throws CustomException {
         JsonElement kakaoUserInfo = userApiService.getKakaoUser(token);
         User user = userApiService.join(kakaoUserInfo);
         return Header.OK(user);
