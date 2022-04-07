@@ -29,7 +29,7 @@ public class UserController {
     }*/
 
     @ResponseBody
-    @PostMapping("/kakao")
+    @GetMapping("/kakao")
     public Header<User> kakaoCallback(@RequestParam String token) throws CustomException {
         JsonElement kakaoUserInfo = userApiService.getKakaoUser(token);
         User user = userApiService.join(kakaoUserInfo);
