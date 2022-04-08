@@ -131,7 +131,7 @@ public class UserApiService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return element; //코드리뷰하며 논의
+        return element;
     }
 
     public User join(JsonElement kakaoUserInfo) throws CustomException {
