@@ -11,6 +11,8 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.CategoryResponse;
 import stg.onyou.service.CategoryApiService;
 
+import java.util.List;
+
 @Api(tags = {"Category API Controller"})
 @Slf4j
 @RestController
@@ -21,8 +23,8 @@ public class CategoryController {
     private CategoryApiService categoryApiService;
 
     @GetMapping("")
-    public Header<CategoryResponse> selectAllCategories(){
-        return categoryApiService.selectAllCategories;
+    public Header<List<CategoryResponse>> selectAllCategories(){
+        return categoryApiService.selectAllCategories();
     }
 
 

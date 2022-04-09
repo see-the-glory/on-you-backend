@@ -25,14 +25,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //이 클래�
             .formLogin().disable()
             .headers().frameOptions().disable(); //iframe 사용 가능하도록 허용
 
-
+        /*
         // Spring security는 기본적으로 모든 페이지를 막기 때문에 누구나 접근할 수 있는 페이지가 필요할 경우(/)는 아래와 같이 설정이 필요하다.
         http.authorizeHttpRequests((requests) ->
                 requests.antMatchers("/").permitAll()
                         .anyRequest().authenticated());
 
-        http.formLogin();
-        http.httpBasic();
+        http.httpBasic();*/
     }
 
     @Bean
