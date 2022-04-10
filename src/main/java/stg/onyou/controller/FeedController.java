@@ -3,6 +3,7 @@ package stg.onyou.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import stg.onyou.model.entity.Feed;
+import stg.onyou.model.entity.FeedDTO;
 import stg.onyou.service.FeedService;
 
 import java.time.LocalDateTime;
@@ -38,15 +39,14 @@ public class FeedController {
     }
 
     @PostMapping("")
-    public String createFeed(@RequestBody Feed feedForm) {
+    public String createFeed(@RequestBody FeedDTO feedForm) {
         Feed feed = new Feed();
         feed.setTitle(feedForm.getTitle());
         feed.setContent(feedForm.getContent());
         feed.setAccess(feedForm.getAccess());
         feed.setCreated(LocalDateTime.now());
-
-        feed.setGroupId(1);
-        feed.setUserId(1);
+//        feed.setGroupId(1);
+//        feed.setUserId(1);
         feedService.upload(feed);
         return "redirect:/";
     }

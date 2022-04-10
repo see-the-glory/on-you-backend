@@ -1,11 +1,9 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -14,7 +12,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Feed {
+public class FeedDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
