@@ -66,8 +66,8 @@ public class UserApiService {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
             StringBuilder sb = new StringBuilder();
             sb.append("grant_type=authorization_code");
-            sb.append("&client_id=cbfa46a4dc698816fb048514e048f993");
-            sb.append("&redirect_uri=http://localhost:8080/api/user/kakao");
+            sb.append("&client_id=e274b862274fefe84b97be1c7383d43e");
+            sb.append("&redirect_uri=http://13.125.93.119:8080/api/user/kakao");
             sb.append("&code=" + code);
             bw.write(sb.toString());
             bw.flush();
@@ -131,7 +131,7 @@ public class UserApiService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return element; //코드리뷰하며 논의
+        return element;
     }
 
     public User join(JsonElement kakaoUserInfo) throws CustomException {
