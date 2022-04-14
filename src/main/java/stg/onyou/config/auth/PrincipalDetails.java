@@ -1,5 +1,6 @@
 package stg.onyou.config.auth;
 
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import stg.onyou.model.entity.User;
@@ -8,9 +9,12 @@ import javax.sql.RowSet;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Builder
 public class PrincipalDetails implements UserDetails {
 
     private User user;
+    private String socialId;
+    private String username;
 
     public PrincipalDetails(User user){
         this.user = user;
@@ -58,5 +62,9 @@ public class PrincipalDetails implements UserDetails {
 
     public User getUser() {
         return user;
+    }
+
+    public String getSocialId() {
+        return socialId;
     }
 }

@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = request.getHeader(ACCESS_TOKEN_HEADER_NAME); //헤더의 AccessToken에 해당하는 값을 가져온다.
 
         Authentication authentication =
-                authenticationManager.authenticate(new AccessTokenKakao(accessToken);
+                authenticationManager.authenticate(new AccessTokenKakao(accessToken));
 
         PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
         System.out.println("Authentication : "+principalDetailis.getUser().getName());

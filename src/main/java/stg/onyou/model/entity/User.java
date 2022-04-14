@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -29,6 +30,9 @@ public class User{
     private String accountEmail;
     private LocalDateTime created;
     private LocalDateTime updated;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private String socialId;
 
     //@OneToMany(mappedBy = "creator")
     //private List<Club> clubs;
