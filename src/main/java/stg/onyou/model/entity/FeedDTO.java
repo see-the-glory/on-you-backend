@@ -7,10 +7,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 public class FeedDTO {
 
