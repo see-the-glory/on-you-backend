@@ -41,11 +41,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //이 클래�
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .authorizeRequests()
                 .antMatchers("/user/**")
-                .access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+                .access("hasRole('MEMBER') or hasRole('MANAGER') or hasRole('MASTER')")
                 .antMatchers("/manager/**")
-                .access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+                .access("hasRole('MANAGER') or hasRole('MASTER')")
                 .antMatchers("/admin/**")
-                .access("hasRole('ROLE_ADMIN')")
+                .access("hasRole('MASTER')")
                 .anyRequest().permitAll();
     }
 

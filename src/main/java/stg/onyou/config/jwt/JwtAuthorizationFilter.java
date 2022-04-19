@@ -19,7 +19,7 @@ import stg.onyou.config.auth.PrincipalDetails;
 import stg.onyou.model.entity.User;
 import stg.onyou.repository.UserRepository;
 
-// 인가
+//인가
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
@@ -43,9 +43,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String token = request.getHeader(JwtProperties.HEADER_STRING).replace(JwtProperties.TOKEN_PREFIX, "");
 
-        // 토큰 검증 (이게 인증이기 때문에 AuthenticationManager도 필요 없음)
-        // 내가 SecurityContext에 집적접근해서 세션을 만들때 자동으로 UserDetailsService에 있는
-        // loadByUsername이 호출됨.
+        // 토큰 검증 
         String username = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
                 .getClaim("username").asString();
 
