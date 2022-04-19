@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.8' //DTO 편의구현 위한 model mapper 사용
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
+    implementation 'com.auth0:java-jwt:3.8.3' //JWT 생성위한 라이브러리
 
 }
 
