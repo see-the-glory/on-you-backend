@@ -44,10 +44,20 @@ public class ClubController {
         return Header.OK("club id: "+ club.getId());
     }
 
-    @PostMapping("/{id}/register")
+    @PostMapping("/{id}/apply")
+    public Header<String> applyClub(@PathVariable Integer id){
+
+        UserClub userClub = clubApiService.applyClub(1,id);
+        if(userClub == null){
+            throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
+        }
+        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+    }
+
+    @PostMapping("/{id}/approve")
     public Header<String> registerClub(@PathVariable Integer id){
 
-        UserClub userClub = clubApiService.registerClub(1,id);
+        UserClub userClub = clubApiService.approveClub(1,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }

@@ -42,7 +42,7 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return userRepository.findBySocialId(oAuth2User.getSocialId())  
                 .orElseGet(() -> userRepository.save(User.builder()
                         .socialId(oAuth2User.getSocialId())
-                        .role(Role.USER).build()));//없다면 멤버를 새로 만드는데, USER가 아니라 GUEST로 설정했다. 이는 아래해서 설명한다
+                        .role(Role.MEMBER).build()));//없다면 멤버를 새로 만드는데, USER가 아니라 GUEST로 설정했다. 이는 아래해서 설명한다
     }
 
 

@@ -18,7 +18,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name="club")
 public class Club {
 
     @Id
@@ -26,7 +25,8 @@ public class Club {
     @Column(name = "club_id")
     private Integer id;
     private String name;
-    private String information;
+    private String short_desc;
+    private String long_desc;
     private char delYn;
     private String thumbnail;
     private String announcement;

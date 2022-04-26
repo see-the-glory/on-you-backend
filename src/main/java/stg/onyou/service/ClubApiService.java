@@ -78,7 +78,32 @@ public class ClubApiService {
 
     }
 
-    public UserClub registerClub(int userId, int clubId) {
+    public UserClub applyClub(int userId, int clubId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club  = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        if( isClubFull(club) ){
+            throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
+        }
+
+        UserClub userClub = UserClub.builder()
+                .club(club)
+                .user(user)
+                .applyStatus(ApplyStatus.APPLIED)
+                .build();
+
+        return userClubRepository.save(userClub);
+    }
+
+    public UserClub approveClub(int userId, int clubId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
@@ -98,7 +123,7 @@ public class ClubApiService {
         UserClub userClub = UserClub.builder()
                 .club(club)
                 .user(user)
-                .applyStatus(ApplyStatus.APPLIED)
+                .applyStatus(ApplyStatus.APPROVED)
                 .build();
 
         return userClubRepository.save(userClub);
