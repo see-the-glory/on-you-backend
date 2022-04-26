@@ -1,23 +1,19 @@
 package stg.onyou.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
-public class FeedImage {
+@Table(name = "comment")
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id")
+    @Column(name = "comment_id")
     private Integer id;
 
-    private String url;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "feed_id")
