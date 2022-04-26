@@ -10,6 +10,7 @@ import stg.onyou.model.RecuritStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,6 +23,7 @@ public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "club_id")
     private Integer id;
     private String name;
     private String information;
@@ -46,5 +48,9 @@ public class Club {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User creator;
+
+    @OneToMany(mappedBy = "club")
+    private List<Feed> feeds = new ArrayList<>();
+
 
 }

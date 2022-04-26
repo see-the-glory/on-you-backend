@@ -1,24 +1,28 @@
 package stg.onyou.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Objects;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(name = "feed_hashtag")
 public class FeedHashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "feed_hashtag_id")
     private Integer id;
-    private Integer hashtag_id;
-    private Integer feed_id;
+
+    @ManyToOne
+    @JoinColumn(name = "feed_id")
+    private Feed feed;
+
+    @ManyToOne
+    @JoinColumn(name = "hashtag_id")
+    private Hashtag hashtag;
 
 }
