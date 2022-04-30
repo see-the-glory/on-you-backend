@@ -21,7 +21,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String name;
 
     @ManyToOne
@@ -49,7 +49,7 @@ public class User {
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Like> likes = new ArrayList<>();
+    private List<Good> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();

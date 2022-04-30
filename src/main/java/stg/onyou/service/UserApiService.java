@@ -26,7 +26,7 @@ public class UserApiService {
     @Autowired
     private UserRepository userRepository;
 
-    public Header<UserApiResponse> selectUser(int id){
+    public Header<UserApiResponse> selectUser(Long id){
 
         return userRepository.findById(id)
                 .map(user -> Header.OK(selectUserResponse(user)))
@@ -149,7 +149,7 @@ public class UserApiService {
         User user = userRepository.findByAccountEmail(email);
         if (user == null){
             Organization organization = new Organization();
-            organization.setId(1);
+            organization.setId(1L);
 
             user = new User();
             user.setAccountEmail(email);

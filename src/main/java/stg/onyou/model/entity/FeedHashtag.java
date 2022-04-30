@@ -6,16 +6,16 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "feed_hashtag")
+@Builder
 public class FeedHashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_hashtag_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "feed_id")

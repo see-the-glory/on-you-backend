@@ -7,7 +7,7 @@ import stg.onyou.model.entity.Feed;
 import java.util.List;
 
 @Repository
-public interface FeedRepository extends JpaRepository<Feed, Integer> {
+public interface FeedRepository extends JpaRepository<Feed, Long> {
 
     List<Feed> findAllByAccess(String access);
     List<Feed> findAllByAccessOrderByCreatedDesc(String access);

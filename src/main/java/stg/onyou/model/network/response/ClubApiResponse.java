@@ -21,9 +21,10 @@ import java.util.List;
 @Builder
 public class ClubApiResponse {
 
-    private Integer id;
+    private Long id;
     private String name;
-    private String information;
+    private String clubShortDesc;
+    private String clubLongDesc;
     private String announcement;
     private String organizationName;
     private List<UserApiResponse> members;

@@ -18,8 +18,7 @@ public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "organization_id")
-    private Integer id;
+    private Long id;
     private String name;
     private String address;
     private String pastorName;

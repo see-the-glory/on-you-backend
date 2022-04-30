@@ -35,7 +35,7 @@ public class ClubApiService {
     @Autowired
     private UserClubRepository userClubRepository;
 
-    public Header<ClubApiResponse> selectClub(Integer id){
+    public Header<ClubApiResponse> selectClub(Long id){
 
         return clubRepository.findById(id)
                 .map(club -> Header.OK(selectClubResponse(club)))
@@ -63,22 +63,23 @@ public class ClubApiService {
 
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
-                .information(clubCreateRequest.getClubDescription())
+                .short_desc(clubCreateRequest.getClubShortDesc())
+                .long_desc(clubCreateRequest.getClubLongDesc())
                 .delYn('N')
                 .thumbnail("default image url")
                 .recruitStatus(RecuritStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .created(LocalDateTime.now())
                 .category(categoryRepository.findById(clubCreateRequest.getCategoryId()).get())
-                .organization(organizationRepository.findById(1).get())
-                .creator(userRepository.findById(1).get())
+                .organization(organizationRepository.findById(1L).get())
+                .creator(userRepository.findById(1L).get())
                 .build();
 
         return clubRepository.save(club);
 
     }
 
-    public UserClub applyClub(int userId, int clubId) {
+    public UserClub applyClub(Long userId, Long clubId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
@@ -103,7 +104,7 @@ public class ClubApiService {
         return userClubRepository.save(userClub);
     }
 
-    public UserClub approveClub(int userId, int clubId) {
+    public UserClub approveClub(Long userId, Long clubId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
@@ -161,7 +162,8 @@ public class ClubApiService {
         ClubApiResponse clubApiResponse = ClubApiResponse.builder()
                 .id(club.getId())
                 .name(club.getName())
-                .information(club.getInformation())
+                .clubShortDesc(club.getShort_desc())
+                .clubLongDesc(club.getLong_desc())
                 .announcement(club.getAnnouncement())
                 .organizationName(club.getOrganization().getName())
                 .members(members)

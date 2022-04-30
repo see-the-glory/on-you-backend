@@ -8,15 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Builder
 public class Hashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "hashtag_id")
-    private Integer id;
+    private Long id;
     private String hashTag;
 
     @OneToMany(mappedBy = "hashtag")

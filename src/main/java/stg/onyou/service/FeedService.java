@@ -69,14 +69,14 @@ public class FeedService {
     /**
      * 특정 feed id -> feed 정보 값을 return
      */
-    public Optional<Feed> findById(int id) {
+    public Optional<Feed> findById(Long id) {
         return feedRepository.findById(id);
     }
 
     /**
      * 특정 feed 수정
      */
-    public void updateFeed(int id, Feed updateFeed) {
+    public void updateFeed(Long id, Feed updateFeed) {
         Feed feed = feedRepository.getById(id);
         feed.setTitle(updateFeed.getTitle());
         feed.setContent(updateFeed.getContent());
@@ -87,7 +87,7 @@ public class FeedService {
     /**
      * 특정 feed (id) 삭제
      */
-    public void deleteById(int id) {
+    public void deleteById(Long id) {
         Feed feed = feedRepository.getById(id);
         feed.setDelYn('Y');
     }

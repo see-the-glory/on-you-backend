@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UserApiResponse {
 
-    private Integer id;
+    private Long id;
     private String organizationName;
     private String name;
     private LocalDateTime birthdate;
