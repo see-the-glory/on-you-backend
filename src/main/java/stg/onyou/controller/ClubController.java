@@ -25,7 +25,7 @@ public class ClubController {
     private ClubApiService clubApiService;
 
     @GetMapping("/{id}")
-    public Header<ClubApiResponse> selectClub(@PathVariable Integer id){
+    public Header<ClubApiResponse> selectClub(@PathVariable Long id){
         return clubApiService.selectClub(id);
     }
 
@@ -45,9 +45,9 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Integer id){
+    public Header<String> applyClub(@PathVariable Long id){
 
-        UserClub userClub = clubApiService.applyClub(1,id);
+        UserClub userClub = clubApiService.applyClub(1L,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
@@ -55,9 +55,9 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> registerClub(@PathVariable Integer id){
+    public Header<String> registerClub(@PathVariable Long id){
 
-        UserClub userClub = clubApiService.approveClub(1,id);
+        UserClub userClub = clubApiService.approveClub(1L,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }

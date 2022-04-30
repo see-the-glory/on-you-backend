@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import stg.onyou.model.entity.Club;
 
 @Repository
-public interface ClubRepository extends JpaRepository<Club,Integer> {
+public interface ClubRepository extends JpaRepository<Club,Long> {
 }

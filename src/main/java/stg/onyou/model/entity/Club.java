@@ -22,8 +22,7 @@ public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "club_id")
-    private Integer id;
+    private Long id;
     private String name;
     private String short_desc;
     private String long_desc;

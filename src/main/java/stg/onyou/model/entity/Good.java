@@ -1,15 +1,22 @@
 package stg.onyou.model.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "like")
-public class Like {
+@Builder
+public class Good {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "like_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

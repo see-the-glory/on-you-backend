@@ -14,9 +14,7 @@ public class FeedImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id")
-    private Integer id;
-
+    private Long id;
     private String url;
 
     @ManyToOne

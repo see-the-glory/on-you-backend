@@ -9,18 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class Feed {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -40,7 +38,7 @@ public class Feed {
     private Integer reportCount;
 
     @OneToMany(mappedBy = "feed")
-    private List<Like> likes = new ArrayList<>();
+    private List<Good> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "feed")
     private List<Comment> comments = new ArrayList<>();
