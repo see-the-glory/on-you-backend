@@ -1,15 +1,15 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import org.hibernate.Hibernate;
+import stg.onyou.model.AccessModifier;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -20,17 +20,17 @@ public class Feed {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
 
-    private String title;
     private String content;
-    private String access;
+    @Enumerated(EnumType.STRING)
+    private AccessModifier access;
     private char delYn;
     private LocalDateTime created;
     private LocalDateTime updated;
