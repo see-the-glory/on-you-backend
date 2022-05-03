@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import stg.onyou.config.jwt.JwtAuthenticationFilter;
 import stg.onyou.config.jwt.JwtAuthorizationFilter;
 import stg.onyou.repository.UserRepository;
@@ -19,6 +20,9 @@ import stg.onyou.repository.UserRepository;
 @EnableGlobalMethodSecurity(prePostEnabled = true) // prepost로 권한 체크를 하겠다는 의미이다.
 public class SecurityConfig extends WebSecurityConfigurerAdapter { //이 클래스가 filter chain을 구성햐는 config 클래스이다.
 
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,10 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //이 클래�
                 .formLogin().disable()
                 .httpBasic().disable()
 
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+               // .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .authorizeRequests()
-                .antMatchers("/user/**")
+                .antMatchers("/api/**")
                 .access("hasRole('MEMBER') or hasRole('MANAGER') or hasRole('MASTER')")
                 .antMatchers("/manager/**")
                 .access("hasRole('MANAGER') or hasRole('MASTER')")

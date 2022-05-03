@@ -32,6 +32,8 @@ public class LoadUserService {
         HttpHeaders headers = new HttpHeaders();
         setHeaders(authentication.getAccessToken(), headers);
 
+
+        System.out.println("-------after set header------");
         /*
         1. accesstoken 받은 것으
         2  Header setting
@@ -41,6 +43,7 @@ public class LoadUserService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
 
+        System.out.println("-------before request------");
         return PrincipalDetails.builder()
                 .socialId(sendRequestToKakao(request)) //sendRequestToKakao에 request보내서 response로 socialId 리턴
                 .build();
@@ -49,6 +52,7 @@ public class LoadUserService {
 
     private void setHeaders(String accessToken, HttpHeaders headers) {
         headers.set("Authorization", "Bearer " + accessToken);
+        System.out.println("-------after set header------");
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
     }
@@ -61,7 +65,8 @@ public class LoadUserService {
                     request,
                     RESPONSE_TYPE);
 
-            return response.getBody().get("id").toString();//카카오는 id를 PK로 사용
+            System.out.println("id : "+response.getBody().get("id").toString() );
+           return response.getBody().get("id").toString();//카카오는 id를 PK로 사용
 
         } catch (Exception e) {
             log.error("AccessToken을 사용하여 KAKAO 유저정보를 받아오던 중 예외가 발생했습니다 {}" ,e.getMessage() );
