@@ -29,6 +29,7 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         
 
 
+        System.out.println("-------before save or get------");
         User user = saveOrGet(oAuth2User);// 받아온 socialId 값으로 회원을 DB에서 조회 후 없다면 새로 등록해주고, 있다면 그대로 반환한다.
          // oAuth2User.setRoles(member.getRole().name());// MEMBER, MANAGER, MASTER
 
