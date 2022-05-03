@@ -1,26 +1,32 @@
 package stg.onyou.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.Feed;
+import stg.onyou.model.entity.FeedSearch;
+import stg.onyou.model.network.request.FeedUpdateRequest;
+import stg.onyou.repository.ClubRepository;
 import stg.onyou.repository.FeedRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FeedService {
 
     private final FeedRepository feedRepository;
-
-    public FeedService(FeedRepository feedRepository) {
-        this.feedRepository = feedRepository;
-    }
+    private final ClubRepository clubRepository;
 
     /**
      * feed 등록
      */
-
+    @Transactional
     public void upload(Feed feed) {
         feedRepository.save(feed);
     }
@@ -28,57 +34,42 @@ public class FeedService {
     /**
      * 전체 public feed 조회
      */
-    public List<Feed> findFeeds(String access) {
-        return feedRepository.findAllByAccess(access);
-    }
-
-
-    /**
-     * 검색 탭 클릭시, 특정 기준으로 public feed 조회
-     * 무한스크롤을 위해 start index, windows size
-     * ex. 1) 최신순
-     */
-    public List<Feed> findFeedsOrderByCreated(String access) {
-        return feedRepository.findAllByAccessOrderByCreatedDesc(access);
+    public List<Feed> findFeeds() {
+        return feedRepository.findAll();
     }
 
 
     /**
      * 특정그룹 내 전체 feed public feed 조회
      */
-    // TODO ClubFeed join
+    public List<Feed> findAllByClub(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+        return club.getFeeds();
+    }
 
     /**
-     * 해시태그로 feed 검색
+     * FeedSearch
      */
-    // TODO FeedHashtag join
-
-    /**
-     * input string 으로 hashtag list 검색
-     * ㄱ -> 가정식
-     */
-    // TODO FeedHashtag join
-
-    /**
-     * title + content 로 feed 검색
-     */
-    public List<Feed> findAllByTitleOrContent(String title, String content) {
-        return feedRepository.findAllByTitleContainingOrContentContaining(title, content);
+    public List<Feed> findAllByString(FeedSearch feedSearch) {
+        return feedRepository.findAllString(feedSearch);
     }
 
     /**
      * 특정 feed id -> feed 정보 값을 return
      */
-    public Optional<Feed> findById(Long id) {
-        return feedRepository.findById(id);
+    public Feed findById(Long id) {
+        return feedRepository.findOne(id);
     }
 
     /**
      * 특정 feed 수정
      */
-    public void updateFeed(Long id, Feed updateFeed) {
-        Feed feed = feedRepository.getById(id);
-        feed.setTitle(updateFeed.getTitle());
+    @Transactional
+    public void updateFeed(Long id, FeedUpdateRequest updateFeed) {
+        Feed feed = feedRepository.findOne(id);
         feed.setContent(updateFeed.getContent());
         feed.setAccess(updateFeed.getAccess());
         feed.setUpdated(LocalDateTime.now());
@@ -87,18 +78,20 @@ public class FeedService {
     /**
      * 특정 feed (id) 삭제
      */
+    @Transactional
     public void deleteById(Long id) {
-        Feed feed = feedRepository.getById(id);
-        feed.setDelYn('Y');
+        Feed feed = feedRepository.findOne(id);
+        feed.setDelYn('y');
     }
 
 
     /**
      * 특정 feed 신고. user는 feed에 대해 1번만 신고 가능.
      */
-//    public void reportFeed(int id) {
-//        Feed feed = feedRepository.getById(id);
-//        feed.setReportCount(feed.getReportCount() + 1);
-//    }
+    @Transactional
+    public void reportFeed(Long id) {
+        Feed feed = feedRepository.findOne(id);
+        feed.setReportCount(feed.getReportCount() + 1);
+    }
 
 }

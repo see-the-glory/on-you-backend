@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.RecuritStatus;
+import stg.onyou.model.RecruitStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class Club {
     private String thumbnail;
     private String announcement;
     @Enumerated(EnumType.STRING)
-    private RecuritStatus recruitStatus;
+    private RecruitStatus recruitStatus;
     private int maxNumber;
     private LocalDateTime created;
     private LocalDateTime updated;

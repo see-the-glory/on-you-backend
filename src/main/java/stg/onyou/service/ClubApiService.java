@@ -1,25 +1,21 @@
 package stg.onyou.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.RecuritStatus;
+import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
-import stg.onyou.model.network.request.UserApiRequest;
 import stg.onyou.model.network.response.ClubApiResponse;
 import stg.onyou.model.network.response.UserApiResponse;
 import stg.onyou.repository.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClubApiService {
@@ -67,7 +63,7 @@ public class ClubApiService {
                 .long_desc(clubCreateRequest.getClubLongDesc())
                 .delYn('N')
                 .thumbnail("default image url")
-                .recruitStatus(RecuritStatus.BEGIN)
+                .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .created(LocalDateTime.now())
                 .category(categoryRepository.findById(clubCreateRequest.getCategoryId()).get())
