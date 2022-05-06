@@ -16,9 +16,9 @@ public class UserApiResponse {
     private Long id;
     private String organizationName;
     private String name;
-    private LocalDateTime birthdate;
+    private String birthday;
     private char sex;
-    private String accountEmail;
+    private String email;
     private LocalDateTime created;
 
 }

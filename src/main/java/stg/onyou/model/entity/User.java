@@ -27,11 +27,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "organization_id")
     private Organization organization;
-
-    private String nickName;
-    private LocalDateTime birthdate;
+    private String birthday;
+    private String thumbnail;
     private char sex;
-    private String accountEmail;
+    private String email;
     private LocalDateTime created;
     private LocalDateTime updated;
     @Enumerated(EnumType.STRING)
@@ -49,12 +48,9 @@ public class User {
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Good> likes = new ArrayList<>();
+    private List<Likes> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
-
-
-
 
 }

@@ -5,30 +5,26 @@ import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import stg.onyou.config.auth.PrincipalDetails;
+import stg.onyou.model.entity.User;
+import stg.onyou.repository.UserRepository;
 
 @Slf4j
 @Component
@@ -36,7 +32,8 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     private static final String LOGIN_PREFIX = "/login/kakao/";
     private final String ACCESS_TOKEN_HEADER_NAME = "Authorization";
-
+    @Autowired
+    private final UserRepository userRepository;
 
 
     /* /login/kakao/* 로 요청이 왔을 때 JwtAuthenticationFilter에서 해당 처리를 수행하기 위한 설정 */
@@ -45,9 +42,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     public JwtAuthenticationFilter(AccessTokenAuthenticationProvider accessTokenAuthenticationProvider,   //Provider를 등록
                                    AuthenticationSuccessHandler authenticationSuccessHandler,  //로그인 성공 시 처리할  handler이다
-                                   AuthenticationFailureHandler authenticationFailureHandler) { //로그인 실패 시 처리할 handler이다.
+                                   AuthenticationFailureHandler authenticationFailureHandler, UserRepository userRepository) { //로그인 실패 시 처리할 handler이다.
 
         super(LOGIN_MATCHER);   // 위에서 설정한  /login/kakao/* 의 요청에, GET으로 온 요청을 처리하기 위해 설정한다.
+        this.userRepository = userRepository;
 
         this.setAuthenticationManager(new ProviderManager(accessTokenAuthenticationProvider));
         //AbstractAuthenticationProcessingFilter를 커스터마이징 하려면  ProviderManager를 꼭 지정해 주어야 한다(안그러면 예외남!!!)
@@ -66,12 +64,9 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         System.out.println("JwtAuthenticationFilter : 진입");
         String accessToken = request.getHeader(ACCESS_TOKEN_HEADER_NAME); //헤더의 AccessToken에 해당하는 값을 가져온다.
 
-        Authentication authentication =
-                this.getAuthenticationManager().authenticate(new AccessTokenKakao(accessToken));
 
-        PrincipalDetails principalDetailis = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("Authentication : "+principalDetailis.getUser().getName());
-        return authentication;
+        return this.getAuthenticationManager().authenticate(new AccessTokenKakao(accessToken));
+            //AuthenticationManager에게 인증 요청을 보낸다. 이때 Authentication 객체로는 AccessTokenSocialTypeToken을(직접 커스텀 함) 사용한다.
     }
 
     // JWT Token 생성해서 response에 담아주기
@@ -79,13 +74,16 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
 
+
         PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
+
+        User user = userRepository.findBySocialId(principalDetailis.getSocialId()).get();
 
         String jwtToken = JWT.create()
                 .withSubject(principalDetailis.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis()+JwtProperties.EXPIRATION_TIME))
-                .withClaim("id", principalDetailis.getUser().getId())
-                .withClaim("username", principalDetailis.getUser().getName())
+                .withClaim("id", user.getId())
+                .withClaim("socialId", user.getSocialId())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+jwtToken);
