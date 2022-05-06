@@ -2,6 +2,7 @@ package stg.onyou.config.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import stg.onyou.model.entity.User;
@@ -12,11 +13,17 @@ import java.util.Collection;
 
 @AllArgsConstructor
 @Builder
+@Data
 public class PrincipalDetails implements UserDetails {
 
     private User user;
     private String socialId;
-    private String username;
+    private String email;
+    private String name;
+    private String thumbnail;
+    private String birthday;
+    private char sex;
+
 
     public PrincipalDetails(User user){
         this.user = user;
@@ -34,7 +41,7 @@ public class PrincipalDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getName();
+        return this.name;
     }
 
     @Override
@@ -62,11 +69,7 @@ public class PrincipalDetails implements UserDetails {
         return true;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public String getSocialId() {
-        return socialId;
+        return this.socialId;
     }
 }

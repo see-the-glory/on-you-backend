@@ -1,5 +1,6 @@
 package stg.onyou.config.jwt;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -9,8 +10,13 @@ import org.springframework.stereotype.Component;
 import stg.onyou.config.auth.LoadUserService;
 import stg.onyou.config.auth.PrincipalDetails;
 import stg.onyou.model.Role;
-import stg.onyou.model.entity.User;
+import stg.onyou.model.entity.*;
 import stg.onyou.repository.UserRepository;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -25,28 +31,30 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
 
         //OAuth2UserDetails는 UserDetails를 상속받아 구현한 클래스이다. 이후 일반 회원가입 시 UserDetails를 사용하는 부분과의 다형성을 위해 이렇게 구현하였다.
         //getOAuth2UserDetails에서는 restTemplate과 AccessToken을 가지고 회원정보를 조회해온다 (식별자 값을 가져옴)
-        PrincipalDetails oAuth2User = loadUserService.getOAuth2UserDetails((AccessTokenKakao) authentication);
-        
+        PrincipalDetails kakaoUser = loadUserService.getOAuth2UserDetails((AccessTokenKakao) authentication);
 
-
-        System.out.println("-------before save or get------");
-        User user = saveOrGet(oAuth2User);// 받아온 socialId 값으로 회원을 DB에서 조회 후 없다면 새로 등록해주고, 있다면 그대로 반환한다.
+        User user = saveOrGet(kakaoUser);// 받아온 socialId 값으로 회원을 DB에서 조회 후 없다면 새로 등록해주고, 있다면 그대로 반환한다.
          // oAuth2User.setRoles(member.getRole().name());// MEMBER, MANAGER, MASTER
 
-        return AccessTokenKakao.builder().principal(oAuth2User).authorities(oAuth2User.getAuthorities()).build();
-        //AccessTokenSocialTypeToken객체를 반환한다. principal은 OAuth2UserDetails객체이다. (formLogin에서는 UserDetails를 가져와서 결국 ContextHolder에 저장하기 때문에)
+        return AccessTokenKakao.builder().principal(kakaoUser).authorities(kakaoUser.getAuthorities()).build();
+        //AccessTokenKakao 객체를 반환한다. principal은 KakaoUserDetails객체이다.
         //이렇게 구현하면 UserDetails 타입으로 회원의 정보를 어디서든 조회할 수 있다.
     }
 
 
-    private User saveOrGet(PrincipalDetails oAuth2User) {
-        return userRepository.findBySocialId(oAuth2User.getSocialId())  
+    private User saveOrGet(PrincipalDetails kakaoUser) {
+        return userRepository.findBySocialId(kakaoUser.getSocialId())
                 .orElseGet(() -> userRepository.save(User.builder()
-                        .socialId(oAuth2User.getSocialId())
-                        .role(Role.MEMBER).build()));//없다면 멤버를 새로 만드는데, USER가 아니라 GUEST로 설정했다. 이는 아래해서 설명한다
+                        .name(kakaoUser.getName())
+                        .email(kakaoUser.getEmail())
+                        .socialId(kakaoUser.getSocialId())
+                        .birthday(kakaoUser.getBirthday())
+                        .thumbnail(kakaoUser.getThumbnail())
+                        .sex(kakaoUser.getSex())
+                        .created(LocalDateTime.now())
+                        .role(Role.MEMBER).build()));//없다면 멤버를 새로 만드는데, 디폴트는 Role.Member
+
     }
-
-
 
     @Override
     public boolean supports(Class<?> authentication) {

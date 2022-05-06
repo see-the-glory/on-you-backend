@@ -180,9 +180,9 @@ public class ClubApiService {
         UserApiResponse userApiResponse = UserApiResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
-                .birthdate(user.getBirthdate())
+                .birthday(user.getBirthday())
                 .sex(user.getSex())
-                .accountEmail(user.getAccountEmail())
+                .email(user.getEmail())
                 .created(user.getCreated())
                 .build();
 

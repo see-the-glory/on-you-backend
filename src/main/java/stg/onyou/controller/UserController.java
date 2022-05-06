@@ -27,12 +27,12 @@ public class UserController {
         User user = userApiService.join(kakaoUserInfo);
         return Header.OK(user);
     }*/
-
-    @ResponseBody
-    @GetMapping("/kakao")
-    public Header<User> kakaoCallback(@RequestParam String token) throws CustomException {
-        JsonElement kakaoUserInfo = userApiService.getKakaoUser(token);
-        User user = userApiService.join(kakaoUserInfo);
-        return Header.OK(user);
-    }
+//
+//    @ResponseBody
+//    @GetMapping("/kakao")
+//    public Header<User> kakaoCallback(@RequestParam String token) throws CustomException {
+//        JsonElement kakaoUserInfo = userApiService.getKakaoUser(token);
+//        User user = userApiService.join(kakaoUserInfo);
+//        return Header.OK(user);
+//    }
 }
