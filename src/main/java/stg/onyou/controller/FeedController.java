@@ -2,6 +2,7 @@ package stg.onyou.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.model.AccessModifier;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedSearch;
@@ -9,6 +10,7 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.FeedResponse;
+import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubApiService;
 import stg.onyou.service.FeedService;
 
@@ -22,6 +24,7 @@ public class FeedController {
 
     private final FeedService feedService;
     private final ClubApiService clubApiService;
+    private final AwsS3Service awsS3Service;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {
@@ -39,19 +42,23 @@ public class FeedController {
     }
 
     @PostMapping("/api/feed")
-    public void createFeed(@RequestBody FeedCreateRequest request) {
+    public Header<Object> createFeed(
+                           @RequestPart List<MultipartFile> multipartFile) {
 
-        Feed feed = Feed.builder()
-                .content(request.getContent())
-                .delYn('n')
-                .access(AccessModifier.PUBLIC)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-//                .club()
-//                .user()
-                .build();
+//        Feed feed = Feed.builder()
+//                .content(request.getContent())
+//                .delYn('n')
+//                .access(AccessModifier.PUBLIC)
+//                .created(LocalDateTime.now())
+//                .updated(LocalDateTime.now())
+////                .club()
+////                .user()
+//                .build();
 
-        feedService.upload(feed);
+//        feedService.upload(feed);
+        Long userId = 1L;
+        awsS3Service.uploadFile(multipartFile, userId);
+        return Header.OK();
     }
 
     @GetMapping("/api/feed/{id}")
