@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClubCreateRequest {
 
-    private Long categoryId;
+    private Long category1Id;
+    private Long category2Id;
     private String clubName;
     private Integer clubMaxMember;
     private String clubShortDesc;

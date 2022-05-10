@@ -66,9 +66,10 @@ public class ClubApiService {
                 .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .created(LocalDateTime.now())
-                .category(categoryRepository.findById(clubCreateRequest.getCategoryId()).get())
+                .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
+                .category2(categoryRepository.findById(clubCreateRequest.getCategory2Id()).get())
                 .organization(organizationRepository.findById(1L).get())
-                .creator(userRepository.findById(1L).get())
+                .creator(userRepository.findById(21L).get())
                 .build();
 
         return clubRepository.save(club);
@@ -167,7 +168,8 @@ public class ClubApiService {
                 .thumbnail(club.getThumbnail())
                 .recruitNumber(recruitNumber)
                 .recruitStatus(club.getRecruitStatus())
-                .categoryName(club.getCategory().getName())
+                .category1Name(club.getCategory1().getName())
+                .category2Name(club.getCategory2().getName())
                 .creatorName(club.getCreator().getName())
                 // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();

@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,9 @@ public class ClubApiResponse {
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String applyStatus; //AVAILABLE, APPLIED, APPROVED
     private String creatorName;
-    private String categoryName;
+
+    private String category1Name;
+    @Nullable
+    private String category2Name;
 }
 
