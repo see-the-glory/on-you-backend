@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.CategoryResponse;
-import stg.onyou.service.CategoryApiService;
+import stg.onyou.service.CategoryService;
 
 import java.util.List;
 
@@ -20,11 +20,11 @@ import java.util.List;
 public class CategoryController {
 
     @Autowired
-    private CategoryApiService categoryApiService;
+    private CategoryService categoryService;
 
     @GetMapping("")
     public Header<List<CategoryResponse>> selectAllCategories(){
-        return categoryApiService.selectAllCategories();
+        return categoryService.selectAllCategories();
     }
 
 

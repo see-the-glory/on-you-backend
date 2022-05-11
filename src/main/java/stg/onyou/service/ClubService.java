@@ -9,8 +9,8 @@ import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
-import stg.onyou.model.network.response.ClubApiResponse;
-import stg.onyou.model.network.response.UserApiResponse;
+import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ClubApiService {
+public class ClubService {
 
     @Autowired
     private ClubRepository clubRepository;
@@ -31,7 +31,10 @@ public class ClubApiService {
     @Autowired
     private UserClubRepository userClubRepository;
 
-    public Header<ClubApiResponse> selectClub(Long id){
+    /**
+     * 특정 클럽 select
+     */
+    public Header<ClubResponse> selectClub(Long id){
 
         return clubRepository.findById(id)
                 .map(club -> Header.OK(selectClubResponse(club)))
@@ -40,9 +43,12 @@ public class ClubApiService {
                 );
     }
 
-    public Header<List<ClubApiResponse>> selectAllClubs(){
+    /**
+     * 전체 클럽 select
+     */
+    public Header<List<ClubResponse>> selectAllClubs(){
 
-        List<ClubApiResponse> clubs = new ArrayList<ClubApiResponse>();
+        List<ClubResponse> clubs = new ArrayList<ClubResponse>();
 
         clubRepository.findAll()
             .forEach(club->{
@@ -55,6 +61,9 @@ public class ClubApiService {
         return Header.OK(clubs);
     }
 
+    /**
+     * 클럽 create
+     */
     public Club createClub(ClubCreateRequest clubCreateRequest){
 
         Club club = Club.builder()
@@ -76,6 +85,9 @@ public class ClubApiService {
 
     }
 
+    /**
+     * 클럽 가입요청 : 디폴트로 APPLIED 상태로 UserClub 설정
+     */
     public UserClub applyClub(Long userId, Long clubId) {
 
         User user = userRepository.findById(userId)
@@ -98,9 +110,13 @@ public class ClubApiService {
                 .applyStatus(ApplyStatus.APPLIED)
                 .build();
 
+
         return userClubRepository.save(userClub);
     }
 
+    /**
+     * 클럽 가입 승인 :
+     */
     public UserClub approveClub(Long userId, Long clubId) {
 
         User user = userRepository.findById(userId)
@@ -117,12 +133,13 @@ public class ClubApiService {
             throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
         }
 
+        //user_id, club_id로 UserClub find
+        UserClub userClub  = userClubRepository.findByUserIdAndClubId(userId, clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
 
-        UserClub userClub = UserClub.builder()
-                .club(club)
-                .user(user)
-                .applyStatus(ApplyStatus.APPROVED)
-                .build();
+        userClub.setApplyStatus(ApplyStatus.APPROVED);
 
         return userClubRepository.save(userClub);
     }
@@ -144,9 +161,9 @@ public class ClubApiService {
         return a <= b;
     }
 
-    private ClubApiResponse selectClubResponse(Club club){
+    private ClubResponse selectClubResponse(Club club){
 
-        List<UserApiResponse> members = new ArrayList<UserApiResponse>();
+        List<UserResponse> members = new ArrayList<UserResponse>();
         int recruitNumber;
 
         club.getUserClubs()
@@ -156,7 +173,7 @@ public class ClubApiService {
         recruitNumber = club.getUserClubs().size();
 
         //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
-        ClubApiResponse clubApiResponse = ClubApiResponse.builder()
+        ClubResponse clubResponse = ClubResponse.builder()
                 .id(club.getId())
                 .name(club.getName())
                 .clubShortDesc(club.getShort_desc())
@@ -174,12 +191,12 @@ public class ClubApiService {
                 // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();
 
-        return clubApiResponse;
+        return clubResponse;
     }
 
-    private UserApiResponse selectUserResponse(User user){
+    private UserResponse selectUserResponse(User user){
 
-        UserApiResponse userApiResponse = UserApiResponse.builder()
+        UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
                 .birthday(user.getBirthday())
@@ -188,7 +205,7 @@ public class ClubApiService {
                 .created(user.getCreated())
                 .build();
 
-        return userApiResponse;
+        return userResponse;
 
     }
 

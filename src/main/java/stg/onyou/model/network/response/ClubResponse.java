@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ClubApiResponse {
+public class ClubResponse {
 
     private Long id;
     private String name;
@@ -22,7 +22,7 @@ public class ClubApiResponse {
     private String clubLongDesc;
     private String announcement;
     private String organizationName;
-    private List<UserApiResponse> members;
+    private List<UserResponse> members;
     private int maxNumber;
     private int recruitNumber;
     private String thumbnail;
