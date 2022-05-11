@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter { //이 클래�
                 .httpBasic().disable()
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-               // .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .authorizeRequests()
                 .antMatchers("/manager/**")
                 .access("hasRole('MANAGER') or hasRole('MASTER')")

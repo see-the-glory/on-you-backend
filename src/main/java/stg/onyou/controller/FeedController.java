@@ -9,9 +9,10 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.service.ClubApiService;
+import stg.onyou.service.ClubService;
 import stg.onyou.service.FeedService;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class FeedController {
 
     private final FeedService feedService;
-    private final ClubApiService clubApiService;
+    private final ClubService clubService;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {
@@ -39,7 +40,7 @@ public class FeedController {
     }
 
     @PostMapping("/api/feed")
-    public void createFeed(@RequestBody FeedCreateRequest request) {
+    public void createFeed(@Valid @RequestBody FeedCreateRequest request) {
 
         Feed feed = Feed.builder()
                 .content(request.getContent())
@@ -70,7 +71,7 @@ public class FeedController {
 
     @PutMapping("/api/feed/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
-                           @RequestBody FeedUpdateRequest request) {
+                                     @Valid @RequestBody FeedUpdateRequest request) {
         feedService.updateFeed(id, request);
         return Header.OK();
     }

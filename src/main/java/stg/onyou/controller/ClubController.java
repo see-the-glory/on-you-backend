@@ -10,9 +10,10 @@ import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
-import stg.onyou.model.network.response.ClubApiResponse;
-import stg.onyou.service.ClubApiService;
+import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.service.ClubService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Api(tags = {"Club API Controller"})
@@ -22,22 +23,22 @@ import java.util.List;
 public class ClubController {
 
     @Autowired
-    private ClubApiService clubApiService;
+    private ClubService clubService;
 
     @GetMapping("/{id}")
-    public Header<ClubApiResponse> selectClub(@PathVariable Long id){
-        return clubApiService.selectClub(id);
+    public Header<ClubResponse> selectClub(@PathVariable Long id){
+        return clubService.selectClub(id);
     }
 
     @GetMapping("")
-    public Header<List<ClubApiResponse>> selectAllClubs(){
-        return clubApiService.selectAllClubs();
+    public Header<List<ClubResponse>> selectAllClubs(){
+        return clubService.selectAllClubs();
     }
 
     @PostMapping("")
-    public Header<String> createClub(@RequestBody ClubCreateRequest clubCreateRequest){
+    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest){
 
-        Club club = clubApiService.createClub(clubCreateRequest);
+        Club club = clubService.createClub(clubCreateRequest);
         if(club == null){
             throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
         }
@@ -47,7 +48,7 @@ public class ClubController {
     @PostMapping("/{id}/apply")
     public Header<String> applyClub(@PathVariable Long id){
 
-        UserClub userClub = clubApiService.applyClub(1L,id);
+        UserClub userClub = clubService.applyClub(1L,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
@@ -57,14 +58,10 @@ public class ClubController {
     @PostMapping("/{id}/approve")
     public Header<String> registerClub(@PathVariable Long id){
 
-        UserClub userClub = clubApiService.approveClub(1L,id);
+        UserClub userClub = clubService.approveClub(1L,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
         return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
     }
-
-    /*
-    @PostMapping("{id}/register")
-    public*/
 }

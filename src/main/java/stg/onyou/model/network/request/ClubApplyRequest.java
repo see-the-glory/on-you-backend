@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClubCreateRequest {
+public class ClubApplyRequest {
 
     private Long category1Id;
     private Long category2Id;

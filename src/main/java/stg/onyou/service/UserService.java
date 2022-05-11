@@ -3,15 +3,12 @@ package stg.onyou.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpMethod;
-import stg.onyou.model.entity.Organization;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.response.UserApiResponse;
+import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.repository.UserRepository;
 import stg.onyou.model.entity.User;
-
-import java.time.LocalDateTime;
 
 import com.google.gson.JsonParser;
 import com.google.gson.JsonElement;
@@ -21,12 +18,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Service
-public class UserApiService {
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    public Header<UserApiResponse> selectUser(Long id){
+    public Header<UserResponse> selectUser(Long id){
 
         return userRepository.findById(id)
                 .map(user -> Header.OK(selectUserResponse(user)))
@@ -35,9 +32,9 @@ public class UserApiService {
                 );
     }
 
-    private UserApiResponse selectUserResponse(User user){
+    private UserResponse selectUserResponse(User user){
 
-        UserApiResponse userApiResponse = UserApiResponse.builder()
+        UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
                 .birthday(user.getBirthday())
@@ -46,7 +43,7 @@ public class UserApiService {
                 .created(user.getCreated())
                 .build();
 
-        return userApiResponse;
+        return userResponse;
 
     }
 

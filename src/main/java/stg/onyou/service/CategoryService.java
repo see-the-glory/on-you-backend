@@ -6,25 +6,24 @@ import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Category;
-import stg.onyou.model.entity.Club;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.CategoryResponse;
-import stg.onyou.model.network.response.ClubApiResponse;
-import stg.onyou.model.network.response.UserApiResponse;
 import stg.onyou.repository.CategoryRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class CategoryApiService {
+public class CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * 전체 카테고리 select
+     */
     public Header<List<CategoryResponse>> selectAllCategories(){
 
         List<Category> categoryList = categoryRepository.findAll();
