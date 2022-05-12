@@ -16,6 +16,7 @@ import stg.onyou.repository.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClubService {
@@ -163,7 +164,7 @@ public class ClubService {
 
     private ClubResponse selectClubResponse(Club club){
 
-        List<UserResponse> members = new ArrayList<UserResponse>();
+        List<UserResponse> members = new ArrayList<>();
         int recruitNumber;
 
         club.getUserClubs()
@@ -172,6 +173,7 @@ public class ClubService {
                  });
         recruitNumber = club.getUserClubs().size();
 
+
         //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
         ClubResponse clubResponse = ClubResponse.builder()
                 .id(club.getId())
@@ -179,15 +181,26 @@ public class ClubService {
                 .clubShortDesc(club.getShort_desc())
                 .clubLongDesc(club.getLong_desc())
                 .announcement(club.getAnnouncement())
-                .organizationName(club.getOrganization().getName())
+                .organizationName(Optional.ofNullable(club.getOrganization())
+                        .map(r->r.getName())
+                        .orElse(null))
                 .members(members)
                 .maxNumber(club.getMaxNumber())
                 .thumbnail(club.getThumbnail())
                 .recruitNumber(recruitNumber)
                 .recruitStatus(club.getRecruitStatus())
-                .category1Name(club.getCategory1().getName())
-                .category2Name(club.getCategory2().getName())
-                .creatorName(club.getCreator().getName())
+                .category1Name(Optional.ofNullable(club.getCategory1())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                .category2Name(Optional.ofNullable(club.getCategory2())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                .creatorName(Optional.ofNullable(club.getCreator())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
                 // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();
 
