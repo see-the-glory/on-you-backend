@@ -101,6 +101,7 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        // 클럽정원이 다 찼다면 가입 불가
         if( isClubFull(club) ){
             throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
         }
