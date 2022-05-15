@@ -37,13 +37,14 @@ public class ClubController {
     }
 
     @PostMapping("")
-    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest){
+    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest, HttpServletRequest httpServletRequest){
 
-        Club club = clubService.createClub(clubCreateRequest);
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Club club = clubService.createClub(clubCreateRequest, userId);
         if(club == null){
             throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
         }
-        return Header.OK("club id: "+ club.getId());
+        return Header.OK("club_id: "+ club.getId());
     }
 
     @PostMapping("/{id}/apply")
@@ -60,12 +61,14 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> registerClub(@PathVariable Long id){
+    public Header<String> registerClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
-        UserClub userClub = clubService.approveClub(1L,id);
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.approveClub(userId,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
-        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
 }

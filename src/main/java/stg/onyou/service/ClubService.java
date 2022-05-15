@@ -65,7 +65,7 @@ public class ClubService {
     /**
      * 클럽 create
      */
-    public Club createClub(ClubCreateRequest clubCreateRequest){
+    public Club createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
@@ -76,11 +76,19 @@ public class ClubService {
                 .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .created(LocalDateTime.now())
-                .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
-                .category2(categoryRepository.findById(clubCreateRequest.getCategory2Id()).get())
-                .organization(organizationRepository.findById(1L).get())
-                .creator(userRepository.findById(21L).get())
+                .category1(categoryRepository.findById(clubCreateRequest.getCategory2Id()).get())
+                .category2(Optional.ofNullable(categoryRepository.findById(clubCreateRequest.getCategory2Id()))
+                        .map(r->r.get())
+                        .orElse(null)
+                )
+//                .organization(organizationRepository.findById(1L).get())
+                .creator(userRepository.findById(userId)
+                    .orElseThrow(
+                            () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                    )
+                )
                 .build();
+
 
         return clubRepository.save(club);
 
@@ -122,7 +130,7 @@ public class ClubService {
     }
 
     /**
-     * 클럽 가입 승인 :
+     * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
     public UserClub approveClub(Long userId, Long clubId) {
 
