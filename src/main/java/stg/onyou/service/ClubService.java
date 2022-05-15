@@ -101,6 +101,12 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        //이미 해당하는 user와 club에 대한 user_club row가 존재한다면 duplicate error
+        userClubRepository.findByUserIdAndClubId(userId, clubId)
+                .ifPresent(m->{
+                    throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+                });
+
         // 클럽정원이 다 찼다면 가입 불가
         if( isClubFull(club) ){
             throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
@@ -111,7 +117,6 @@ public class ClubService {
                 .user(user)
                 .applyStatus(ApplyStatus.APPLIED)
                 .build();
-
 
         return userClubRepository.save(userClub);
     }
