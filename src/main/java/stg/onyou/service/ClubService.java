@@ -67,30 +67,28 @@ public class ClubService {
      */
     public Club createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
-        Category category2;
-        if(clubCreateRequest.getCategory2Id()==null){
-            category2 = null;
-        } else {
-            category2 = categoryRepository.findById(clubCreateRequest.getCategory2Id()).get();
+        if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
+            throw new CustomException(ErrorCode.DUPLICATE_CATEGORY);
         }
 
-        String clubLongDesc;
-        if(clubCreateRequest.getClubLongDesc()==null){
-            clubLongDesc = null;
-        } else {
-            clubLongDesc = clubCreateRequest.getClubLongDesc();
-        }
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
                 .short_desc(clubCreateRequest.getClubShortDesc())
-                .long_desc(clubLongDesc)
+                .long_desc(
+                        Optional.ofNullable(clubCreateRequest.getClubLongDesc())
+                            .orElse(null)
+                )
                 .delYn('N')
                 .thumbnail("default image url")
                 .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .created(LocalDateTime.now())
                 .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
-                .category2(category2)
+                .category2(
+                        Optional.ofNullable(clubCreateRequest.getCategory2Id())
+                                .map(r -> categoryRepository.findById(r).get())
+                                .orElse(null)
+                )
                 .organization(organizationRepository.findById(1L).get())
                 .creator(userRepository.findById(userId)
                     .orElseThrow(
