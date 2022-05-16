@@ -41,7 +41,9 @@ public class Club {
     private List<UserClub> userClubs;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Category category;
+    private Category category1;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category2;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)

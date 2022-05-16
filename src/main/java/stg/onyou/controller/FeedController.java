@@ -11,7 +11,7 @@ import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.FeedResponse;
 import stg.onyou.service.AwsS3Service;
-import stg.onyou.service.ClubApiService;
+import stg.onyou.service.ClubService;
 import stg.onyou.service.FeedService;
 
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class FeedController {
 
     private final FeedService feedService;
-    private final ClubApiService clubApiService;
+    private final ClubService clubService;
     private final AwsS3Service awsS3Service;
 
     @GetMapping("/api/feeds")
@@ -77,7 +77,7 @@ public class FeedController {
 
     @PutMapping("/api/feed/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
-                           @RequestBody FeedUpdateRequest request) {
+                                     @RequestBody FeedUpdateRequest request) {
         feedService.updateFeed(id, request);
         return Header.OK();
     }

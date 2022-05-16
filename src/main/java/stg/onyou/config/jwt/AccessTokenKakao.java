@@ -10,6 +10,7 @@ public class AccessTokenKakao extends AbstractAuthenticationToken {
 
     private Object principal;//OAuth2UserDetails 타입
     private String accessToken;
+    private Object credentials;
 
 
 
@@ -17,6 +18,14 @@ public class AccessTokenKakao extends AbstractAuthenticationToken {
         super(null);
         this.accessToken = accessToken;
         setAuthenticated(false);
+    }
+
+    public AccessTokenKakao(Object principal, Object credentials,
+                                               Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
+        this.principal = principal;
+        this.credentials = credentials;
+        super.setAuthenticated(true); // must use super, as we override
     }
 
 
