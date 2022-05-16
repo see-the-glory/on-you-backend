@@ -29,9 +29,7 @@ public class ClubResponse {
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String applyStatus; //AVAILABLE, APPLIED, APPROVED
     private String creatorName;
-
     private String category1Name;
-    @Nullable
     private String category2Name;
 }
 

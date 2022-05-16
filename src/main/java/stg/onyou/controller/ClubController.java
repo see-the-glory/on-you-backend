@@ -13,6 +13,7 @@ import stg.onyou.model.network.request.ClubCreateRequest;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.service.ClubService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -36,32 +37,38 @@ public class ClubController {
     }
 
     @PostMapping("")
-    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest){
+    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest, HttpServletRequest httpServletRequest){
 
-        Club club = clubService.createClub(clubCreateRequest);
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Club club = clubService.createClub(clubCreateRequest, userId);
         if(club == null){
             throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
         }
-        return Header.OK("club id: "+ club.getId());
+        return Header.OK("club_id: "+ club.getId());
     }
 
     @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id){
+    public Header<String> applyClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
-        UserClub userClub = clubService.applyClub(1L,id);
+        // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.applyClub(userId,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
-        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+ userClub.getUser().getId()+", club_id: "+userClub.getClub().getId());
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> registerClub(@PathVariable Long id){
+    public Header<String> registerClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
-        UserClub userClub = clubService.approveClub(1L,id);
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.approveClub(userId,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
-        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
 }
