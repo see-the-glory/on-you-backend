@@ -1,6 +1,7 @@
 package stg.onyou.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.model.AccessModifier;
@@ -14,6 +15,7 @@ import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 import stg.onyou.service.FeedService;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +37,6 @@ public class FeedController {
         return Header.OK(resultList);
     }
 
-
     @GetMapping("/api/feeds/search")
     public List<Feed> searchFeed(@RequestParam FeedSearch feedSearch) {
         return feedService.findAllByString(feedSearch);
@@ -43,31 +44,34 @@ public class FeedController {
 
     @PostMapping("/api/feed")
     public Header<Object> createFeed(
-                           @RequestPart List<MultipartFile> multipartFile) {
-
-//        Feed feed = Feed.builder()
-//                .content(request.getContent())
-//                .delYn('n')
-//                .access(AccessModifier.PUBLIC)
-//                .created(LocalDateTime.now())
-//                .updated(LocalDateTime.now())
-////                .club()
-////                .user()
-//                .build();
+            @RequestPart List<MultipartFile> multipartFile) {
+//        @RequestParam FeedCreateRequest request,
+        Long userId = 1L;
+        FeedCreateRequest request = new FeedCreateRequest();
+        Feed feed = Feed.builder()
+                .content(request.getContent())
+                .delYn('n')
+                .access(AccessModifier.PUBLIC)
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+//                .club()
+//                .user()
+                .build();
 
 //        feedService.upload(feed);
-        Long userId = 1L;
-        awsS3Service.uploadFile(multipartFile, userId);
+        awsS3Service.uploadFile(multipartFile, feed, userId);
+
         return Header.OK();
     }
 
     @GetMapping("/api/feed/{id}")
     public Feed selectFeed(@PathVariable Long id) {
+
         return feedService.findById(id);
     }
 
     @GetMapping("/api/{clubId}/feeds")
-    public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId){
+    public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId) {
         List<Feed> feeds = feedService.findAllByClub(clubId);
         List<FeedResponse> resultList = feeds.stream()
                 .map(f -> new FeedResponse(f.getUser().getName(), f.getContent()))
@@ -82,9 +86,11 @@ public class FeedController {
         return Header.OK();
     }
 
-    @DeleteMapping ("/api/feed/{id}")
+    @DeleteMapping("/api/feed/{id}")
     public Header<Object> deleteFeedBy(@PathVariable Long id) {
         feedService.deleteById(id);
+        Feed feed = feedService.findById(id);
+//        awsS3Service.deleteFile(feed.getFeedImages());
         return Header.OK();
     }
 
@@ -93,4 +99,12 @@ public class FeedController {
         feedService.reportFeed(id);
     }
 
+
+    @PostMapping("/api/test")
+    public void test() throws IOException {
+//        Resource resource = awsS3Service.getFile(1L, "6aaf43ed-2546-4ba5-a185-4492c5a6cded.PNG");
+//        String contentType = null;
+        awsS3Service.deleteFile(1L, "6aaf43ed-2546-4ba5-a185-4492c5a6cded.PNG");
+
+    }
 }
