@@ -69,7 +69,7 @@ public class ClubService {
 
         // category1과 category2가 같은 것을 선택하는 것 방지
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
-            throw new CustomException(ErrorCode.DUPLICATE_CATEGORY);
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
 
         // clubLongDesc, category2Id 는 optional값이므로 null체크
