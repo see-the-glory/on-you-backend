@@ -40,7 +40,7 @@ public class FeedRepository {
 
     public List<Feed> findAllString(FeedSearch feedSearch) {
         return em.createQuery("select f from Feed f where f.delYn = 'n' " +
-                        "and f.content = :content", Feed.class)
+                        "and f.content like :content", Feed.class)
                 .setParameter("content", feedSearch.getContent())
                 .getResultList();
     }

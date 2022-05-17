@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 public class FeedCreateRequest {
 
     private Long id;
-    private int club_id;
+    private Long clubId;
     @NotNull
     @Size(max = 100, message = "글자 수를 100자 이내로 입력해주세요.")
     private String content;
