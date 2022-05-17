@@ -67,10 +67,12 @@ public class ClubService {
      */
     public Club createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
+        // category1과 category2가 같은 것을 선택하는 것 방지
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
             throw new CustomException(ErrorCode.DUPLICATE_CATEGORY);
         }
 
+        // clubLongDesc, category2Id 는 optional값이므로 null체크
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
                 .short_desc(clubCreateRequest.getClubShortDesc())
