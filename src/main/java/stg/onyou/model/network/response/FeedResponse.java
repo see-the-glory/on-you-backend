@@ -13,4 +13,10 @@ public class FeedResponse {
 
     String userName;
     String content;
+
+    /*
+     TODO
+     사진 추가
+     */
+
 }

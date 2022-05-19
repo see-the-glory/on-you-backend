@@ -16,5 +16,5 @@ public class FeedUpdateRequest {
     @NotNull
     @Size(max = 100, message = "글자 수를 100자 이내로 입력해주세요.")
     String content;
-    AccessModifier access; // public, private
+    AccessModifier access; // PUBLIC, PRIVATE
 }
