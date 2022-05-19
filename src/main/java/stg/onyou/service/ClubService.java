@@ -164,7 +164,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        if(userClub.getApplyStatus() == null || userClub.getApplyStatus()!=ApplyStatus.APPLIED){
+            throw new CustomException(ErrorCode.USER_APPLY_ERROR);
+        }
         userClub.setApplyStatus(ApplyStatus.APPROVED);
+        userClub.setApproveDate(LocalDateTime.now());
 
         return userClubRepository.save(userClub);
     }
@@ -183,7 +187,7 @@ public class ClubService {
             //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
              //.count();
 
-        return a <= b;
+        return a!=0 && a <= b ;
     }
 
     private ClubResponse selectClubResponse(Club club){

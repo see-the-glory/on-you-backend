@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import stg.onyou.model.ApplyStatus;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -29,4 +30,5 @@ public class UserClub {
 
     @Enumerated(EnumType.STRING)
     private ApplyStatus applyStatus;
+    private LocalDateTime approveDate;
 }

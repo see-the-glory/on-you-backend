@@ -61,7 +61,7 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> registerClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    public Header<String> approveClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
