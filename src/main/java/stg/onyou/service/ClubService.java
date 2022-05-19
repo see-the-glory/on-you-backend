@@ -165,7 +165,7 @@ public class ClubService {
                 );
 
         if(userClub.getApplyStatus() == null || userClub.getApplyStatus()!=ApplyStatus.APPLIED){
-            throw new CustomException(ErrorCode.USER_APPLY_ERROR);
+            throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
         }
         userClub.setApplyStatus(ApplyStatus.APPROVED);
         userClub.setApproveDate(LocalDateTime.now());
