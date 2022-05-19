@@ -47,9 +47,9 @@ public class ClubService {
     /**
      * 전체 클럽 select
      */
-    public Header<List<ClubResponse>> selectAllClubs(){
+    public Header<List<ClubResponse>> selectClubList(){
 
-        List<ClubResponse> clubs = new ArrayList<ClubResponse>();
+        List<ClubResponse> clubs = new ArrayList<>();
 
         clubRepository.findAll()
             .forEach(club->{
@@ -193,7 +193,7 @@ public class ClubService {
 
         club.getUserClubs()
                 .forEach(userClub -> {
-                    members.add(selectUserResponse(userClub.getUser()));
+                    members.add(selectUserResponse(userClub.getUser(), club.getId()));
                  });
         recruitNumber = club.getUserClubs().size();
 
@@ -231,12 +231,22 @@ public class ClubService {
         return clubResponse;
     }
 
-    private UserResponse selectUserResponse(User user){
+    private UserResponse selectUserResponse(User user, Long clubId){
+
+        UserClub userClub = user.getUserClubs()
+                .stream()
+                .filter(uc -> uc.getClub().getId() == clubId)
+                .findAny()
+                .orElse(null);
+
+
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
+                .name(user.getName())
                 .birthday(user.getBirthday())
+                .applyStatus(userClub.getApplyStatus())
                 .sex(user.getSex())
                 .email(user.getEmail())
                 .created(user.getCreated())

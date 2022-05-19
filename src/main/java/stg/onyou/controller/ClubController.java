@@ -32,8 +32,8 @@ public class ClubController {
     }
 
     @GetMapping("")
-    public Header<List<ClubResponse>> selectAllClubs(){
-        return clubService.selectAllClubs();
+    public Header<List<ClubResponse>> selectClubList(){
+        return clubService.selectClubList();
     }
 
     @PostMapping("")

@@ -1,5 +1,6 @@
 package stg.onyou.controller;
 
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,10 +15,13 @@ import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 import stg.onyou.service.FeedService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+@Api(tags = {"Feed API Controller"})
 @RestController
 @RequiredArgsConstructor
 public class FeedController {
@@ -43,7 +47,7 @@ public class FeedController {
 
     @PostMapping("/api/feed")
     public Header<Object> createFeed(
-                           @RequestPart List<MultipartFile> multipartFile) {
+            @RequestPart List<MultipartFile> multipartFile, HttpServletRequest httpServletRequest) {
 
 //        Feed feed = Feed.builder()
 //                .content(request.getContent())
@@ -56,7 +60,9 @@ public class FeedController {
 //                .build();
 
 //        feedService.upload(feed);
-        Long userId = 1L;
+        //Long userId = 1L;
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         awsS3Service.uploadFile(multipartFile, userId);
         return Header.OK();
     }
