@@ -52,7 +52,7 @@ public class FeedController {
         return Header.OK(resultList);
     }
 
-    @PostMapping("/api/feed")
+    @PostMapping("/api/feeds")
     public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFile,
                                      @RequestPart(value = "feedCreateRequest") FeedCreateRequest request) {
 
@@ -74,7 +74,7 @@ public class FeedController {
         return Header.OK();
     }
 
-    @GetMapping("/api/feed/{id}")
+    @GetMapping("/api/feeds/{id}")
     public Header<FeedResponse> selectFeed(@PathVariable Long id) {
         Feed feed = feedService.findById(id);
         FeedResponse result = new FeedResponse(feed.getUser().getName(), feed.getContent());
@@ -91,7 +91,7 @@ public class FeedController {
         return Header.OK(resultList);
     }
 
-    @PutMapping("/api/feed/{id}")
+    @PutMapping("/api/feeds/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
                                      @RequestBody FeedUpdateRequest request) {
         if (request.getAccess() == null || request.getContent() == null) {
@@ -102,7 +102,7 @@ public class FeedController {
         return Header.OK();
     }
 
-    @DeleteMapping("/api/feed/{id}")
+    @DeleteMapping("/api/feeds/{id}")
     public Header<Object> deleteFeedBy(@PathVariable Long id) {
         feedService.deleteById(id);
         Feed feed = feedService.findById(id);
