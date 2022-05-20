@@ -71,7 +71,7 @@ public class FeedController {
                 .build();
 
         feedService.upload(feed);
-        awsS3Service.uploadFile(multipartFile, feed, userId);
+//        awsS3Service.uploadFile(multipartFile, userId);
 
         return Header.OK();
     }

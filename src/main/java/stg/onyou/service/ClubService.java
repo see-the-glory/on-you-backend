@@ -84,6 +84,7 @@ public class ClubService {
                 .thumbnail("default image url")
                 .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
+                .isApproveRequired(clubCreateRequest.getIsApproveRequired())
                 .created(LocalDateTime.now())
                 .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
                 .category2(
@@ -91,6 +92,7 @@ public class ClubService {
                                 .map(r -> categoryRepository.findById(r).get())
                                 .orElse(null)
                 )
+                .thumbnail(clubCreateRequest.getThumbnailUrl())
                 .organization(organizationRepository.findById(1L).get())
                 .creator(userRepository.findById(userId)
                     .orElseThrow(

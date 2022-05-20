@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.FeedImage;
 import stg.onyou.repository.FeedImageRepository;
 
 import java.io.IOException;
@@ -31,26 +29,50 @@ public class AwsS3Service {
     private final AmazonS3 amazonS3;
     private final FeedImageRepository feedImageRepository;
 
-    public void uploadFile(List<MultipartFile> multipartFile, Feed feed, Long userId) {
-//        List<FeedImage> feedImages = feed.getFeedImages();
-        multipartFile.forEach(file -> {
+//    public void uploadFile(List<MultipartFile> multipartFile,  Long userId) {
+////        List<FeedImage> feedImages = feed.getFeedImages();
+//
+//        List<String> fileUrls = new ArrayList<>();
+//        multipartFile.forEach(file -> {
+//
+//            String fileName = createFileName(file.getOriginalFilename());
+//            ObjectMetadata objectMetadata = new ObjectMetadata();
+//            objectMetadata.setContentLength(file.getSize());
+//            objectMetadata.setContentType(file.getContentType());
+//
+////            String key = "Feed/" + userId.toString() + "/" + fileName;
+//            String key = userId.toString() + "/" + fileName;
+//            try (InputStream inputStream = file.getInputStream()) {
+//                amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+//                        .withCannedAcl(CannedAccessControlList.PublicRead));
+//            } catch (IOException e) {
+//                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+//            }
+//
+////            FeedImage feedImage = FeedImage.builder().url(key).build();
+////            feedImages.add(feedImage);
+////            feedImageRepository.save(feedImage);
+//        });
+//    }
 
-            String fileName = createFileName(file.getOriginalFilename());
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
+    public String uploadFile(MultipartFile file,  Long userId) {
 
-            String key = "Feed/" + userId.toString() + "/" + fileName;
-            try (InputStream inputStream = file.getInputStream()) {
-                amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
-            } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-            }
-//            FeedImage feedImage = FeedImage.builder().url(key).build();
-//            feedImages.add(feedImage);
-//            feedImageRepository.save(feedImage);
-        });
+        List<String> fileUrls = new ArrayList<>();
+
+        String fileName = createFileName(file.getOriginalFilename());
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        String key = fileName;
+        try (InputStream inputStream = file.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        }
+
+        return amazonS3.getUrl(bucket, key).toString();
     }
 
     public Resource getFile(Long userId, String storedFileName) throws IOException {
