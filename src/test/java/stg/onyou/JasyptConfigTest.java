@@ -14,17 +14,16 @@ public class JasyptConfigTest {
     @Test
     public void jasyptTest(){
         //given
-        String accessKey = "AKIAQDIAFRH6PRXNCCEW";
-        String secretKey = "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";
+        String accessKey = "AKIAQDIAFRH6DGF3G452";
+        String secretKey = "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";
 
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
-        jasypt.setPassword("password");
+        jasypt.setPassword("Jun@6127");
         jasypt.setAlgorithm("PBEWithMD5AndDES");
 
         String encryptedAccessKey = jasypt.encrypt(accessKey);
         System.out.println("accessKey 암호화 내용: " + encryptedAccessKey);
         String decryptedAccessKey =  jasypt.decrypt(encryptedAccessKey);
-
 
         String encryptedSecretKey = jasypt.encrypt(secretKey);
         System.out.println("secretKey 암호화 내용: " + encryptedSecretKey);
