@@ -24,15 +24,15 @@ public class AwsS3Config {
     public AmazonS3Client amazonS3Client() {
 
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
-//        String encryptKey = System.getenv("JASYPT_PASS");
-//        System.out.println("password :"+encryptKey);
-        jasypt.setPassword("Jun@6127");
+
+        String jasyptPassword = System.getProperty("jasypt_password");
+        jasypt.setPassword(jasyptPassword);
         jasypt.setAlgorithm("PBEWithMD5AndDES");
 
         String decryptAccessKey = jasypt.decrypt(accessKey);
         String decryptSecretKey = jasypt.decrypt(secretKey);
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(decryptAccessKey, decryptSecretKey);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(decryptAccessKey,decryptSecretKey);
         return (AmazonS3Client) AmazonS3ClientBuilder.standard()
                 .withRegion(region)
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))

@@ -11,11 +11,11 @@ import stg.onyou.service.AwsS3Service;
 
 import java.io.IOException;
 
-@Api(tags = {"AWS S3 Controller - 파일 다운로드"})
+@Api(tags = {"File download Controller - 파일 다운로드"})
 @Slf4j
 @RestController
 @RequestMapping("/api/download")
-public class AwsS3Controller {
+public class FileDownloadController {
 
     @Autowired
     private AwsS3Service awsS3Service;
