@@ -12,14 +12,14 @@ public class JasyptConfig {
 
     private String encryptKey;
 
-    @Bean("stgOnyouEncryptor")
+    @Bean(name = "stgOnyouEncryptor")
     public StringEncryptor stringEncryptor(){
 
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
 
-        encryptKey = System.getenv("JASYPT_PASS");
-        config.setPassword(encryptKey);
+//        encryptKey = System.getenv("JASYPT_PASS");
+        config.setPassword("Jun@6127");
         config.setAlgorithm("PBEWithMD5AndDES");
         config.setPoolSize("1");
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
