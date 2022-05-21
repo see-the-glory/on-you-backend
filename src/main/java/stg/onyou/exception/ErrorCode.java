@@ -10,11 +10,13 @@ import static org.springframework.http.HttpStatus.*;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    /*
+
+    // 400 Bad request
+    FILE_EMPTY(BAD_REQUEST, "업로드 한 파일이 존재하지 않습니"),
     // 401 UNAUTHORIZED : 인증되지 않은 사용자
-    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
-    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
-    */
+//    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
+//    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
+
     // 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
     CLUB_MEMBER_FULL(CONFLICT, "클럽의 정원이 마감되었습니다"),
@@ -25,6 +27,7 @@ public enum ErrorCode {
     CLUB_NOT_FOUND(NOT_FOUND, "존재하지 않는 클럽입니다"),
     CATEGORY_NOT_FOUND(NOT_FOUND, "카테고리가 존재하지 않습니다"),
     USER_CLUB_NOT_FOUND(NOT_FOUND, "UserClub이 존재하지 않습니다"),
+    USER_APPOVE_ERROR(NOT_FOUND, "가입신청 이력이 없거나 이미 가입된 사용자입니다."),
 
     // 503 : Internal server error
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽 생성에 실패하였습니다"),
