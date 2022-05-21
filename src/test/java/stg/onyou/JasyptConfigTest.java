@@ -14,8 +14,8 @@ public class JasyptConfigTest {
     @Test
     public void jasyptTest(){
         //given
-        String accessKey = "AKIAQDIAFRH6CHXKUOKK";
-        String secretKey = "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";
+        String accessKey = "AKIAQDIAFRH6DGF3G452";
+        String secretKey = "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";
 
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
         jasypt.setPassword("Jun@6127");
