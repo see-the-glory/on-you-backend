@@ -4,17 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.ApplyStatus;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
 @Builder
-public class UserClub {
+public class UserClubSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +23,7 @@ public class UserClub {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name="club_id")
-    private Club club;
+    @JoinColumn(name="club_schedule_id")
+    private ClubSchedule clubSchedule;
 
-    @Enumerated(EnumType.STRING)
-    private ApplyStatus applyStatus;
-    private LocalDateTime approveDate;
 }
