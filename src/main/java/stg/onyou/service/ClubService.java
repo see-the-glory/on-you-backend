@@ -47,9 +47,9 @@ public class ClubService {
     /**
      * 전체 클럽 select
      */
-    public Header<List<ClubResponse>> selectAllClubs(){
+    public Header<List<ClubResponse>> selectClubList(){
 
-        List<ClubResponse> clubs = new ArrayList<ClubResponse>();
+        List<ClubResponse> clubs = new ArrayList<>();
 
         clubRepository.findAll()
             .forEach(club->{
@@ -84,6 +84,7 @@ public class ClubService {
                 .thumbnail("default image url")
                 .recruitStatus(RecruitStatus.BEGIN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
+                .isApproveRequired(clubCreateRequest.getIsApproveRequired())
                 .created(LocalDateTime.now())
                 .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
                 .category2(
@@ -91,6 +92,7 @@ public class ClubService {
                                 .map(r -> categoryRepository.findById(r).get())
                                 .orElse(null)
                 )
+                .thumbnail(clubCreateRequest.getThumbnailUrl())
                 .organization(organizationRepository.findById(1L).get())
                 .creator(userRepository.findById(userId)
                     .orElseThrow(
@@ -164,7 +166,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        if(userClub.getApplyStatus() == null || userClub.getApplyStatus()!=ApplyStatus.APPLIED){
+            throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
+        }
         userClub.setApplyStatus(ApplyStatus.APPROVED);
+        userClub.setApproveDate(LocalDateTime.now());
 
         return userClubRepository.save(userClub);
     }
@@ -183,7 +189,7 @@ public class ClubService {
             //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
              //.count();
 
-        return a <= b;
+        return a!=0 && a <= b ;
     }
 
     private ClubResponse selectClubResponse(Club club){
@@ -193,7 +199,7 @@ public class ClubService {
 
         club.getUserClubs()
                 .forEach(userClub -> {
-                    members.add(selectUserResponse(userClub.getUser()));
+                    members.add(selectUserResponse(userClub.getUser(), club.getId()));
                  });
         recruitNumber = club.getUserClubs().size();
 
@@ -231,12 +237,22 @@ public class ClubService {
         return clubResponse;
     }
 
-    private UserResponse selectUserResponse(User user){
+    private UserResponse selectUserResponse(User user, Long clubId){
+
+        UserClub userClub = user.getUserClubs()
+                .stream()
+                .filter(uc -> uc.getClub().getId() == clubId)
+                .findAny()
+                .orElse(null);
+
+
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
+                .name(user.getName())
                 .birthday(user.getBirthday())
+                .applyStatus(userClub.getApplyStatus())
                 .sex(user.getSex())
                 .email(user.getEmail())
                 .created(user.getCreated())

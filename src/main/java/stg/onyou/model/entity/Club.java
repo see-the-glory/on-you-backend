@@ -34,6 +34,7 @@ public class Club {
     private int maxNumber;
     private LocalDateTime created;
     private LocalDateTime updated;
+    private String isApproveRequired;
 
     @OneToMany(mappedBy = "club")
     @JsonIgnore

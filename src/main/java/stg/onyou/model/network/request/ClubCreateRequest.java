@@ -21,6 +21,9 @@ public class ClubCreateRequest {
     @Size(max = 20, message = "클럽 명을 20자 이내로 입력해주세요.")
     private String clubName;
 
+    @Pattern(regexp = "^[Y|N]{1}$", message ="Y 또는 N 값만 가능합니다.")
+    private String isApproveRequired;
+
     @NotNull
     @PositiveOrZero
     @Range(min = 0, max = 100, message = "클럽 정원은 100명 이내로 해주세요")
@@ -30,5 +33,7 @@ public class ClubCreateRequest {
     @Size(max = 20, message = "클럽의 간단한 소개를 입력해주세")
     private String clubShortDesc;
     private String clubLongDesc;
+
+    private String thumbnailUrl;
 
 }
