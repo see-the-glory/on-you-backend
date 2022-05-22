@@ -34,7 +34,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             throws IOException, ServletException {
 
         String header = request.getHeader(JwtProperties.HEADER_STRING);
-        System.out.println("header Authorization : " + header);
 
         if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
@@ -47,6 +46,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         String socialId = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
                 .getClaim("socialId").asString();
 
+//        String socialId = "2188322863";
         if (socialId != null) {
             User user = userRepository.findBySocialId(socialId).get();
 
@@ -62,8 +62,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             request.setAttribute("userId", user.getId());
-
         }
+//
+//        int a = 1;
+//        String s1 = request.getAttribute("userId").toString();
+//        int b = 3;
+
 
         chain.doFilter(request, response);
     }

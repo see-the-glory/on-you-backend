@@ -31,6 +31,7 @@ dependencies {
     implementation 'com.auth0:java-jwt:3.8.3' //JWT 생성위한 라이브러리
     implementation 'junit:junit:4.13.1'
     runtimeOnly 'com.h2database:h2'
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3' //jasypt 암호화
 
 }
 
