@@ -4,15 +4,19 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
+import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -24,6 +28,8 @@ public class ClubController {
 
     @Autowired
     private ClubService clubService;
+    @Autowired
+    private AwsS3Service awsS3Service;
 
     @GetMapping("/{id}")
     public Header<ClubResponse> selectClub(@PathVariable Long id){
@@ -31,37 +37,56 @@ public class ClubController {
     }
 
     @GetMapping("")
-    public Header<List<ClubResponse>> selectAllClubs(){
-        return clubService.selectAllClubs();
+    public Header<List<ClubResponse>> selectClubList(){
+        return clubService.selectClubList();
     }
 
     @PostMapping("")
-    public Header<String> createClub(@Valid @RequestBody ClubCreateRequest clubCreateRequest){
+    public Header<String> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
+                                     @Valid @RequestPart(value = "clubCreateRequest")
+                                             ClubCreateRequest clubCreateRequest,
+                                     HttpServletRequest httpServletRequest){
 
-        Club club = clubService.createClub(clubCreateRequest);
+        if(thumbnail.isEmpty()){
+            throw new CustomException(ErrorCode.FILE_EMPTY);
+        }
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        String thumbnailUrl = awsS3Service.uploadFile(thumbnail, userId); //s3에 저장하고 저장한 image url 리턴
+        clubCreateRequest.setThumbnailUrl(thumbnailUrl);
+
+        Club club = clubService.createClub(clubCreateRequest, userId);
         if(club == null){
             throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
         }
-        return Header.OK("club id: "+ club.getId());
+
+        awsS3Service.uploadFile(thumbnail, userId);
+        return Header.OK("club_id: "+ club.getId());
     }
 
     @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id){
+    public Header<String> applyClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
-        UserClub userClub = clubService.applyClub(1L,id);
+        // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.applyClub(userId,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
-        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+ userClub.getUser().getId()+", club_id: "+userClub.getClub().getId());
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> registerClub(@PathVariable Long id){
+    public Header<String> approveClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
-        UserClub userClub = clubService.approveClub(1L,id);
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.approveClub(userId,id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
-        return Header.OK("user id: "+ userClub.getUser().getId()+",club id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
 }
