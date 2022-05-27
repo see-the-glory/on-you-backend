@@ -26,5 +26,7 @@ public class ClubSchedule {
     private String content;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private LocalDateTime created;
+    private LocalDateTime updated;
 
 }

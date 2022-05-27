@@ -42,6 +42,8 @@ public class ClubService {
     @Autowired
     private ClubScheduleRepository clubScheduleRepository;
     @Autowired
+    private UserClubScheduleRepository userClubScheduleRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
     /**
@@ -288,6 +290,7 @@ public class ClubService {
                         Optional.ofNullable(clubScheduleCreateRequest.getEndDate())
                         .orElse(null)
                 )
+                .created(LocalDateTime.now())
                 .build();
 
         return clubScheduleRepository.save(clubSchedule);
@@ -320,6 +323,7 @@ public class ClubService {
                 Optional.ofNullable(clubScheduleUpdateRequest.getLocation())
                         .orElse(clubSchedule.getLocation())
         );
+        clubSchedule.setUpdated(LocalDateTime.now());
 
         return clubScheduleRepository.save(clubSchedule);
     }
@@ -339,4 +343,17 @@ public class ClubService {
         return Header.OK(clubScheduleResponseList);
     }
 
+    public UserClubSchedule registerClubSchedule(Long clubScheduleId, Long userId) {
+
+        UserClubSchedule userClubSchedule = UserClubSchedule.builder()
+                .user(userRepository.findById(userId)
+                        .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND))
+                )
+                .clubSchedule(clubScheduleRepository.findById(clubScheduleId)
+                        .orElseThrow(()-> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND))
+                )
+                .build();
+
+        return userClubScheduleRepository.save(userClubSchedule);
+    }
 }

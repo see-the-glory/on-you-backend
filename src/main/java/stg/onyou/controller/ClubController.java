@@ -10,6 +10,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.ClubSchedule;
 import stg.onyou.model.entity.UserClub;
+import stg.onyou.model.entity.UserClubSchedule;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
 import stg.onyou.model.network.request.ClubScheduleCreateRequest;
@@ -123,6 +124,20 @@ public class ClubController {
         }
 
         return Header.OK("club_schedule_id: "+ clubSchedule.getId());
+
+    }
+
+    @PostMapping("/schedules/{id}/register")
+    public Header<String> registerClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClubSchedule userClubSchedule = clubService.registerClubSchedule(id, userId);
+        if(userClubSchedule == null){
+            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
+        }
+
+        return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
 
     }
 }
