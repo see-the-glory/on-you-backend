@@ -1,26 +1,20 @@
-package stg.onyou.model.entity;
+package stg.onyou.model.network.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.entity.Club;
 
-import javax.persistence.*;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
-@Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ClubSchedule {
+@AllArgsConstructor
+public class ClubScheduleResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Club club;
     private String name;
     private String location;
     private String content;

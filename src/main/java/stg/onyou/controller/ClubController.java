@@ -8,11 +8,14 @@ import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Club;
+import stg.onyou.model.entity.ClubSchedule;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
+import stg.onyou.model.network.request.ClubScheduleCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 
@@ -61,7 +64,6 @@ public class ClubController {
             throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
         }
 
-        awsS3Service.uploadFile(thumbnail, userId);
         return Header.OK("club_id: "+ club.getId());
     }
 
@@ -89,4 +91,26 @@ public class ClubController {
         }
         return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
+
+    @GetMapping("/{id}/schedules")
+    public Header<List<ClubScheduleResponse>> selectClubScheduleList(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        return clubService.selectClubScheduleList(id);
+
+    }
+
+    @PostMapping("/schedules")
+    public Header<String> createClubSchedule(@Valid @RequestBody ClubScheduleCreateRequest clubScheduleCreateRequest, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        ClubSchedule clubSchedule = clubService.createClubSchedule(clubScheduleCreateRequest, userId);
+        if(clubSchedule == null){
+            throw new CustomException(ErrorCode.CLUB_SCHEDULE_CREATION_ERROR);
+        }
+
+        return Header.OK("club_schedule_id: "+ clubSchedule.getId());
+
+    }
+
 }

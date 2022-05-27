@@ -1,5 +1,6 @@
 package stg.onyou.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
@@ -9,14 +10,20 @@ import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
+import stg.onyou.model.network.request.ClubScheduleCreateRequest;
+import stg.onyou.model.network.response.CategoryResponse;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.repository.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClubService {
@@ -31,6 +38,10 @@ public class ClubService {
     private OrganizationRepository organizationRepository;
     @Autowired
     private UserClubRepository userClubRepository;
+    @Autowired
+    private ClubScheduleRepository clubScheduleRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     /**
      * 특정 클럽 select
@@ -246,6 +257,7 @@ public class ClubService {
                 .orElse(null);
 
 
+//        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
@@ -262,4 +274,36 @@ public class ClubService {
 
     }
 
+    public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
+
+        // endDate 는 optional값이므로 null체크
+        ClubSchedule clubSchedule = ClubSchedule.builder()
+                .club(clubRepository.findById(clubScheduleCreateRequest.getClubId()).get())
+                .name(clubScheduleCreateRequest.getName())
+                .location(clubScheduleCreateRequest.getLocation())
+                .content(clubScheduleCreateRequest.getContent())
+                .startDate(clubScheduleCreateRequest.getStartDate())
+                .endDate(
+                        Optional.ofNullable(clubScheduleCreateRequest.getEndDate())
+                        .orElse(null)
+                )
+                .build();
+
+        return clubScheduleRepository.save(clubSchedule);
+    }
+
+
+    public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long id) {
+
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findAll()
+                .stream()
+                .filter(cs -> cs.getClub().getId() == id)
+                .collect(Collectors.toList());
+
+        List<ClubScheduleResponse> clubScheduleResponseList = clubScheduleList.stream()
+                .map(clubSchedule -> modelMapper.map(clubSchedule, ClubScheduleResponse.class))
+                .collect(Collectors.toList());
+
+        return Header.OK(clubScheduleResponseList);
+    }
 }
