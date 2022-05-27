@@ -11,6 +11,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.ClubCreateRequest;
 import stg.onyou.model.network.request.ClubScheduleCreateRequest;
+import stg.onyou.model.network.request.ClubScheduleUpdateRequest;
 import stg.onyou.model.network.response.CategoryResponse;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
@@ -293,6 +294,37 @@ public class ClubService {
     }
 
 
+    public ClubSchedule updateClubSchedule(ClubScheduleUpdateRequest clubScheduleUpdateRequest, Long id) {
+        ClubSchedule clubSchedule = clubScheduleRepository.findById(id)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
+                );
+
+        clubSchedule.setContent(
+                Optional.ofNullable(clubScheduleUpdateRequest.getContent())
+                        .orElse(clubSchedule.getContent())
+        );
+        clubSchedule.setStartDate(
+                Optional.ofNullable(clubScheduleUpdateRequest.getStartDate())
+                        .orElse(clubSchedule.getStartDate())
+        );
+        clubSchedule.setEndDate(
+                Optional.ofNullable(clubScheduleUpdateRequest.getEndDate())
+                        .orElse(clubSchedule.getEndDate())
+        );
+        clubSchedule.setName(
+                Optional.ofNullable(clubScheduleUpdateRequest.getName())
+                        .orElse(clubSchedule.getName())
+        );
+        clubSchedule.setLocation(
+                Optional.ofNullable(clubScheduleUpdateRequest.getLocation())
+                        .orElse(clubSchedule.getLocation())
+        );
+
+        return clubScheduleRepository.save(clubSchedule);
+    }
+
+
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long id) {
 
         List<ClubSchedule> clubScheduleList = clubScheduleRepository.findAll()
@@ -306,4 +338,5 @@ public class ClubService {
 
         return Header.OK(clubScheduleResponseList);
     }
+
 }

@@ -28,11 +28,12 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(NOT_FOUND, "카테고리가 존재하지 않습니다"),
     USER_CLUB_NOT_FOUND(NOT_FOUND, "UserClub이 존재하지 않습니다"),
     USER_APPOVE_ERROR(NOT_FOUND, "가입신청 이력이 없거나 이미 가입된 사용자입니다."),
+    CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "존재하지 않는 clubSchedule 입니다"),
 
     // 503 : Internal server error
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽 생성에 실패하였습니다"),
     CLUB_REGISTER_ERROR(INTERNAL_SERVER_ERROR, "클럽 등록에 실패하였습니다"),
-    CLUB_SCHEDULE_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽일정 생성에 실패하였습니다"),
+    CLUB_SCHEDULE_MUTATION_ERROR(INTERNAL_SERVER_ERROR, "클럽일정 생성에 실패하였습니다"),
     ;
 
     private final HttpStatus httpStatus;
