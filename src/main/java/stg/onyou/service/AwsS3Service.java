@@ -60,7 +60,7 @@ public class AwsS3Service {
 //        });
 //    }
 
-    public String uploadFile(MultipartFile file,  Long userId) {
+    public String uploadFile(MultipartFile file) {
 
         List<String> fileUrls = new ArrayList<>();
 
