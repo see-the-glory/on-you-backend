@@ -28,16 +28,15 @@ public class CategoryService {
 
         List<Category> categoryList = categoryRepository.findAll();
 
-        List<CategoryResponse> resultList = categoryList.stream()
-                .map(category -> modelMapper
-                .map(category, CategoryResponse.class))
+        List<CategoryResponse> categoryResponseList = categoryList.stream()
+                .map(category -> modelMapper.map(category, CategoryResponse.class))
                 .collect(Collectors.toList());
 
-        if(resultList.isEmpty()){
+        if(categoryResponseList.isEmpty()){
             throw new CustomException(ErrorCode.CATEGORY_NOT_FOUND);
         }
 
-        return Header.OK(resultList);
+        return Header.OK(categoryResponseList);
     }
 
 }
