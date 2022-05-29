@@ -321,6 +321,16 @@ public class ClubService {
 
     public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
 
+        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubScheduleCreateRequest.getClubId())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        // user가 해당 클럽의 MANAGER || MASTER 인 경우에만 스케줄 생성 가능
+        if(userClub.getRole().equals("MEMBER")){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
         // endDate 는 optional값이므로 null체크
         ClubSchedule clubSchedule = ClubSchedule.builder()
                 .club(clubRepository.findById(clubScheduleCreateRequest.getClubId()).get())
