@@ -1,5 +1,6 @@
 package stg.onyou.service;
 
+import org.hibernate.validator.constraints.Range;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,17 +10,14 @@ import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.request.ClubCreateRequest;
-import stg.onyou.model.network.request.ClubScheduleCreateRequest;
-import stg.onyou.model.network.request.ClubScheduleUpdateRequest;
+import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.CategoryResponse;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.repository.*;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +118,50 @@ public class ClubService {
 
     }
 
+    public Header<Club> updateClub(ClubUpdateRequest clubUpdateRequest, Long clubId) {
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        club.setCategory1(
+                Optional.ofNullable(categoryRepository.findById(clubUpdateRequest.getCategory1Id()).get())
+                    .orElse(club.getCategory1())
+        );
+        club.setCategory1(
+                Optional.ofNullable(categoryRepository.findById(clubUpdateRequest.getCategory2Id()).get())
+                        .orElse(club.getCategory2())
+        );
+        club.setName(
+                Optional.ofNullable(clubUpdateRequest.getClubName())
+                        .orElse(club.getName())
+        );
+        club.setIsApproveRequired(
+                Optional.ofNullable(clubUpdateRequest.getIsApproveRequired())
+                        .orElse(club.getIsApproveRequired())
+        );
+        club.setMaxNumber(
+                Optional.ofNullable(clubUpdateRequest.getClubMaxMember())
+                        .orElse(club.getMaxNumber())
+        );
+        club.setShort_desc(
+                Optional.ofNullable(clubUpdateRequest.getClubShortDesc())
+                        .orElse(club.getShort_desc())
+        );
+        club.setLong_desc(
+                Optional.ofNullable(clubUpdateRequest.getClubLongDesc())
+                        .orElse(club.getLong_desc())
+        );
+        club.setThumbnail(
+                Optional.ofNullable(clubUpdateRequest.getThumbnailUrl())
+                        .orElse(club.getThumbnail())
+        );
+        club.setUpdated(LocalDateTime.now());
+
+        return Header.OK(clubRepository.save(club));
+    }
+
     /**
      * 클럽 가입요청 : 디폴트로 APPLIED 상태로 UserClub 설정
      */
@@ -137,7 +179,7 @@ public class ClubService {
 
         //이미 해당하는 user와 club에 대한 user_club row가 존재한다면 duplicate error
         userClubRepository.findByUserIdAndClubId(userId, clubId)
-                .ifPresent(m->{
+                .ifPresent(uc->{
                     throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
                 });
 
@@ -356,4 +398,16 @@ public class ClubService {
 
         return userClubScheduleRepository.save(userClubSchedule);
     }
+
+    public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
+
+        UserClub userClub = userClubRepository.findByUserIdAndClubId(clubRoleAllocateRequest.getUserId(), clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        userClub.setRole(clubRoleAllocateRequest.getRole());
+        return userClubRepository.save(userClub);
+    }
+
 }

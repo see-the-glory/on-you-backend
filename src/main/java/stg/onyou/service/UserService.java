@@ -5,8 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.HttpMethod;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
+import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 import stg.onyou.model.entity.User;
 
@@ -22,6 +25,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserClubRepository userClubRepository;
 
     public Header<UserResponse> selectUser(Long id){
 
@@ -47,4 +52,22 @@ public class UserService {
 
     }
 
+    public Header<UserClubResponse> selectUserClubResponse(Long userId, Long clubId) {
+
+        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        UserClubResponse userClubResponse = UserClubResponse.builder()
+                .userId(userClub.getUser().getId())
+                .clubId(userClub.getClub().getId())
+                .applyStatus(userClub.getApplyStatus())
+                .approveDate(userClub.getApproveDate())
+                .applyDate(userClub.getApplyDate())
+                .role(userClub.getRole())
+                .build();
+
+        return Header.OK(userClubResponse);
+    }
 }
