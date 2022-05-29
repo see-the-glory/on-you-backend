@@ -71,8 +71,10 @@ public class AwsS3Service {
 
         String key = fileName+"_"+file.getOriginalFilename();
         try (InputStream inputStream = file.getInputStream()) {
-            amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+            PutObjectResult result = amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
+
+            System.out.println(result);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }

@@ -32,6 +32,7 @@ public class UserClub {
     @Enumerated(EnumType.STRING)
     private ApplyStatus applyStatus;
     private LocalDateTime approveDate;
+    private LocalDateTime applyDate;
     @Enumerated(EnumType.STRING)
     private Role role;
 }

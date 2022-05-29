@@ -179,7 +179,7 @@ public class ClubService {
 
         //이미 해당하는 user와 club에 대한 user_club row가 존재한다면 duplicate error
         userClubRepository.findByUserIdAndClubId(userId, clubId)
-                .ifPresent(m->{
+                .ifPresent(uc->{
                     throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
                 });
 
