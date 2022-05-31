@@ -8,11 +8,13 @@ import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Club;
+import stg.onyou.model.entity.ClubSchedule;
 import stg.onyou.model.entity.UserClub;
+import stg.onyou.model.entity.UserClubSchedule;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.request.ClubCreateRequest;
-import stg.onyou.model.network.request.FeedCreateRequest;
+import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 
@@ -47,22 +49,30 @@ public class ClubController {
                                              ClubCreateRequest clubCreateRequest,
                                      HttpServletRequest httpServletRequest){
 
-        if(thumbnail.isEmpty()){
-            throw new CustomException(ErrorCode.FILE_EMPTY);
-        }
-
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        String thumbnailUrl = awsS3Service.uploadFile(thumbnail, userId); //s3에 저장하고 저장한 image url 리턴
-        clubCreateRequest.setThumbnailUrl(thumbnailUrl);
-
-        Club club = clubService.createClub(clubCreateRequest, userId);
-        if(club == null){
-            throw new CustomException(ErrorCode.CLUB_CREATION_ERROR);
+        if(!thumbnail.isEmpty()){
+            String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
+            clubCreateRequest.setThumbnailUrl(thumbnailUrl);
         }
 
-        awsS3Service.uploadFile(thumbnail, userId);
+        Club club = clubService.createClub(clubCreateRequest, userId);
+
         return Header.OK("club_id: "+ club.getId());
+    }
+
+    @PutMapping("/{id}")
+    public Header<Club> updateClub(@PathVariable Long id, @RequestPart(value = "file", required = false) MultipartFile thumbnail,
+                                     @Valid @RequestPart(value = "clubUpdateRequest")
+                                             ClubUpdateRequest clubUpdateRequest,
+                                     HttpServletRequest httpServletRequest){
+
+        if(!thumbnail.isEmpty()){
+            String thumbnailUrl = awsS3Service.uploadFile(thumbnail);
+            clubUpdateRequest.setThumbnailUrl(thumbnailUrl);
+        }
+
+        return clubService.updateClub(clubUpdateRequest, id);
     }
 
     @PostMapping("/{id}/apply")
@@ -89,4 +99,61 @@ public class ClubController {
         }
         return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
+
+
+    @PostMapping("/{id}/allocate")
+    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
+        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
+
+        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
+    }
+
+
+    @GetMapping("/{id}/schedules")
+    public Header<List<ClubScheduleResponse>> selectClubScheduleList(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        return clubService.selectClubScheduleList(id);
+
+    }
+
+    @PostMapping("/schedules")
+    public Header<String> createClubSchedule(@Valid @RequestBody ClubScheduleCreateRequest clubScheduleCreateRequest, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        ClubSchedule clubSchedule = clubService.createClubSchedule(clubScheduleCreateRequest, userId);
+        if(clubSchedule == null){
+            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
+        }
+
+        return Header.OK("club_schedule_id: "+ clubSchedule.getId());
+
+    }
+
+    @PutMapping("/schedules/{id}")
+    public Header<String> updateClubSchedule(@PathVariable Long id, @Valid @RequestBody ClubScheduleUpdateRequest clubScheduleUpdateRequest){
+
+        ClubSchedule clubSchedule = clubService.updateClubSchedule(clubScheduleUpdateRequest, id);
+        if(clubSchedule == null){
+            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
+        }
+
+        return Header.OK("club_schedule_id: "+ clubSchedule.getId());
+
+    }
+
+    @PostMapping("/schedules/{id}/register")
+    public Header<String> registerClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClubSchedule userClubSchedule = clubService.registerClubSchedule(id, userId);
+        if(userClubSchedule == null){
+            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
+        }
+
+        return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
+
+    }
+
 }

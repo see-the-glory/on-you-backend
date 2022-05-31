@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.ApplyStatus;
+import stg.onyou.model.Role;
 
 import java.time.LocalDateTime;
 
@@ -12,17 +13,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponse {
+public class UserClubResponse {
 
-    private Long id;
-    private String organizationName;
-    private String name;
-    private String birthday;
+    private Long userId;
+    private Long clubId;
     private ApplyStatus applyStatus;
-    private char sex;
-    private String email;
-    private LocalDateTime created;
-
+    private LocalDateTime approveDate;
+    private LocalDateTime applyDate;
+    private Role role;
 }
-
-

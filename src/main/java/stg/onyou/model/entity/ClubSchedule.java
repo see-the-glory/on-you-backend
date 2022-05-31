@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -21,8 +22,11 @@ public class ClubSchedule {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
     private String name;
-
     private String location;
-
+    private String content;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private LocalDateTime created;
+    private LocalDateTime updated;
 
 }
