@@ -8,6 +8,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
+import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
@@ -188,11 +189,27 @@ public class ClubService {
             throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
         }
 
-        UserClub userClub = UserClub.builder()
-                .club(club)
-                .user(user)
-                .applyStatus(ApplyStatus.APPLIED)
-                .build();
+        UserClub userClub;
+        // 관리자의 승인이 필요하지 않은 가입이라면 바로 APPROVED로 저장
+        if ( club.getIsApproveRequired().equals("Y") ){
+            userClub = UserClub.builder()
+                    .club(club)
+                    .user(user)
+                    .applyStatus(ApplyStatus.APPROVED)
+                    .applyDate(LocalDateTime.now())
+                    .approveDate(LocalDateTime.now())
+                    .role(Role.MEMBER)
+                    .build();
+
+        } else { // 관리자의 승인이 필요한 가입이라면 APPLIED 상태로 저장
+            userClub = UserClub.builder()
+                    .club(club)
+                    .user(user)
+                    .applyDate(LocalDateTime.now())
+                    .applyStatus(ApplyStatus.APPLIED)
+                    .build();
+        }
+
 
         return userClubRepository.save(userClub);
     }
@@ -225,6 +242,7 @@ public class ClubService {
         if(userClub.getApplyStatus() == null || userClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
         }
+        userClub.setRole(Role.MEMBER);
         userClub.setApplyStatus(ApplyStatus.APPROVED);
         userClub.setApproveDate(LocalDateTime.now());
 
