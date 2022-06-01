@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum Role {
     MEMBER(false, false, false, false, false, false, false, false),
     MANAGER(false, false, false, false, true, true, true, true),
-    MASTER(true, true, true, true, true, true, true, true)
+    MASTER(true, true, true, true, true, true, true, true);
 
     Role(boolean canAllocateRole, boolean canWithdrawManager, boolean canDeleteFeed, boolean canDeleteClub,
          boolean canEditClub, boolean canWithdrawMember, boolean canManipulateClubSchedule, boolean canApproveApply){
