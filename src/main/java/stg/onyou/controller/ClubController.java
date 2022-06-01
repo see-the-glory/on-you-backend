@@ -3,20 +3,19 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.ClubSchedule;
-import stg.onyou.model.entity.UserClub;
-import stg.onyou.model.entity.UserClubSchedule;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
+import stg.onyou.service.CursorResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -33,14 +32,20 @@ public class ClubController {
     @Autowired
     private AwsS3Service awsS3Service;
 
+    private final Integer DEFAULT_PAGINATION_SIZE = 2;
+
     @GetMapping("/{id}")
     public Header<ClubResponse> selectClub(@PathVariable Long id){
         return clubService.selectClub(id);
     }
 
     @GetMapping("")
-    public Header<List<ClubResponse>> selectClubList(){
-        return clubService.selectClubList();
+    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Integer size){
+
+        if (size == null) size = DEFAULT_PAGINATION_SIZE;
+        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, size));
+
+        return Header.OK(clubs);
     }
 
     @PostMapping("")
