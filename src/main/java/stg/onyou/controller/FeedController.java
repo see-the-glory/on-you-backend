@@ -76,7 +76,7 @@ public class FeedController {
         return Header.OK();
     }
 
-    @GetMapping("/api/feed/{id}")
+    @GetMapping("/api/feeds/{id}")
     public Header<FeedResponse> selectFeed(@PathVariable Long id) {
         Feed feed = feedService.findById(id);
         FeedResponse result = new FeedResponse(feed.getUser().getName(), feed.getContent());
@@ -84,7 +84,7 @@ public class FeedController {
         return Header.OK(result);
     }
 
-    @GetMapping("/api/{clubId}/feeds")
+    @GetMapping("/api/clubs/{clubId}/feeds")
     public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId) {
         List<Feed> feeds = feedService.findAllByClub(clubId);
         List<FeedResponse> resultList = feeds.stream()
@@ -93,7 +93,7 @@ public class FeedController {
         return Header.OK(resultList);
     }
 
-    @PutMapping("/api/feed/{id}")
+    @PutMapping("/api/feeds/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
                                      @RequestBody FeedUpdateRequest request) {
         if (request.getAccess() == null || request.getContent() == null) {
