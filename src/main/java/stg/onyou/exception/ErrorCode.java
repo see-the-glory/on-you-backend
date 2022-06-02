@@ -14,6 +14,8 @@ public enum ErrorCode {
     // 400 Bad request
     FILE_EMPTY(BAD_REQUEST, "업로드 한 파일이 존재하지 않습니"),
     // 401 UNAUTHORIZED : 인증되지 않은 사용자
+    NO_PERMISSION(UNAUTHORIZED, "권한이 없습니다"),
+
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
 
