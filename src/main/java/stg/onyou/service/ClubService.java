@@ -3,6 +3,7 @@ package stg.onyou.service;
 import org.hibernate.validator.constraints.Range;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
@@ -60,19 +61,19 @@ public class ClubService {
     /**
      * 전체 클럽 select
      */
-    public Header<List<ClubResponse>> selectClubList(){
+    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page) {
 
         List<ClubResponse> clubs = new ArrayList<>();
 
-        clubRepository.findAll()
+        getClubList(cursorId, page)
             .forEach(club->{
                 clubs.add(selectClubResponse(club));
-        });
+            });
 
-        if(clubs.isEmpty()){
-            throw new CustomException(ErrorCode.CLUB_NOT_FOUND);
-        }
-        return Header.OK(clubs);
+        final Long lastIdOfList = clubs.isEmpty() ?
+                null : clubs.get(clubs.size() - 1).getId();
+
+        return new CursorResult<>(clubs, hasNext(lastIdOfList));
     }
 
     /**
@@ -249,94 +250,6 @@ public class ClubService {
         return userClubRepository.save(userClub);
     }
 
-    private boolean isClubFull(Club club) {
-
-       // return club.getMaxNumber() <= userClubRepository.findAllByClubId(club.getId()).size();
-        int a = club.getMaxNumber();
-        Long b = userClubRepository.findAllByClubId(club.getId())
-                .stream()
-                .filter(item->item.getApplyStatus() == ApplyStatus.APPROVED)
-                .count();
-
-        //b= userClubRepository.findAllByClubId(club.getId())
-          //  .stream()
-            //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
-             //.count();
-
-        return a!=0 && a <= b ;
-    }
-
-    private ClubResponse selectClubResponse(Club club){
-
-        List<UserResponse> members = new ArrayList<>();
-        int recruitNumber;
-
-        club.getUserClubs()
-                .forEach(userClub -> {
-                    members.add(selectUserResponse(userClub.getUser(), club.getId()));
-                 });
-        recruitNumber = club.getUserClubs().size();
-
-
-        //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
-        ClubResponse clubResponse = ClubResponse.builder()
-                .id(club.getId())
-                .name(club.getName())
-                .clubShortDesc(club.getShort_desc())
-                .clubLongDesc(club.getLong_desc())
-                .announcement(club.getAnnouncement())
-                .organizationName(Optional.ofNullable(club.getOrganization())
-                        .map(r->r.getName())
-                        .orElse(null))
-                .members(members)
-                .maxNumber(club.getMaxNumber())
-                .thumbnail(club.getThumbnail())
-                .recruitNumber(recruitNumber)
-                .recruitStatus(club.getRecruitStatus())
-                .category1Name(Optional.ofNullable(club.getCategory1())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
-                .category2Name(Optional.ofNullable(club.getCategory2())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
-                .creatorName(Optional.ofNullable(club.getCreator())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
-                // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
-                .build();
-
-        return clubResponse;
-    }
-
-    private UserResponse selectUserResponse(User user, Long clubId){
-
-        UserClub userClub = user.getUserClubs()
-                .stream()
-                .filter(uc -> uc.getClub().getId() == clubId)
-                .findAny()
-                .orElse(null);
-
-
-//        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
-
-        UserResponse userResponse = UserResponse.builder()
-                .id(user.getId())
-                .organizationName(user.getOrganization().getName())
-                .name(user.getName())
-                .birthday(user.getBirthday())
-                .applyStatus(userClub.getApplyStatus())
-                .sex(user.getSex())
-                .email(user.getEmail())
-                .created(user.getCreated())
-                .build();
-
-        return userResponse;
-
-    }
-
     public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
 
         UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubScheduleCreateRequest.getClubId())
@@ -436,6 +349,102 @@ public class ClubService {
 
         userClub.setRole(clubRoleAllocateRequest.getRole());
         return userClubRepository.save(userClub);
+    }
+
+    private boolean isClubFull(Club club) {
+
+        // return club.getMaxNumber() <= userClubRepository.findAllByClubId(club.getId()).size();
+        int a = club.getMaxNumber();
+        Long b = userClubRepository.findAllByClubId(club.getId())
+                .stream()
+                .filter(item->item.getApplyStatus() == ApplyStatus.APPROVED)
+                .count();
+
+        //b= userClubRepository.findAllByClubId(club.getId())
+        //  .stream()
+        //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
+        //.count();
+
+        return a!=0 && a <= b ;
+    }
+
+    private ClubResponse selectClubResponse(Club club){
+
+        List<UserResponse> members = new ArrayList<>();
+        int recruitNumber;
+
+        club.getUserClubs()
+                .forEach(userClub -> {
+                    members.add(selectUserResponse(userClub.getUser(), club.getId()));
+                });
+        recruitNumber = club.getUserClubs().size();
+
+
+        //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
+        ClubResponse clubResponse = ClubResponse.builder()
+                .id(club.getId())
+                .name(club.getName())
+                .clubShortDesc(club.getShort_desc())
+                .clubLongDesc(club.getLong_desc())
+                .announcement(club.getAnnouncement())
+                .organizationName(Optional.ofNullable(club.getOrganization())
+                        .map(r->r.getName())
+                        .orElse(null))
+                .members(members)
+                .maxNumber(club.getMaxNumber())
+                .thumbnail(club.getThumbnail())
+                .recruitNumber(recruitNumber)
+                .recruitStatus(club.getRecruitStatus())
+                .category1Name(Optional.ofNullable(club.getCategory1())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                .category2Name(Optional.ofNullable(club.getCategory2())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                .creatorName(Optional.ofNullable(club.getCreator())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
+                .build();
+
+        return clubResponse;
+    }
+
+    private UserResponse selectUserResponse(User user, Long clubId){
+
+        UserClub userClub = user.getUserClubs()
+                .stream()
+                .filter(uc -> uc.getClub().getId() == clubId)
+                .findAny()
+                .orElse(null);
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(user.getId())
+                .organizationName(user.getOrganization().getName())
+                .name(user.getName())
+                .birthday(user.getBirthday())
+                .applyStatus(userClub.getApplyStatus())
+                .sex(user.getSex())
+                .email(user.getEmail())
+                .created(user.getCreated())
+                .build();
+
+        return userResponse;
+
+    }
+
+    private List<Club> getClubList(Long id, Pageable page) {
+        return id == null ?
+                clubRepository.findAllByOrderByIdDesc(page) :
+                clubRepository.findByIdLessThanOrderByIdDesc(id, page);
+    }
+
+    private Boolean hasNext(Long id) {
+        if (id == null) return false;
+        return clubRepository.existsByIdLessThan(id);
     }
 
 }
