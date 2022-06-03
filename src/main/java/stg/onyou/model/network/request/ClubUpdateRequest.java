@@ -21,7 +21,7 @@ public class ClubUpdateRequest {
     @PositiveOrZero
     @Range(min = 0, max = 100, message = "클럽 정원은 100명 이내로 해주세요")
     private Integer clubMaxMember;
-    @Size(max = 20, message = "20자 이내로 간단하게 입력해주세")
+    @Size(max = 20, message = "20자 이내로 간단하게 입력해주세요.")
     private String clubShortDesc;
     private String clubLongDesc;
     private String thumbnailUrl;
