@@ -1,10 +1,19 @@
 package stg.onyou.model.entity;
 
+import lombok.*;
+
 import javax.persistence.*;
+
+import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
 
+@Getter
+@Setter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
 
     @Id
@@ -20,8 +29,11 @@ public class Comment {
     private Feed feed;
 
     private String content;
+    private LocalDateTime created;
+    private LocalDateTime updated;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "parent_id")
-    private Comment parent;
+    // 대댓글 x
+//    @ManyToOne(fetch = LAZY)
+//    @JoinColumn(name = "parent_id")
+//    private Comment parent;
 }

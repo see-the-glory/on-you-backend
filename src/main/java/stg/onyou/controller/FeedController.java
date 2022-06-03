@@ -2,47 +2,55 @@ package stg.onyou.controller;
 
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import stg.onyou.model.AccessModifier;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.Comment;
 import stg.onyou.model.entity.Feed;
+import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.entity.FeedSearch;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
+import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.repository.ClubRepository;
-import stg.onyou.repository.UserRepository;
-import stg.onyou.service.AwsS3Service;
-import stg.onyou.service.ClubService;
-import stg.onyou.service.FeedService;
-import stg.onyou.service.UserService;
+import stg.onyou.repository.LikesRepository;
+import stg.onyou.service.*;
+
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 @Api(tags = {"Feed API Controller"})
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class FeedController {
 
     private final FeedService feedService;
     private final ClubService clubService;
-    private final ClubRepository clubRepository;
-    private final UserRepository userRepository;
     private final AwsS3Service awsS3Service;
     private final UserService userService;
+    private final CommentService commentService;
+    private final LikesRepository likesRepository;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {
         List<Feed> feeds = feedService.findFeeds();
         List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(f.getUser().getName(), f.getContent()))
+                .map(f -> new FeedResponse(
+                        f.getUser().getName(),
+                        f.getContent(),
+                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
+                        f.getLikes().size())
+                )
                 .collect(Collectors.toList());
+
         return Header.OK(resultList);
     }
 
@@ -50,37 +58,46 @@ public class FeedController {
     public Header<List<FeedResponse>> searchFeed(@RequestBody FeedSearch feedSearch) {
         List<Feed> feeds = feedService.findAllByString(feedSearch);
         List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(f.getUser().getName(), f.getContent()))
+                .map(f -> new FeedResponse(
+                        f.getUser().getName(),
+                        f.getContent(),
+                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
+                        f.getLikes().size())
+                )
                 .collect(Collectors.toList());
         return Header.OK(resultList);
     }
 
     @PostMapping("/api/feeds")
-    public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFile,
-                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request) {
+    public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFiles,
+                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request,
+                                     HttpServletRequest httpServletRequest) {
 
-        Long userId = 1L;
-        Feed feed = Feed.builder()
-                .content(request.getContent())
-                .delYn('n')
-                .access(AccessModifier.PUBLIC)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .club(clubRepository.findById(request.getClubId()).get())
-                .user(userRepository.findById(userId).get())
-                .reportCount(0)
-                .build();
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        List<FeedImage> feedImages = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            String url = awsS3Service.uploadFile(multipartFile);
+
+            feedService.addFeedImage(feedImages, url); // TODO test
+        }
+
+        Feed feed = feedService.getFeed(request, userId, feedImages);
 
         feedService.upload(feed);
-//        awsS3Service.uploadFile(multipartFile, userId);
 
         return Header.OK();
     }
 
+
     @GetMapping("/api/feeds/{id}")
     public Header<FeedResponse> selectFeed(@PathVariable Long id) {
         Feed feed = feedService.findById(id);
-        FeedResponse result = new FeedResponse(feed.getUser().getName(), feed.getContent());
+        FeedResponse result = new FeedResponse(
+                feed.getUser().getName(),
+                feed.getContent(),
+                feed.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
+                feed.getLikes().size()
+        );
 
         return Header.OK(result);
     }
@@ -89,7 +106,12 @@ public class FeedController {
     public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId) {
         List<Feed> feeds = feedService.findAllByClub(clubId);
         List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(f.getUser().getName(), f.getContent()))
+                .map(f -> new FeedResponse(
+                        f.getUser().getName(),
+                        f.getContent(),
+                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
+                        f.getLikes().size())
+                )
                 .collect(Collectors.toList());
         return Header.OK(resultList);
     }
@@ -98,32 +120,61 @@ public class FeedController {
     public Header<Object> updateFeed(@PathVariable Long id,
                                      @RequestBody FeedUpdateRequest request) {
         if (request.getAccess() == null || request.getContent() == null) {
-            System.out.println("NPE");
+            throw new CustomException(ErrorCode.FEED_UPDATE_ERROR);
         } else {
             feedService.updateFeed(id, request);
         }
         return Header.OK();
     }
 
-    @DeleteMapping("/api/feed/{id}")
-    public Header<Object> deleteFeedBy(@PathVariable Long id) {
-        feedService.deleteById(id);
-        Feed feed = feedService.findById(id);
-//        awsS3Service.deleteFile(feed.getFeedImages());
-        return Header.OK();
-    }
+//    @DeleteMapping("/api/feeds/{id}")
+//    public Header<Object> deleteFeedBy(@PathVariable Long id) {
+//        feedService.deleteById(id);
+//        Feed feed = feedService.findById(id);
+////        awsS3Service.deleteFile(feed.getFeedImages());
+//        return Header.OK();
+//    }
 
-    @PutMapping("/api/report/{id}")
+    @PutMapping("/api/feeds/{id}/report")
     public void reportFeed(@PathVariable Long id) {
         feedService.reportFeed(id);
     }
 
+//    @PostMapping("/api/feeds/{id}/like")
+//    public Header<Object> likeFeed(@PathVariable Long id,
+//                                   HttpServletRequest httpServletRequest) {
+////        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+//        Long userId = 1L;
+//
+//        // 기존에 좋아요 기록이 없으면, crate
+//        if (likesRepository.findByUserId(userId) == null) {
+//            feedService.createLikeFeed(userId, id);
+//        } else {
+//            // 좋아요 기록이 있으면, update like flip
+//            feedService.updateLikeFeed()
+//        }
+//
+//
+//        return Header.OK();
+//    }
 
-    @PostMapping("/api/test")
-    public void test() throws IOException {
-//        Resource resource = awsS3Service.getFile(1L, "6aaf43ed-2546-4ba5-a185-4492c5a6cded.PNG");
-//        String contentType = null;
-        awsS3Service.deleteFile(1L, "6aaf43ed-2546-4ba5-a185-4492c5a6cded.PNG");
 
+    /**
+     * FEED 에 댓글 추가
+     */
+    @PostMapping("/api/feeds/{id}/comment")
+    public Header<Object> commentFeed(@PathVariable Long id,
+                                      @RequestBody Map<String, String> comment,
+                                      HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        String content = comment.get("content");
+        feedService.commentFeed(userId, id, content);
+        return Header.OK();
     }
+
+    @GetMapping("/api/feeds/{id}/comments")
+    public Header<List<CommentResponse>> getCommentList(@PathVariable Long id){
+        return Header.OK(feedService.getComments(id));
+    }
+
 }

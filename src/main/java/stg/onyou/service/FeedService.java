@@ -5,15 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.FeedSearch;
+import stg.onyou.model.AccessModifier;
+import stg.onyou.model.entity.*;
+import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
-import stg.onyou.repository.ClubRepository;
-import stg.onyou.repository.FeedRepository;
+import stg.onyou.model.network.response.CommentResponse;
+import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,10 @@ public class FeedService {
 
     private final FeedRepository feedRepository;
     private final ClubRepository clubRepository;
+    private final FeedImageRepository feedImageRepository;
+    private final UserRepository userRepository;
+    private final LikesRepository likesRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * feed 등록
@@ -93,5 +99,77 @@ public class FeedService {
         Feed feed = feedRepository.findOne(id);
         feed.setReportCount(feed.getReportCount() + 1);
     }
+
+    public Feed getFeed(FeedCreateRequest request, Long userId, List<FeedImage> feedImages) {
+        return Feed.builder()
+                .content(request.getContent())
+                .delYn('n')
+                .access(AccessModifier.PUBLIC)
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+                .club(clubRepository.findById(request.getClubId()).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND)))
+                .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .reportCount(0)
+                .feedImages(feedImages)
+                .build();
+    }
+
+    @Transactional
+    public void addFeedImage(List<FeedImage> feedImages, String url) {
+        FeedImage feedImage = FeedImage.builder().url(url).build();
+        feedImages.add(feedImage);
+        feedImageRepository.save(feedImage);
+    }
+
+    @Transactional
+    public void createLikeFeed(Long userId, Long feedId) {
+        Feed feed = feedRepository.findOne(feedId);
+        Optional<User> user = userRepository.findById(userId);
+
+        Likes like = Likes.builder()
+                .feed(feed)
+                .user(user.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .build();
+        likesRepository.save(like);
+    }
+
+    @Transactional
+    public void commentFeed(Long userId, Long feedId, String content) {
+        Feed feed = feedRepository.findOne(feedId);
+        Optional<User> user = userRepository.findById(userId);
+
+        Comment comment = Comment.builder()
+                .feed(feed)
+                .user(user.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .content(content)
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+                .build();
+        commentRepository.save(comment);
+    }
+
+    public List<CommentResponse> getComments(Long feedId) {
+        Feed feed = feedRepository.findOne(feedId);
+        List<CommentResponse> resultList;
+        if (feed == null) {
+            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
+        } else {
+             resultList = feed.getComments().stream().map(comment -> new CommentResponse(
+                     comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
+             )).collect(Collectors.toList());
+        }
+        return resultList;
+    }
+
+//    public int getLikesCount(Long feedId) {
+//        Feed feed = feedRepository.findOne(feedId);
+//        if (feed == null) {
+//            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
+//
+//        } else {
+//            return feed.getLikes().size();
+//        }
+//    }
+
 
 }
