@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.entity.Comment;
+import stg.onyou.model.entity.Likes;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,10 +17,8 @@ public class FeedResponse {
 
     String userName;
     String content;
+    List<CommentResponse> comment;
+    int likesCount;
 
-    /*
-     TODO
-     사진 추가
-     */
 
 }
