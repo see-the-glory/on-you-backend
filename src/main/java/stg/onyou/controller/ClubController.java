@@ -40,10 +40,9 @@ public class ClubController {
     }
 
     @GetMapping("")
-    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Integer size){
+    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id){
 
-        if (size == null) size = DEFAULT_PAGINATION_SIZE;
-        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, size));
+        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id);
 
         return Header.OK(clubs);
     }

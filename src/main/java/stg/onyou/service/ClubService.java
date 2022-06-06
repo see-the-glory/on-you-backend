@@ -61,11 +61,11 @@ public class ClubService {
     /**
      * 전체 클럽 select
      */
-    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page) {
+    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id) {
 
         List<ClubResponse> clubs = new ArrayList<>();
 
-        getClubList(cursorId, page)
+        getClubList(cursorId, page, category1Id, category2Id)
             .forEach(club->{
                 clubs.add(selectClubResponse(club));
             });
@@ -436,10 +436,31 @@ public class ClubService {
 
     }
 
-    private List<Club> getClubList(Long id, Pageable page) {
-        return id == null ?
-                clubRepository.findAllByOrderByIdDesc(page) :
-                clubRepository.findByIdLessThanOrderByIdDesc(id, page);
+    private List<Club> getClubList(Long id, Pageable page, Long category1Id, Long category2Id) {
+
+        if (id == null) { // cursor-id 가 존재하지 않는 경우에 대하여, ( initial 호출 )
+            if (category1Id == null && category2Id == null) { //category 필터 존재 x
+                return clubRepository.findAllByOrderByIdDesc(page);
+            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
+                List<Club> joined = new ArrayList<>();
+                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category1Id, category2Id, page));
+                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category2Id, category1Id, page));
+                return joined;
+            } else { // category filter 1개만 존재
+                return clubRepository.findByCategory1IdOrCategory2IdOrderByIdDesc(category1Id, category1Id, page);
+            }
+        } else { // cursor-id 가 존재하는 경우에 대하여, ( 2번째 이상의 호출 )
+            if (category1Id == null && category2Id == null) { //category 필터 존재하지 않으면
+                return clubRepository.findByIdLessThanOrderByIdDesc(id, page);
+            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
+                List<Club> joined = new ArrayList<>();
+                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category1Id, category2Id, id, page));
+                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category2Id, category1Id, id, page));
+                return joined;
+            } else { // category filter 1개만 존재
+                return clubRepository.findByCategory1IdOrCategory2IdAndIdLessThanOrderByIdDesc(category1Id, category1Id, id, page);
+            }
+        }
     }
 
     private Boolean hasNext(Long id) {

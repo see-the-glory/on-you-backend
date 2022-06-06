@@ -88,7 +88,6 @@ public class FeedController {
         return Header.OK();
     }
 
-
     @GetMapping("/api/feeds/{id}")
     public Header<FeedResponse> selectFeed(@PathVariable Long id) {
         Feed feed = feedService.findById(id);
@@ -102,7 +101,7 @@ public class FeedController {
         return Header.OK(result);
     }
 
-    @GetMapping("/api/{clubId}/feeds")
+    @GetMapping("/api/clubs/{clubId}/feeds")
     public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId) {
         List<Feed> feeds = feedService.findAllByClub(clubId);
         List<FeedResponse> resultList = feeds.stream()
