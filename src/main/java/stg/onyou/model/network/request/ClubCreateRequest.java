@@ -26,11 +26,11 @@ public class ClubCreateRequest {
 
     @NotNull
     @PositiveOrZero
-    @Range(min = 0, max = 100, message = "클럽 정원은 100명 이내로 해주세요")
+    @Range(min = 0, max = 100, message = "클럽 정원은 100명 이내로 해주세요.")
     private Integer clubMaxMember;
 
     @NotEmpty
-    @Size(max = 20, message = "클럽의 간단한 소개를 입력해주세")
+    @Size(max = 20, message = "클럽의 간단한 소개를 입력해주세요.")
     private String clubShortDesc;
     private String clubLongDesc;
 

@@ -2,23 +2,20 @@ package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpMethod;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
+import stg.onyou.model.network.response.UserUpdateRequest;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 import stg.onyou.model.entity.User;
 
-import com.google.gson.JsonParser;
-import com.google.gson.JsonElement;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -41,6 +38,7 @@ public class UserService {
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
+                .name(user.getName())
                 .organizationName(user.getOrganization().getName())
                 .birthday(user.getBirthday())
                 .sex(user.getSex())
@@ -69,5 +67,41 @@ public class UserService {
                 .build();
 
         return Header.OK(userClubResponse);
+    }
+
+    public Optional<User> findUser(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        user.setName(userUpdateRequest.getName());
+        user.setBirthday(userUpdateRequest.getBirthday());
+        user.setThumbnail(userUpdateRequest.getThumbnail());
+        user.setEmail(userUpdateRequest.getEmail());
+        user.setUpdated(LocalDateTime.now());
+
+        Header.OK(userRepository.save(user));
+    }
+
+    public Header<User> registerUserInfo(UserCreateRequest userCreateRequest, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        user.setOrganization(userCreateRequest.getOrganization());
+        user.setBirthday(userCreateRequest.getBirthday());
+        user.setThumbnail(userCreateRequest.getThumbnail());
+        user.setEmail(userCreateRequest.getEmail());
+        user.setCreated(LocalDateTime.now());
+        user.setUpdated(LocalDateTime.now());
+
+        return Header.OK(userRepository.save(user));
     }
 }

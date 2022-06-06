@@ -4,21 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.entity.Comment;
-import stg.onyou.model.entity.Likes;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FeedResponse {
+public class CommentResponse {
 
     String userName;
     String content;
-    List<CommentResponse> comment;
-    int likesCount;
-
-
+    LocalDateTime created;
+    LocalDateTime updated;
 }
