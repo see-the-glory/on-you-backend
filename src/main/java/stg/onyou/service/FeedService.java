@@ -26,7 +26,7 @@ public class FeedService {
     private final ClubRepository clubRepository;
     private final FeedImageRepository feedImageRepository;
     private final UserRepository userRepository;
-    private final LikesRepository likesRepository;
+//    private final LikesRepository likesRepository;
     private final CommentRepository commentRepository;
 
     /**
@@ -121,17 +121,17 @@ public class FeedService {
         feedImageRepository.save(feedImage);
     }
 
-    @Transactional
-    public void createLikeFeed(Long userId, Long feedId) {
-        Feed feed = feedRepository.findOne(feedId);
-        Optional<User> user = userRepository.findById(userId);
-
-        Likes like = Likes.builder()
-                .feed(feed)
-                .user(user.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
-                .build();
-        likesRepository.save(like);
-    }
+//    @Transactional
+//    public void createLikeFeed(Long userId, Long feedId) {
+//        Feed feed = feedRepository.findOne(feedId);
+//        Optional<User> user = userRepository.findById(userId);
+//
+//        Likes like = Likes.builder()
+//                .feed(feed)
+//                .user(user.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+//                .build();
+//        likesRepository.save(like);
+//    }
 
     @Transactional
     public void commentFeed(Long userId, Long feedId, String content) {

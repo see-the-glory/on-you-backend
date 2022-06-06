@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id", "content", "access", "delYn", "reportCount"})
 public class Feed {
 
     @Id

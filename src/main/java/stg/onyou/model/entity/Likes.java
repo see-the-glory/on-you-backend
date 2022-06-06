@@ -1,9 +1,6 @@
 package stg.onyou.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,6 +9,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id"})
 public class Likes {
 
     @Id
