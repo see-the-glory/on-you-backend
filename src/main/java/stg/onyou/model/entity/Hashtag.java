@@ -13,6 +13,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id", "hashtag"})
 public class Hashtag {
 
     @Id

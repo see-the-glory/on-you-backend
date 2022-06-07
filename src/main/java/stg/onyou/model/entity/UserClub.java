@@ -1,9 +1,6 @@
 package stg.onyou.model.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.Role;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id","applyStatus","approveDate", "applyDate", "role"})
 public class UserClub {
 
     @Id

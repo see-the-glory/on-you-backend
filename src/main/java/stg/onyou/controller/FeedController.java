@@ -16,7 +16,7 @@ import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.repository.LikesRepository;
+//import stg.onyou.repository.LikesRepository;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +36,8 @@ public class FeedController {
     private final ClubService clubService;
     private final AwsS3Service awsS3Service;
     private final UserService userService;
-    private final CommentService commentService;
-    private final LikesRepository likesRepository;
+//    private final CommentService commentService;
+//    private final LikesRepository likesRepository;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {

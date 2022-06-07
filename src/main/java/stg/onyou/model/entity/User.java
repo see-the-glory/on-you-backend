@@ -1,10 +1,7 @@
 package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import stg.onyou.model.Role;
 
 import javax.persistence.*;
@@ -17,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id","name","birthday", "thumbnail", "sex", "email", "role", "socialId"})
 public class User {
 
     @Id

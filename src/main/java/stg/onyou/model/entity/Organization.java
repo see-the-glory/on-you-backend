@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString(of={"id","name","address","pastorName"})
 public class Organization {
 
     @Id

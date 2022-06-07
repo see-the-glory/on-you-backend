@@ -2,10 +2,7 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import stg.onyou.model.RecruitStatus;
 
 import javax.persistence.*;
@@ -18,14 +15,15 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id", "name", "shortDesc", "longDesc", "delYn", "thumbnail", "announcement", "recruitStatus", "maxNumber", "isApproveRequired"})
 public class Club {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String short_desc;
-    private String long_desc;
+    private String shortDesc;
+    private String longDesc;
     private char delYn;
     private String thumbnail;
     private String announcement;

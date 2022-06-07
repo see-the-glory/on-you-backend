@@ -11,6 +11,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Builder
+@ToString(of={"id"})
 public class FeedHashtag {
 
     @Id

@@ -61,7 +61,7 @@ public class ClubService {
     /**
      * 전체 클럽 select
      */
-    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id) {
+    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id, String searchKeyword) {
 
         List<ClubResponse> clubs = new ArrayList<>();
 
@@ -89,8 +89,8 @@ public class ClubService {
         // clubLongDesc, category2Id 는 optional값이므로 null체크
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
-                .short_desc(clubCreateRequest.getClubShortDesc())
-                .long_desc(
+                .shortDesc(clubCreateRequest.getClubShortDesc())
+                .longDesc(
                         Optional.ofNullable(clubCreateRequest.getClubLongDesc())
                             .orElse(null)
                 )
@@ -147,13 +147,13 @@ public class ClubService {
                 Optional.ofNullable(clubUpdateRequest.getClubMaxMember())
                         .orElse(club.getMaxNumber())
         );
-        club.setShort_desc(
+        club.setShortDesc(
                 Optional.ofNullable(clubUpdateRequest.getClubShortDesc())
-                        .orElse(club.getShort_desc())
+                        .orElse(club.getShortDesc())
         );
-        club.setLong_desc(
+        club.setLongDesc(
                 Optional.ofNullable(clubUpdateRequest.getClubLongDesc())
-                        .orElse(club.getLong_desc())
+                        .orElse(club.getLongDesc())
         );
         club.setThumbnail(
                 Optional.ofNullable(clubUpdateRequest.getThumbnailUrl())
@@ -384,8 +384,8 @@ public class ClubService {
         ClubResponse clubResponse = ClubResponse.builder()
                 .id(club.getId())
                 .name(club.getName())
-                .clubShortDesc(club.getShort_desc())
-                .clubLongDesc(club.getLong_desc())
+                .clubShortDesc(club.getShortDesc())
+                .clubLongDesc(club.getLongDesc())
                 .announcement(club.getAnnouncement())
                 .organizationName(Optional.ofNullable(club.getOrganization())
                         .map(r->r.getName())
@@ -450,7 +450,7 @@ public class ClubService {
                 return clubRepository.findByCategory1IdOrCategory2IdOrderByIdDesc(category1Id, category1Id, page);
             }
         } else { // cursor-id 가 존재하는 경우에 대하여, ( 2번째 이상의 호출 )
-            if (category1Id == null && category2Id == null) { //category 필터 존재하지 않으면
+            if (category1Id == null && category2Id == null) { //category 필터 존재 X
                 return clubRepository.findByIdLessThanOrderByIdDesc(id, page);
             } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
                 List<Club> joined = new ArrayList<>();

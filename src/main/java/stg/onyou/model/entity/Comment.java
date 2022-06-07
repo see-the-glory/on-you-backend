@@ -14,6 +14,7 @@ import static javax.persistence.FetchType.LAZY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(of={"id", "content"})
 public class Comment {
 
     @Id
