@@ -20,7 +20,7 @@ public class AwsS3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
-    @Bean
+    @Bean(name="amazonS3")
     public AmazonS3Client amazonS3Client() {
 
         StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
