@@ -26,7 +26,6 @@ public class FeedService {
     private final ClubRepository clubRepository;
     private final FeedImageRepository feedImageRepository;
     private final UserRepository userRepository;
-//    private final LikesRepository likesRepository;
     private final CommentRepository commentRepository;
 
     /**
@@ -60,14 +59,14 @@ public class FeedService {
      * FeedSearch
      */
     public List<Feed> findAllByString(FeedSearch feedSearch) {
-        return feedRepository.findAllString(feedSearch);
+        return feedRepository.findAllString(feedSearch.getContent());
     }
 
     /**
      * 특정 feed id -> feed 정보 값을 return
      */
     public Feed findById(Long id) {
-        return feedRepository.findOne(id);
+        return feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
     }
 
     /**
@@ -75,7 +74,7 @@ public class FeedService {
      */
     @Transactional
     public void updateFeed(Long id, FeedUpdateRequest updateFeed) {
-        Feed feed = feedRepository.findOne(id);
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         feed.setContent(updateFeed.getContent());
         feed.setAccess(updateFeed.getAccess());
         feed.setUpdated(LocalDateTime.now());
@@ -86,7 +85,7 @@ public class FeedService {
      */
     @Transactional
     public void deleteById(Long id) {
-        Feed feed = feedRepository.findOne(id);
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         feed.setDelYn('y');
     }
 
@@ -96,7 +95,7 @@ public class FeedService {
      */
     @Transactional
     public void reportFeed(Long id) {
-        Feed feed = feedRepository.findOne(id);
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         feed.setReportCount(feed.getReportCount() + 1);
     }
 
@@ -135,12 +134,12 @@ public class FeedService {
 
     @Transactional
     public void commentFeed(Long userId, Long feedId, String content) {
-        Feed feed = feedRepository.findOne(feedId);
-        Optional<User> user = userRepository.findById(userId);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Comment comment = Comment.builder()
                 .feed(feed)
-                .user(user.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .user(user)
                 .content(content)
                 .created(LocalDateTime.now())
                 .updated(LocalDateTime.now())
@@ -148,8 +147,8 @@ public class FeedService {
         commentRepository.save(comment);
     }
 
-    public List<CommentResponse> getComments(Long feedId) {
-        Feed feed = feedRepository.findOne(feedId);
+    public List<CommentResponse> getComments(Long id) {
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         List<CommentResponse> resultList;
         if (feed == null) {
             throw new CustomException(ErrorCode.FEED_NOT_FOUND);
@@ -161,15 +160,15 @@ public class FeedService {
         return resultList;
     }
 
-//    public int getLikesCount(Long feedId) {
-//        Feed feed = feedRepository.findOne(feedId);
-//        if (feed == null) {
-//            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
-//
-//        } else {
-//            return feed.getLikes().size();
-//        }
-//    }
+    public int getLikesCount(Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+        if (feed == null) {
+            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
+
+        } else {
+            return feed.getLikes().size();
+        }
+    }
 
 
 }

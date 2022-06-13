@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Comment;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.entity.FeedSearch;
@@ -16,7 +15,6 @@ import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedResponse;
-//import stg.onyou.repository.LikesRepository;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +34,8 @@ public class FeedController {
     private final ClubService clubService;
     private final AwsS3Service awsS3Service;
     private final UserService userService;
-//    private final CommentService commentService;
-//    private final LikesRepository likesRepository;
+    //    private final CommentService commentService;
+    private final LikesService likesService;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {
@@ -139,24 +137,6 @@ public class FeedController {
         feedService.reportFeed(id);
     }
 
-//    @PostMapping("/api/feeds/{id}/like")
-//    public Header<Object> likeFeed(@PathVariable Long id,
-//                                   HttpServletRequest httpServletRequest) {
-////        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-//        Long userId = 1L;
-//
-//        // 기존에 좋아요 기록이 없으면, crate
-//        if (likesRepository.findByUserId(userId) == null) {
-//            feedService.createLikeFeed(userId, id);
-//        } else {
-//            // 좋아요 기록이 있으면, update like flip
-//            feedService.updateLikeFeed()
-//        }
-//
-//
-//        return Header.OK();
-//    }
-
 
     /**
      * FEED 에 댓글 추가
@@ -172,8 +152,29 @@ public class FeedController {
     }
 
     @GetMapping("/api/feeds/{id}/comments")
-    public Header<List<CommentResponse>> getCommentList(@PathVariable Long id){
+    public Header<List<CommentResponse>> getCommentList(@PathVariable Long id) {
         return Header.OK(feedService.getComments(id));
+    }
+
+    @PostMapping("/api/feeds/{id}/likes")
+    public Header<Object> likeFeed(@PathVariable Long id,
+                                   HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        likesService.addLikes(userId, id);
+        return Header.OK();
+    }
+
+    @PutMapping("/api/feeds/{id}/likes")
+    public Header<Object> reverseLikeFeed(@PathVariable Long id,
+                                          HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        likesService.reversLikes(userId, id);
+        return Header.OK();
+    }
+
+    @GetMapping("/api/feeds/{id}/likes")
+    public Header<Integer> getFeedLikesCount(@PathVariable Long id) {
+        return Header.OK(feedService.getLikesCount(id));
     }
 
 }
