@@ -3,8 +3,10 @@ package stg.onyou.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Optional;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -23,4 +25,6 @@ public class Likes {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;
+
+    private boolean onOff;
 }

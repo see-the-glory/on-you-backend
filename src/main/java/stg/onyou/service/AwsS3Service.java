@@ -33,7 +33,7 @@ public class AwsS3Service {
     private String bucket;
 
     @Autowired
-    private AmazonS3Client amazonS3;
+    private AmazonS3Client amazonS3Client;
     @Autowired
     private FeedImageRepository feedImageRepository;
 
@@ -48,18 +48,19 @@ public class AwsS3Service {
 
         String key = fileName+"_"+file.getOriginalFilename();
         try (InputStream inputStream = file.getInputStream()) {
-            PutObjectResult result = amazonS3.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+            PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
+
             System.out.println(result);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-        return amazonS3.getUrl(bucket, key).toString();
+        return amazonS3Client.getUrl(bucket, key).toString();
     }
 
     public ResponseEntity<byte[]> downloadFile(String storedFileName) throws IOException {
-        S3Object o = amazonS3.getObject(new GetObjectRequest(bucket, storedFileName));
+        S3Object o = amazonS3Client.getObject(new GetObjectRequest(bucket, storedFileName));
         S3ObjectInputStream objectInputStream = o.getObjectContent();
         byte[] bytes = IOUtils.toByteArray(objectInputStream);
 
@@ -80,11 +81,19 @@ public class AwsS3Service {
 //    }
 
     public void deleteFile(Long userId, String storedFileName) {
-        amazonS3.deleteObject(new DeleteObjectRequest(bucket, "Feed/" + userId.toString() + "/" + storedFileName));
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, "Feed/" + userId.toString() + "/" + storedFileName));
     }
+
 
     private String createFileName(String fileName) { // 먼저 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌립니다.
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 
+    private String getFileExtension(String fileName) { // file 형식이 잘못된 경우를 확인하기 위해 만들어진 로직이며, 파일 타입과 상관없이 업로드할 수 있게 하기 위해 .의 존재 유무만 판단하였습니다.
+        try {
+            return fileName.substring(fileName.lastIndexOf("."));
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
+        }
+    }
 }
