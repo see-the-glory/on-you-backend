@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.Reason;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.entity.FeedSearch;
@@ -36,6 +37,8 @@ public class FeedController {
     private final UserService userService;
     //    private final CommentService commentService;
     private final LikesService likesService;
+    private final ReportService reportService;
+    private final HashtagService hashtagService;
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList() {
@@ -44,7 +47,6 @@ public class FeedController {
                 .map(f -> new FeedResponse(
                         f.getUser().getName(),
                         f.getContent(),
-                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
                         f.getLikes().size())
                 )
                 .collect(Collectors.toList());
@@ -59,7 +61,6 @@ public class FeedController {
                 .map(f -> new FeedResponse(
                         f.getUser().getName(),
                         f.getContent(),
-                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
                         f.getLikes().size())
                 )
                 .collect(Collectors.toList());
@@ -68,19 +69,18 @@ public class FeedController {
 
     @PostMapping("/api/feeds")
     public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFiles,
-                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request,
-                                     HttpServletRequest httpServletRequest) {
+                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request
+                                     ) {
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = 1L;
         List<FeedImage> feedImages = new ArrayList<>();
+        Feed feed = feedService.createFeed(request, userId, feedImages);
         for (MultipartFile multipartFile : multipartFiles) {
             String url = awsS3Service.uploadFile(multipartFile);
-
-            feedService.addFeedImage(feedImages, url); // TODO test
+            feedService.addFeedImage(feed, url);
         }
-
-        Feed feed = feedService.getFeed(request, userId, feedImages);
-
+        hashtagService.addHashtagToFeed(feed);
         feedService.upload(feed);
 
         return Header.OK();
@@ -92,7 +92,6 @@ public class FeedController {
         FeedResponse result = new FeedResponse(
                 feed.getUser().getName(),
                 feed.getContent(),
-                feed.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
                 feed.getLikes().size()
         );
 
@@ -106,7 +105,6 @@ public class FeedController {
                 .map(f -> new FeedResponse(
                         f.getUser().getName(),
                         f.getContent(),
-                        f.getComments().stream().map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList()),
                         f.getLikes().size())
                 )
                 .collect(Collectors.toList());
@@ -132,9 +130,15 @@ public class FeedController {
 //        return Header.OK();
 //    }
 
+    /**
+     * FEED 신고
+     */
     @PutMapping("/api/feeds/{id}/report")
-    public void reportFeed(@PathVariable Long id) {
-        feedService.reportFeed(id);
+    public Header<String> reportFeed(@PathVariable Long id,
+                           @RequestParam("reason") Reason reason, HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        String result = reportService.feedReport(userId, id, reason);
+        return Header.OK(result);
     }
 
 

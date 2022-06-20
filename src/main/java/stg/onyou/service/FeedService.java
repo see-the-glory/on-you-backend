@@ -14,7 +14,6 @@ import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,18 +88,9 @@ public class FeedService {
         feed.setDelYn('y');
     }
 
-
-    /**
-     * 특정 feed 신고. user는 feed에 대해 1번만 신고 가능.
-     */
     @Transactional
-    public void reportFeed(Long id) {
-        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        feed.setReportCount(feed.getReportCount() + 1);
-    }
-
-    public Feed getFeed(FeedCreateRequest request, Long userId, List<FeedImage> feedImages) {
-        return Feed.builder()
+    public Feed createFeed(FeedCreateRequest request, Long userId, List<FeedImage> feedImages) {
+         Feed feed = Feed.builder()
                 .content(request.getContent())
                 .delYn('n')
                 .access(AccessModifier.PUBLIC)
@@ -111,12 +101,14 @@ public class FeedService {
                 .reportCount(0)
                 .feedImages(feedImages)
                 .build();
+         return feedRepository.save(feed);
     }
 
     @Transactional
-    public void addFeedImage(List<FeedImage> feedImages, String url) {
-        FeedImage feedImage = FeedImage.builder().url(url).build();
-        feedImages.add(feedImage);
+    public void addFeedImage(Feed feed, String url) {
+        FeedImage feedImage = FeedImage.builder()
+                .feed(feed).url(url).build();
+
         feedImageRepository.save(feedImage);
     }
 
