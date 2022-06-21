@@ -17,7 +17,6 @@ public class FeedResponse {
 
     String userName;
     String content;
-    List<CommentResponse> comment;
     int likesCount;
 
 
