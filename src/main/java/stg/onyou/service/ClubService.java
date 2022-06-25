@@ -79,7 +79,7 @@ public class ClubService {
     /**
      * 클럽 create
      */
-    public Club createClub(ClubCreateRequest clubCreateRequest, Long userId){
+    public Header<ClubResponse> createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
         // category1과 category2가 같은 것을 선택하는 것 방지
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
@@ -116,7 +116,8 @@ public class ClubService {
                 .build();
 
 
-        return clubRepository.save(club);
+        Club savedClub = clubRepository.save(club);
+        return Header.OK(selectClubResponse(savedClub));
 
     }
 

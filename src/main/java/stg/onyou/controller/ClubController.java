@@ -32,7 +32,7 @@ public class ClubController {
     @Autowired
     private AwsS3Service awsS3Service;
 
-    private final Integer DEFAULT_PAGINATION_SIZE = 2;
+    private final Integer DEFAULT_PAGINATION_SIZE = 5;
 
     @GetMapping("/{id}")
     public Header<ClubResponse> selectClub(@PathVariable Long id){
@@ -48,7 +48,7 @@ public class ClubController {
     }
 
     @PostMapping("")
-    public Header<String> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
+    public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubCreateRequest")
                                              ClubCreateRequest clubCreateRequest,
                                      HttpServletRequest httpServletRequest){
@@ -60,9 +60,7 @@ public class ClubController {
             clubCreateRequest.setThumbnailUrl(thumbnailUrl);
         }
 
-        Club club = clubService.createClub(clubCreateRequest, userId);
-
-        return Header.OK("club_id: "+ club.getId());
+        return clubService.createClub(clubCreateRequest, userId);
     }
 
     @PutMapping("/{id}")
