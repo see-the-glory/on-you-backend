@@ -404,7 +404,6 @@ public class ClubService {
                 .name(club.getName())
                 .clubShortDesc(club.getShortDesc())
                 .clubLongDesc(club.getLongDesc())
-                .announcement(club.getAnnouncement())
                 .organizationName(Optional.ofNullable(club.getOrganization())
                         .map(r->r.getName())
                         .orElse(null))
