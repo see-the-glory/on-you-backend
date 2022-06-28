@@ -11,6 +11,9 @@ import stg.onyou.model.entity.Hashtag;
 import stg.onyou.repository.FeedHashtagRepository;
 import stg.onyou.repository.FeedRepository;
 import stg.onyou.repository.HashtagRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,12 +22,12 @@ import java.util.Optional;
 public class HashtagService {
 
     private final HashtagRepository hashtagRepository;
-    private final FeedRepository feedRepository;
     private final FeedHashtagRepository feedHashtagRepository;
 
     @Transactional
-    public void addHashtagToFeed(Feed feed) {
+    public List<FeedHashtag> addHashtagToFeed(Feed feed) {
         String[] splitString = feed.getContent().split(" ");
+        List<FeedHashtag> result = new ArrayList<>();
         for (String str : splitString) {
             if (str.charAt(0) == '#') {
                 String hashtag = str.substring(1);
@@ -35,7 +38,6 @@ public class HashtagService {
                             .hashtag(findHashtag.orElseThrow(() -> new CustomException(ErrorCode.HASHTAG_NOT_FOUND)))
                             .build();
                     feedHashtagRepository.save(feedHashtag);
-
                 } else {
                     Hashtag hashtagObj = Hashtag.builder()
                                     .hashtag(hashtag).build();
@@ -48,7 +50,7 @@ public class HashtagService {
                 }
             }
         }
-
+        return result;
     }
 
 }

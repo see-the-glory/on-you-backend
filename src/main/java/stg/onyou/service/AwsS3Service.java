@@ -38,17 +38,13 @@ public class AwsS3Service {
     private FeedImageRepository feedImageRepository;
 
     public String uploadFile(MultipartFile file) {
-
-        List<String> fileUrls = new ArrayList<>();
-
         String fileName = createFileName(file.getOriginalFilename());
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
-        String key = fileName+"_"+file.getOriginalFilename();
         try (InputStream inputStream = file.getInputStream()) {
-            PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, key, inputStream, objectMetadata)
+            PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
 
             System.out.println(result);
@@ -56,7 +52,7 @@ public class AwsS3Service {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-        return amazonS3Client.getUrl(bucket, key).toString();
+        return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
     public ResponseEntity<byte[]> downloadFile(String storedFileName) throws IOException {

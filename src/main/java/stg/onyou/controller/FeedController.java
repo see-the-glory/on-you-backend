@@ -9,6 +9,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.Reason;
 import stg.onyou.model.entity.Feed;
+import stg.onyou.model.entity.FeedHashtag;
 import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.entity.FeedSearch;
 import stg.onyou.model.network.Header;
@@ -41,73 +42,130 @@ public class FeedController {
     private final HashtagService hashtagService;
 
     @GetMapping("/api/feeds")
-    public Header<List<FeedResponse>> selectFeedList() {
+    public Header<List<FeedResponse>> selectFeedList(HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         List<Feed> feeds = feedService.findFeeds();
-        List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(
-                        f.getUser().getName(),
-                        f.getContent(),
-                        f.getLikes().size())
-                )
-                .collect(Collectors.toList());
+
+        List<FeedResponse> resultList = new ArrayList<>();
+
+        for (Feed feed : feeds) {
+            String userName = feed.getUser().getName();
+            String content = feed.getContent();
+            List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
+            boolean likeYn = likesService.isLikes(userId, feed.getId());
+            int likesCount = feed.getLikes().size();
+            int commentCount = feed.getComments().size();
+            FeedResponse feedResponse = FeedResponse.builder()
+                    .userName(userName)
+                    .content(content)
+                    .imageUrls(imageUrls)
+                    .likeYn(likeYn)
+                    .likesCount(likesCount)
+                    .commentCount(commentCount)
+                    .build();
+            resultList.add(feedResponse);
+        }
 
         return Header.OK(resultList);
     }
 
     @GetMapping("/api/feeds/search")
-    public Header<List<FeedResponse>> searchFeed(@RequestBody FeedSearch feedSearch) {
+    public Header<List<FeedResponse>> searchFeed(@RequestBody FeedSearch feedSearch,
+                                                 HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         List<Feed> feeds = feedService.findAllByString(feedSearch);
-        List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(
-                        f.getUser().getName(),
-                        f.getContent(),
-                        f.getLikes().size())
-                )
-                .collect(Collectors.toList());
+        List<FeedResponse> resultList = new ArrayList<>();
+
+        for (Feed feed : feeds) {
+            String userName = feed.getUser().getName();
+            String content = feed.getContent();
+            List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
+            boolean likeYn = likesService.isLikes(userId, feed.getId());
+            int likesCount = feed.getLikes().size();
+            int commentCount = feed.getComments().size();
+            FeedResponse feedResponse = FeedResponse.builder()
+                    .userName(userName)
+                    .content(content)
+                    .imageUrls(imageUrls)
+                    .likeYn(likeYn)
+                    .likesCount(likesCount)
+                    .commentCount(commentCount)
+                    .build();
+            resultList.add(feedResponse);
+        }
         return Header.OK(resultList);
     }
 
+
     @PostMapping("/api/feeds")
     public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFiles,
-                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request
-                                     ) {
+                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request,
+                                     HttpServletRequest httpServletRequest
+    ) {
 
-//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        Long userId = 1L;
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         List<FeedImage> feedImages = new ArrayList<>();
         Feed feed = feedService.createFeed(request, userId, feedImages);
         for (MultipartFile multipartFile : multipartFiles) {
             String url = awsS3Service.uploadFile(multipartFile);
             feedService.addFeedImage(feed, url);
         }
-        hashtagService.addHashtagToFeed(feed);
+        List<FeedHashtag> feedHashtagList = hashtagService.addHashtagToFeed(feed);
+        feed.setFeedHashtags(feedHashtagList);
         feedService.upload(feed);
 
         return Header.OK();
     }
 
     @GetMapping("/api/feeds/{id}")
-    public Header<FeedResponse> selectFeed(@PathVariable Long id) {
+    public Header<FeedResponse> selectFeed(@PathVariable Long id,
+                                           HttpServletRequest httpServletRequest) {
         Feed feed = feedService.findById(id);
-        FeedResponse result = new FeedResponse(
-                feed.getUser().getName(),
-                feed.getContent(),
-                feed.getLikes().size()
-        );
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        return Header.OK(result);
+        String userName = feed.getUser().getName();
+        String content = feed.getContent();
+        List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
+        boolean likeYn = likesService.isLikes(userId, feed.getId());
+        int likesCount = feed.getLikes().size();
+        int commentCount = feed.getComments().size();
+        FeedResponse feedResponse = FeedResponse.builder()
+                .userName(userName)
+                .content(content)
+                .imageUrls(imageUrls)
+                .likeYn(likeYn)
+                .likesCount(likesCount)
+                .commentCount(commentCount)
+                .build();
+
+        return Header.OK(feedResponse);
     }
 
     @GetMapping("/api/clubs/{clubId}/feeds")
-    public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId) {
+    public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId,
+                                                       HttpServletRequest httpServletRequest) {
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         List<Feed> feeds = feedService.findAllByClub(clubId);
-        List<FeedResponse> resultList = feeds.stream()
-                .map(f -> new FeedResponse(
-                        f.getUser().getName(),
-                        f.getContent(),
-                        f.getLikes().size())
-                )
-                .collect(Collectors.toList());
+        List<FeedResponse> resultList = new ArrayList<>();
+
+        for (Feed feed : feeds) {
+            String userName = feed.getUser().getName();
+            String content = feed.getContent();
+            List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
+            boolean likeYn = likesService.isLikes(userId, feed.getId());
+            int likesCount = feed.getLikes().size();
+            int commentCount = feed.getComments().size();
+            FeedResponse feedResponse = FeedResponse.builder()
+                    .userName(userName)
+                    .content(content)
+                    .imageUrls(imageUrls)
+                    .likeYn(likeYn)
+                    .likesCount(likesCount)
+                    .commentCount(commentCount)
+                    .build();
+            resultList.add(feedResponse);
+        }
+
         return Header.OK(resultList);
     }
 
@@ -135,7 +193,7 @@ public class FeedController {
      */
     @PutMapping("/api/feeds/{id}/report")
     public Header<String> reportFeed(@PathVariable Long id,
-                           @RequestParam("reason") Reason reason, HttpServletRequest httpServletRequest) {
+                                     @RequestParam("reason") Reason reason, HttpServletRequest httpServletRequest) {
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         String result = reportService.feedReport(userId, id, reason);
         return Header.OK(result);
@@ -161,16 +219,15 @@ public class FeedController {
     }
 
     @PostMapping("/api/feeds/{id}/likes")
-    public Header<Object> likeFeed(@PathVariable Long id,
-                                   HttpServletRequest httpServletRequest) {
+    public Header<Object> likeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         likesService.addLikes(userId, id);
         return Header.OK();
     }
 
     @PutMapping("/api/feeds/{id}/likes")
-    public Header<Object> reverseLikeFeed(@PathVariable Long id,
-                                          HttpServletRequest httpServletRequest) {
+    public Header<Object> reverseLikeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest
+                                          ) {
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         likesService.reversLikes(userId, id);
         return Header.OK();
