@@ -64,9 +64,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             request.setAttribute("userId", user.getId());
         }
 //
-//        int a = 1;
-//        String s1 = request.getAttribute("userId").toString();
-//        int b = 3;
+        int a = 1;
+        String s1 = request.getAttribute("userId").toString();
+        int b = 3;
 
 
         chain.doFilter(request, response);

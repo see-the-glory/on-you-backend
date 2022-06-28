@@ -115,9 +115,26 @@ public class ClubService {
                 )
                 .build();
 
-
         Club savedClub = clubRepository.save(club);
-        return Header.OK(selectClubResponse(savedClub));
+        ClubResponse clubResponse = ClubResponse.builder()
+                .id(savedClub.getId())
+                .name(savedClub.getName())
+                .clubShortDesc(savedClub.getShortDesc())
+                .clubLongDesc(savedClub.getLongDesc())
+                .organizationName(savedClub.getOrganization().getName())
+                .maxNumber(savedClub.getMaxNumber())
+                .thumbnail(savedClub.getThumbnail())
+                .recruitStatus(savedClub.getRecruitStatus())
+                .creatorName(savedClub.getCreator().getName())
+                .category1Name(savedClub.getCategory1().getName())
+                .category2Name(
+                        Optional.ofNullable(savedClub.getCategory2())
+                            .map(r -> r.getName())
+                            .orElse(null)
+                )
+                .build();
+
+        return Header.OK(clubResponse);
 
     }
 

@@ -26,7 +26,6 @@ public class Club {
     private String longDesc;
     private char delYn;
     private String thumbnail;
-    private String announcement;
     @Enumerated(EnumType.STRING)
     private RecruitStatus recruitStatus;
     private int maxNumber;
