@@ -20,7 +20,6 @@ public class ClubResponse {
     private String name;
     private String clubShortDesc;
     private String clubLongDesc;
-    private String announcement;
     private String organizationName;
     private List<UserResponse> members;
     private int maxNumber;
