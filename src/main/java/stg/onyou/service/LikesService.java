@@ -30,8 +30,17 @@ public class LikesService {
 
     // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소
     public void reversLikes(Long userId, Long feedId) {
-        Likes like = likesRepository.findLikesByFeedIdAndUserId(feedId, userId);
+        Likes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
         like.setOnOff(!like.isOnOff());
         likesRepository.save(like);
+    }
+
+    // '좋아요' 유무
+    public boolean isLikes(Long userId, Long feedId) {
+        Likes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
+        if (like == null) {
+            return false;
+        }
+        return like.isOnOff();
     }
 }

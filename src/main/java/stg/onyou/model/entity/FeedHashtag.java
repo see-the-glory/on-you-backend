@@ -6,6 +6,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
