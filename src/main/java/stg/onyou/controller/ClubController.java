@@ -158,4 +158,15 @@ public class ClubController {
 
     }
 
+    @DeleteMapping("/schedules/{id}/cancel")
+    public Header<String> cancelClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        clubService.cancelClubSchedule(id, userId);
+
+        return Header.OK("Deleted successfully");
+
+    }
+
 }

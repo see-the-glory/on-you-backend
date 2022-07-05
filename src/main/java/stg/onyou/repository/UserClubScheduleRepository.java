@@ -7,5 +7,6 @@ import stg.onyou.model.entity.UserClubSchedule;
 import java.util.Optional;
 
 public interface UserClubScheduleRepository extends JpaRepository<UserClubSchedule, Long> {
-    Optional<UserClubSchedule> findByUserIdAndClubScheduleId(Long userId, Long clubId);
+    Optional<UserClubSchedule> findByUserIdAndClubScheduleId(Long userId, Long clubScheduleId);
+    Optional<UserClubSchedule> findByClubScheduleId(Long clubScheduleId);
 }

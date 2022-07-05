@@ -16,6 +16,10 @@ public class UserClubSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+//    @ManyToOne
+//    @JoinColumn(name="club_id")
+//    private Club club;
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;

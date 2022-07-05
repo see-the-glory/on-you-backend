@@ -19,6 +19,10 @@ import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.repository.*;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -96,7 +100,7 @@ public class ClubService {
                 )
                 .delYn('N')
                 .thumbnail("default image url")
-                .recruitStatus(RecruitStatus.BEGIN)
+                .recruitStatus(RecruitStatus.RECRUIT)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .isApproveRequired(clubCreateRequest.getIsApproveRequired())
                 .created(LocalDateTime.now())
@@ -115,7 +119,21 @@ public class ClubService {
                 )
                 .build();
 
-        Club savedClub = clubRepository.save(club);
+        Club savedClub = clubRepository.save(club); // Club 저장
+        UserClub userClub = UserClub.builder()      // creator도 club의 멤버(마스터)니깐 UserClub에 저장
+                .user(userRepository.findById(userId)
+                        .orElseThrow(
+                                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                        )
+                )
+                .club(club)
+                .applyStatus(ApplyStatus.APPROVED)
+                .approveDate(LocalDateTime.now())
+                .role(Role.MASTER)
+                .build();
+
+        userClubRepository.save(userClub);
+
         ClubResponse clubResponse = ClubResponse.builder()
                 .id(savedClub.getId())
                 .name(savedClub.getName())
@@ -337,9 +355,45 @@ public class ClubService {
                 .filter(cs -> cs.getClub().getId() == id)
                 .collect(Collectors.toList());
 
-        List<ClubScheduleResponse> clubScheduleResponseList = clubScheduleList.stream()
-                .map(clubSchedule -> modelMapper.map(clubSchedule, ClubScheduleResponse.class))
-                .collect(Collectors.toList());
+        List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
+
+        for (ClubSchedule clubSchedule : clubScheduleList) {
+
+            List<UserClubSchedule> userClubScheduleList = userClubScheduleRepository.findAll()
+                    .stream()
+                    .filter(ucs -> ucs.getClubSchedule().getId() == clubSchedule.getId())
+                    .collect(Collectors.toList());
+
+            List<UserResponse> members = new ArrayList<>();
+
+            for (UserClubSchedule userClubSchedule : userClubScheduleList) {
+
+                UserResponse userResponse = UserResponse.builder()
+                        .id(userClubSchedule.getUser().getId())
+                        .organizationName(userClubSchedule.getUser().getOrganization().getName())
+                        .name(userClubSchedule.getUser().getName())
+                        .applyStatus(ApplyStatus.APPROVED)
+                        .birthday(userClubSchedule.getUser().getBirthday())
+                        .sex(userClubSchedule.getUser().getSex())
+                        .email(userClubSchedule.getUser().getEmail())
+                        .created(userClubSchedule.getUser().getCreated())
+                        .build();
+
+                members.add(userResponse);
+            }
+
+            ClubScheduleResponse clubScheduleResponse = ClubScheduleResponse.builder()
+                    .id(clubSchedule.getId())
+                    .name(clubSchedule.getName())
+                    .location(clubSchedule.getLocation())
+                    .content(clubSchedule.getContent())
+                    .members(members)
+                    .startDate(clubSchedule.getStartDate())
+                    .endDate(clubSchedule.getEndDate())
+                    .build();
+
+            clubScheduleResponseList.add(clubScheduleResponse);
+        }
 
         return Header.OK(clubScheduleResponseList);
     }
@@ -356,6 +410,16 @@ public class ClubService {
                 .build();
 
         return userClubScheduleRepository.save(userClubSchedule);
+    }
+
+    public void cancelClubSchedule(Long clubScheduleId, Long userId) {
+
+        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, clubScheduleId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
+                );
+
+       userClubScheduleRepository.deleteById(userClubSchedule.getId());
     }
 
     public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
