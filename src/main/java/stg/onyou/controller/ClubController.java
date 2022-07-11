@@ -13,6 +13,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
@@ -46,6 +47,12 @@ public class ClubController {
         CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
 
         return Header.OK(clubs);
+    }
+
+    @GetMapping("/{id}")
+    public Header<ClubRoleResponse> selectClubRole(@PathVariable Long id, HttpServletRequest httpServletRequest){
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        return clubService.selectClubRole(id, userId);
     }
 
     @PostMapping("")

@@ -13,10 +13,7 @@ import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
-import stg.onyou.model.network.response.CategoryResponse;
-import stg.onyou.model.network.response.ClubResponse;
-import stg.onyou.model.network.response.ClubScheduleResponse;
-import stg.onyou.model.network.response.UserResponse;
+import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.persistence.EnumType;
@@ -80,6 +77,23 @@ public class ClubService {
                 null : clubs.get(clubs.size() - 1).getId();
 
         return new CursorResult<>(clubs, hasNext(lastIdOfList));
+    }
+
+    public Header<ClubRoleResponse> selectClubRole(Long clubId, Long userId){
+
+        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        ClubRoleResponse clubRoleResponse = ClubRoleResponse.builder()
+                .userId(userClub.getUser().getId())
+                .clubId(userClub.getClub().getId())
+                .role(userClub.getRole())
+                .build();
+
+        return Header.OK(clubRoleResponse);
+
     }
 
     /**
