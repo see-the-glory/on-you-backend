@@ -11,7 +11,7 @@ import stg.onyou.model.Reason;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedHashtag;
 import stg.onyou.model.entity.FeedImage;
-import stg.onyou.model.entity.FeedSearch;
+import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;

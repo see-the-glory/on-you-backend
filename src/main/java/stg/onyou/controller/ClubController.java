@@ -12,6 +12,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.ClubResponse;
+import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
@@ -47,6 +48,19 @@ public class ClubController {
         return Header.OK(clubs);
     }
 
+    @GetMapping("/{id}/role")
+    public Header<ClubRoleResponse> selectClubRole(@PathVariable Long id, HttpServletRequest httpServletRequest){
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        return clubService.selectClubRole(id, userId);
+    }
+
+//    @GetMapping("/{id}")
+//    public Header<ClubApplierResponse> selectClubMessages(@PathVariable Long id, HttpServletRequest httpServletRequest){
+//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+//        return clubService.selectClubMessages(id, userId);
+//    }
+
+
     @PostMapping("")
     public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubCreateRequest")
@@ -78,7 +92,7 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    public Header<String> applyClub(@PathVariable Long id, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
         // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
@@ -91,15 +105,23 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> approveClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    public Header<String> approveClub(@PathVariable Long id, @RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-
-        UserClub userClub = clubService.approveClub(userId,id);
+        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        UserClub userClub = clubService.approveClub(approverId, clubApproveRequest.getApprovedUserId(), id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
         return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
+    }
+
+    @PostMapping("/{id}/likes")
+    public Header<String> likesClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.likesClub(id, userId);
+
+        return Header.OK("Likes 등록 또는 해제 완료");
     }
 
 
@@ -155,6 +177,17 @@ public class ClubController {
         }
 
         return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
+
+    }
+
+    @DeleteMapping("/schedules/{id}/cancel")
+    public Header<String> cancelClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        clubService.cancelClubSchedule(id, userId);
+
+        return Header.OK("Deleted successfully");
 
     }
 

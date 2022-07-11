@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
+import stg.onyou.repository.ClubRepository;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 import stg.onyou.model.entity.User;
@@ -24,6 +26,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private UserClubRepository userClubRepository;
+    @Autowired
+    private ClubRepository clubRepository;
 
     public Header<UserResponse> selectUser(Long id){
 
@@ -42,7 +46,7 @@ public class UserService {
                 .organizationName(user.getOrganization().getName())
                 .birthday(user.getBirthday())
                 .sex(user.getSex())
-                .email(user.getEmail())
+                .email(user.getAccount_email())
                 .created(user.getCreated())
                 .build();
 
@@ -52,7 +56,17 @@ public class UserService {
 
     public Header<UserClubResponse> selectUserClubResponse(Long userId, Long clubId) {
 
-        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubId)
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
@@ -82,7 +96,7 @@ public class UserService {
         user.setName(userUpdateRequest.getName());
         user.setBirthday(userUpdateRequest.getBirthday());
         user.setThumbnail(userUpdateRequest.getThumbnail());
-        user.setEmail(userUpdateRequest.getEmail());
+        user.setAccount_email(userUpdateRequest.getEmail());
         user.setUpdated(LocalDateTime.now());
 
         Header.OK(userRepository.save(user));
@@ -98,7 +112,7 @@ public class UserService {
         user.setOrganization(userCreateRequest.getOrganization());
         user.setBirthday(userCreateRequest.getBirthday());
         user.setThumbnail(userCreateRequest.getThumbnail());
-        user.setEmail(userCreateRequest.getEmail());
+        user.setAccount_email(userCreateRequest.getEmail());
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
 

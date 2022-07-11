@@ -1,17 +1,17 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.Reason;
 
 import javax.persistence.*;
 
-@Entity
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Report {
+@Entity
+@Builder
+@ToString(of={"id"})
+public class ClubLikes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +22,8 @@ public class Report {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private Feed feed;
+    @JoinColumn(name = "club_id")
+    private Club club;
 
-    @Enumerated(EnumType.STRING)
-    private Reason reason;
+    private boolean onOff;
 }

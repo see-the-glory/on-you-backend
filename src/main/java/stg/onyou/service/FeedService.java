@@ -8,6 +8,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.AccessModifier;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.request.FeedCreateRequest;
+import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.repository.*;

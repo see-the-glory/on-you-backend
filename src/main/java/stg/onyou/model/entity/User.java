@@ -28,11 +28,9 @@ public class User {
     private String birthday;
     private String thumbnail;
     private char sex;
-    private String email;
+    private String account_email;
     private LocalDateTime created;
     private LocalDateTime updated;
-    @Enumerated(EnumType.STRING)
-    private Role role;
     private String socialId;
 
     @OneToMany(mappedBy = "creator")
