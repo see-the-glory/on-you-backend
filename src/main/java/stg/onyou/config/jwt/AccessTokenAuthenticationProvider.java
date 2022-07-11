@@ -46,13 +46,13 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return userRepository.findBySocialId(kakaoUser.getSocialId())
                 .orElseGet(() -> userRepository.save(User.builder()
                         .name(kakaoUser.getName())
-                        .email(kakaoUser.getEmail())
+                        .account_email(kakaoUser.getEmail())
                         .socialId(kakaoUser.getSocialId())
                         .birthday(kakaoUser.getBirthday())
                         .thumbnail(kakaoUser.getThumbnail())
                         .sex(kakaoUser.getSex())
                         .created(LocalDateTime.now())
-                        .role(Role.MEMBER).build()));//없다면 멤버를 새로 만드는데, 디폴트는 Role.Member
+                        .build()));
 
     }
 

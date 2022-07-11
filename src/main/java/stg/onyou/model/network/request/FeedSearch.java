@@ -1,4 +1,4 @@
-package stg.onyou.model.entity;
+package stg.onyou.model.network.request;
 
 import lombok.Getter;
 import lombok.Setter;

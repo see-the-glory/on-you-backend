@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -49,11 +48,18 @@ public class ClubController {
         return Header.OK(clubs);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/role")
     public Header<ClubRoleResponse> selectClubRole(@PathVariable Long id, HttpServletRequest httpServletRequest){
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         return clubService.selectClubRole(id, userId);
     }
+
+//    @GetMapping("/{id}")
+//    public Header<ClubApplierResponse> selectClubMessages(@PathVariable Long id, HttpServletRequest httpServletRequest){
+//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+//        return clubService.selectClubMessages(id, userId);
+//    }
+
 
     @PostMapping("")
     public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
@@ -86,7 +92,7 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    public Header<String> applyClub(@PathVariable Long id, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
         // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());

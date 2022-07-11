@@ -1,6 +1,5 @@
 package stg.onyou.service;
 
-import org.hibernate.validator.constraints.Range;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +15,6 @@ import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +40,8 @@ public class ClubService {
     private UserClubScheduleRepository userClubScheduleRepository;
     @Autowired
     private ClubLikesRepository clubLikesRepository;
+    @Autowired
+    private UserClubApplicationRepository userClubApplicationRepository;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -81,7 +77,16 @@ public class ClubService {
 
     public Header<ClubRoleResponse> selectClubRole(Long clubId, Long userId){
 
-        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubId)
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
@@ -95,6 +100,11 @@ public class ClubService {
         return Header.OK(clubRoleResponse);
 
     }
+
+//    public Header<ClubMessagesResponse> selectClubMessages(Long clubId, Long userId){
+//
+//
+//    }
 
     /**
      * 클럽 create
@@ -232,7 +242,7 @@ public class ClubService {
                 );
 
         //이미 해당하는 user와 club에 대한 user_club row가 존재한다면 duplicate error
-        userClubRepository.findByUserIdAndClubId(userId, clubId)
+        userClubRepository.findByUserAndClub(user, club)
                 .ifPresent(uc->{
                     throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
                 });
@@ -272,11 +282,14 @@ public class ClubService {
      */
     public UserClub approveClub(Long approverId, Long approvedUserId, Long clubId) {
 
-        User user = userRepository.findById(approvedUserId)
+        User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
-
+        User approver  = userRepository.findById(approverId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
         Club club  = clubRepository.findById(clubId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
@@ -287,12 +300,12 @@ public class ClubService {
         }
 
         //user_id, club_id로 UserClub find
-        UserClub approvedUserClub  = userClubRepository.findByUserIdAndClubId(approvedUserId, clubId)
+        UserClub approvedUserClub  = userClubRepository.findByUserAndClub(approvedUser, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
-        UserClub approverUserClub  = userClubRepository.findByUserIdAndClubId(approverId, clubId)
+        UserClub approverUserClub  = userClubRepository.findByUserAndClub(approver, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
@@ -347,7 +360,17 @@ public class ClubService {
 
     public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
 
-        UserClub userClub = userClubRepository.findByUserIdAndClubId(userId, clubScheduleCreateRequest.getClubId())
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubScheduleCreateRequest.getClubId())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
@@ -434,7 +457,7 @@ public class ClubService {
                         .applyStatus(ApplyStatus.APPROVED)
                         .birthday(userClubSchedule.getUser().getBirthday())
                         .sex(userClubSchedule.getUser().getSex())
-                        .email(userClubSchedule.getUser().getEmail())
+                        .email(userClubSchedule.getUser().getAccount_email())
                         .created(userClubSchedule.getUser().getCreated())
                         .build();
 
@@ -483,7 +506,16 @@ public class ClubService {
 
     public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
 
-        UserClub userClub = userClubRepository.findByUserIdAndClubId(clubRoleAllocateRequest.getUserId(), clubId)
+        User user = userRepository.findById(clubRoleAllocateRequest.getUserId())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
@@ -568,7 +600,7 @@ public class ClubService {
                 .birthday(user.getBirthday())
                 .applyStatus(userClub.getApplyStatus())
                 .sex(user.getSex())
-                .email(user.getEmail())
+                .email(user.getAccount_email())
                 .created(user.getCreated())
                 .build();
 
