@@ -256,9 +256,9 @@ public class ClubService {
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public UserClub approveClub(Long userId, Long clubId) {
+    public UserClub approveClub(Long approverId, Long approvedUserId, Long clubId) {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(approvedUserId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
@@ -273,19 +273,27 @@ public class ClubService {
         }
 
         //user_id, club_id로 UserClub find
-        UserClub userClub  = userClubRepository.findByUserIdAndClubId(userId, clubId)
+        UserClub approvedUserClub  = userClubRepository.findByUserIdAndClubId(approvedUserId, clubId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
-        if(userClub.getApplyStatus() == null || userClub.getApplyStatus()!=ApplyStatus.APPLIED){
+        UserClub approverUserClub  = userClubRepository.findByUserIdAndClubId(approverId, clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        if(approvedUserClub.getApplyStatus() == null || approvedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
         }
-        userClub.setRole(Role.MEMBER);
-        userClub.setApplyStatus(ApplyStatus.APPROVED);
-        userClub.setApproveDate(LocalDateTime.now());
 
-        return userClubRepository.save(userClub);
+        if(!approverUserClub.getRole().equals(Role.MEMBER)){
+            approvedUserClub.setRole(Role.MEMBER);
+            approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
+            approvedUserClub.setApproveDate(LocalDateTime.now());
+        }
+
+        return userClubRepository.save(approvedUserClub);
     }
 
     public void likesClub(Long clubId, Long userId){

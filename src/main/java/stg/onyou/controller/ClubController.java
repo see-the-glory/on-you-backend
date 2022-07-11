@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -91,11 +92,10 @@ public class ClubController {
     }
 
     @PostMapping("/{id}/approve")
-    public Header<String> approveClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    public Header<String> approveClub(@PathVariable Long id, @RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-
-        UserClub userClub = clubService.approveClub(userId,id);
+        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        UserClub userClub = clubService.approveClub(approverId, clubApproveRequest.getApprovedUserId(), id);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
