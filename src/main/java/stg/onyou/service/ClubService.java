@@ -48,6 +48,8 @@ public class ClubService {
     @Autowired
     private UserClubScheduleRepository userClubScheduleRepository;
     @Autowired
+    private ClubLikesRepository clubLikesRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
     /**
@@ -284,6 +286,41 @@ public class ClubService {
         userClub.setApproveDate(LocalDateTime.now());
 
         return userClubRepository.save(userClub);
+    }
+
+    public void likesClub(Long clubId, Long userId){
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        clubLikesRepository.findByClubAndUser(club,user)
+                .ifPresentOrElse(
+                        clubLikes -> {
+                            if(clubLikes.isOnOff()){
+                                clubLikes.setOnOff(false);
+                            } else {
+                                clubLikes.setOnOff(true);
+                            }
+                            clubLikesRepository.save(clubLikes);
+                        },
+                        () -> {
+                            ClubLikes clubLikes = ClubLikes.builder()
+                                    .club(club)
+                                    .user(user)
+                                    .onOff(true)
+                                    .build();
+                            clubLikesRepository.save(clubLikes);
+                        }
+
+                );
+
     }
 
     public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {

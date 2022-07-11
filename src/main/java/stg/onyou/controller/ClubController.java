@@ -102,6 +102,15 @@ public class ClubController {
         return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
 
+    @PostMapping("/{id}/likes")
+    public Header<String> likesClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.likesClub(id, userId);
+
+        return Header.OK("Likes 등록 또는 해제 완료");
+    }
+
 
     @PostMapping("/{id}/allocate")
     public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
