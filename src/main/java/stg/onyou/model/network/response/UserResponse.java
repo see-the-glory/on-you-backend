@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.ApplyStatus;
+import stg.onyou.model.Role;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +23,7 @@ public class UserResponse {
     private char sex;
     private String email;
     private LocalDateTime created;
+    private Role role;
 
 }
 

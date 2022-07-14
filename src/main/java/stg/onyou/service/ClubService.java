@@ -607,7 +607,6 @@ public class ClubService {
                         .map(r -> r.getName())
                         .orElse(null)
                 )
-                // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();
 
         return clubResponse;
@@ -630,6 +629,7 @@ public class ClubService {
                 .sex(user.getSex())
                 .email(user.getAccount_email())
                 .created(user.getCreated())
+                .role(userClub.getRole())
                 .build();
 
         return userResponse;
