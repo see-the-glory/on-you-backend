@@ -480,29 +480,57 @@ public class ClubService {
         return Header.OK(clubScheduleResponseList);
     }
 
-    public UserClubSchedule registerClubSchedule(Long clubScheduleId, Long userId) {
+    public UserClubSchedule joinOrCacnelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+
+        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
+        );
+
+        // clubSchedule이 속한 club의 id와 client가 요청한 club의 id가 일치하지 않으면 권한 에러
+        if( clubSchedule.getClub().getId() != clubId ){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
 
         UserClubSchedule userClubSchedule = UserClubSchedule.builder()
                 .user(userRepository.findById(userId)
                         .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND))
                 )
-                .clubSchedule(clubScheduleRepository.findById(clubScheduleId)
+                .clubSchedule(clubScheduleRepository.findById(scheduleId)
                         .orElseThrow(()-> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND))
                 )
                 .build();
 
-        return userClubScheduleRepository.save(userClubSchedule);
-    }
-
-    public void cancelClubSchedule(Long clubScheduleId, Long userId) {
-
-        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, clubScheduleId)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
+       userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, scheduleId)
+                .ifPresentOrElse(
+                        ucs -> {
+                            userClubScheduleRepository.deleteById(ucs.getId());
+                        },
+                        () -> {
+                            userClubScheduleRepository.save(userClubSchedule);
+                        }
                 );
 
-       userClubScheduleRepository.deleteById(userClubSchedule.getId());
+       return userClubSchedule;
     }
+//
+//    public void cancelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+//
+//        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
+//                () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
+//        );
+//
+//        if( clubSchedule.getClub().getId() != clubId ){
+//            throw new CustomException(ErrorCode.NO_PERMISSION);
+//        }
+//
+//        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, scheduleId)
+//                .orElseThrow(
+//                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
+//                );
+//
+//       userClubScheduleRepository.deleteById(userClubSchedule.getId());
+//    }
 
     public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
 

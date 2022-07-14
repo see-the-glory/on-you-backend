@@ -166,29 +166,26 @@ public class ClubController {
 
     }
 
-    @PostMapping("/schedules/{id}/register")
-    public Header<String> registerClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/schedules/{scheduleId}/joinOrCancel")
+    public Header<String> joinOrCancelClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, HttpServletRequest httpServletRequest){
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        UserClubSchedule userClubSchedule = clubService.registerClubSchedule(id, userId);
-        if(userClubSchedule == null){
-            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
-        }
+        UserClubSchedule userClubSchedule = clubService.joinOrCacnelClubSchedule(clubId, scheduleId, userId);
 
         return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
 
     }
 
-    @DeleteMapping("/schedules/{id}/cancel")
-    public Header<String> cancelClubSchedule(@PathVariable Long id, HttpServletRequest httpServletRequest){
-
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-
-        clubService.cancelClubSchedule(id, userId);
-
-        return Header.OK("Deleted successfully");
-
-    }
+//    @DeleteMapping("{clubId}/schedules/{scheduleId}/cancel")
+//    public Header<String> cancelClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, HttpServletRequest httpServletRequest){
+//
+//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+//
+//        clubService.cancelClubSchedule(clubId, scheduleId, userId);
+//
+//        return Header.OK("Deleted successfully");
+//
+//    }
 
 }
