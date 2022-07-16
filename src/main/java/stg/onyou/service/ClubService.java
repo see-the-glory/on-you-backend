@@ -86,16 +86,22 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        ClubRoleResponse clubRoleResponse;
         UserClub userClub = userClubRepository.findByUserAndClub(user, club)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
-                );
-
-        ClubRoleResponse clubRoleResponse = ClubRoleResponse.builder()
-                .userId(userClub.getUser().getId())
-                .clubId(userClub.getClub().getId())
-                .role(userClub.getRole())
-                .build();
+                .orElse(null);
+        if(userClub == null){   // userClub이 존재하지 않을 경우에는 role, applyStatus 를 null로 반환
+            clubRoleResponse = ClubRoleResponse.builder()
+                    .userId(user.getId())
+                    .clubId(club.getId())
+                    .build();
+        } else {
+            clubRoleResponse = ClubRoleResponse.builder()
+                    .userId(user.getId())
+                    .clubId(club.getId())
+                    .role(userClub.getRole())
+                    .applyStatus(userClub.getApplyStatus())
+                    .build();
+        }
 
         return Header.OK(clubRoleResponse);
 
@@ -480,29 +486,57 @@ public class ClubService {
         return Header.OK(clubScheduleResponseList);
     }
 
-    public UserClubSchedule registerClubSchedule(Long clubScheduleId, Long userId) {
+    public UserClubSchedule joinOrCacnelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+
+        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
+        );
+
+        // clubSchedule이 속한 club의 id와 client가 요청한 club의 id가 일치하지 않으면 권한 에러
+        if( clubSchedule.getClub().getId() != clubId ){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
 
         UserClubSchedule userClubSchedule = UserClubSchedule.builder()
                 .user(userRepository.findById(userId)
                         .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND))
                 )
-                .clubSchedule(clubScheduleRepository.findById(clubScheduleId)
+                .clubSchedule(clubScheduleRepository.findById(scheduleId)
                         .orElseThrow(()-> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND))
                 )
                 .build();
 
-        return userClubScheduleRepository.save(userClubSchedule);
-    }
-
-    public void cancelClubSchedule(Long clubScheduleId, Long userId) {
-
-        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, clubScheduleId)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
+       userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, scheduleId)
+                .ifPresentOrElse(
+                        ucs -> {
+                            userClubScheduleRepository.deleteById(ucs.getId());
+                        },
+                        () -> {
+                            userClubScheduleRepository.save(userClubSchedule);
+                        }
                 );
 
-       userClubScheduleRepository.deleteById(userClubSchedule.getId());
+       return userClubSchedule;
     }
+//
+//    public void cancelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+//
+//        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
+//                () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
+//        );
+//
+//        if( clubSchedule.getClub().getId() != clubId ){
+//            throw new CustomException(ErrorCode.NO_PERMISSION);
+//        }
+//
+//        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, scheduleId)
+//                .orElseThrow(
+//                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
+//                );
+//
+//       userClubScheduleRepository.deleteById(userClubSchedule.getId());
+//    }
 
     public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
 
@@ -579,7 +613,6 @@ public class ClubService {
                         .map(r -> r.getName())
                         .orElse(null)
                 )
-                // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();
 
         return clubResponse;
@@ -602,6 +635,7 @@ public class ClubService {
                 .sex(user.getSex())
                 .email(user.getAccount_email())
                 .created(user.getCreated())
+                .role(userClub.getRole())
                 .build();
 
         return userResponse;
