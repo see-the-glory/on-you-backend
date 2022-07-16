@@ -404,11 +404,31 @@ public class ClubService {
     }
 
 
-    public ClubSchedule updateClubSchedule(ClubScheduleUpdateRequest clubScheduleUpdateRequest, Long id) {
-        ClubSchedule clubSchedule = clubScheduleRepository.findById(id)
+    public ClubSchedule updateClubSchedule(ClubScheduleUpdateRequest clubScheduleUpdateRequest, Long clubId, Long scheduleId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
                 );
+
+        if(userClub.getRole().equals("MEMBER")){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
 
         clubSchedule.setContent(
                 Optional.ofNullable(clubScheduleUpdateRequest.getContent())
@@ -433,6 +453,30 @@ public class ClubService {
         clubSchedule.setUpdated(LocalDateTime.now());
 
         return clubScheduleRepository.save(clubSchedule);
+    }
+
+    public void deleteClubSchedule(Long clubId, Long scheduleId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        if(userClub.getRole().equals("MEMBER")){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        clubScheduleRepository.deleteById(scheduleId);
     }
 
 
@@ -493,7 +537,7 @@ public class ClubService {
         );
 
         // clubSchedule이 속한 club의 id와 client가 요청한 club의 id가 일치하지 않으면 권한 에러
-        if( clubSchedule.getClub().getId() != clubId ){
+        if( isScheduleNotInClub(clubSchedule, clubId) ){
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
@@ -519,24 +563,6 @@ public class ClubService {
 
        return userClubSchedule;
     }
-//
-//    public void cancelClubSchedule(Long clubId, Long scheduleId, Long userId) {
-//
-//        ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
-//                () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
-//        );
-//
-//        if( clubSchedule.getClub().getId() != clubId ){
-//            throw new CustomException(ErrorCode.NO_PERMISSION);
-//        }
-//
-//        UserClubSchedule userClubSchedule = userClubScheduleRepository.findByUserIdAndClubScheduleId(userId, scheduleId)
-//                .orElseThrow(
-//                        () -> new CustomException(ErrorCode.USER_CLUB_SCHEDULE_NOT_FOUND)
-//                );
-//
-//       userClubScheduleRepository.deleteById(userClubSchedule.getId());
-//    }
 
     public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
 
@@ -672,6 +698,10 @@ public class ClubService {
     private Boolean hasNext(Long id) {
         if (id == null) return false;
         return clubRepository.existsByIdLessThan(id);
+    }
+
+    private Boolean isScheduleNotInClub(ClubSchedule clubSchedule, Long clubId){
+        return clubSchedule.getClub().getId() != clubId;
     }
 
 }
