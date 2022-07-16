@@ -86,16 +86,22 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
+        ClubRoleResponse clubRoleResponse;
         UserClub userClub = userClubRepository.findByUserAndClub(user, club)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
-                );
-
-        ClubRoleResponse clubRoleResponse = ClubRoleResponse.builder()
-                .userId(userClub.getUser().getId())
-                .clubId(userClub.getClub().getId())
-                .role(userClub.getRole())
-                .build();
+                .orElse(null);
+        if(userClub == null){   // userClub이 존재하지 않을 경우에는 role, applyStatus 를 null로 반환
+            clubRoleResponse = ClubRoleResponse.builder()
+                    .userId(user.getId())
+                    .clubId(club.getId())
+                    .build();
+        } else {
+            clubRoleResponse = ClubRoleResponse.builder()
+                    .userId(user.getId())
+                    .clubId(club.getId())
+                    .role(userClub.getRole())
+                    .applyStatus(userClub.getApplyStatus())
+                    .build();
+        }
 
         return Header.OK(clubRoleResponse);
 
