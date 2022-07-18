@@ -12,6 +12,10 @@ import java.util.List;
 @Builder
 public class FeedResponse {
 
+    Long feedId;
+    Long clubId;
+    String clubName;
+    Long userId;
     String userName;
     String content;
     List<String> imageUrls;

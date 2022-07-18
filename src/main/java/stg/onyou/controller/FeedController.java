@@ -49,19 +49,28 @@ public class FeedController {
         List<FeedResponse> resultList = new ArrayList<>();
 
         for (Feed feed : feeds) {
+            Long feedId = feed.getId();
+            Long clubId = feed.getClub().getId();
+            String clubName = feed.getClub().getName();
             String userName = feed.getUser().getName();
             String content = feed.getContent();
+            List<String> hashtags = feedService.getHashtags(feed);
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
             int commentCount = feed.getComments().size();
             FeedResponse feedResponse = FeedResponse.builder()
+                    .userId(userId)
                     .userName(userName)
+                    .feedId(feedId)
+                    .clubId(clubId)
+                    .clubName(clubName)
                     .content(content)
                     .imageUrls(imageUrls)
                     .likeYn(likeYn)
                     .likesCount(likesCount)
                     .commentCount(commentCount)
+                    .hashtags(hashtags)
                     .build();
             resultList.add(feedResponse);
         }
@@ -78,18 +87,27 @@ public class FeedController {
 
         for (Feed feed : feeds) {
             String userName = feed.getUser().getName();
+            Long feedId = feed.getId();
+            Long clubId = feed.getClub().getId();
+            String clubName = feed.getClub().getName();
             String content = feed.getContent();
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
             int commentCount = feed.getComments().size();
+            List<String> hashtags = feedService.getHashtags(feed);
             FeedResponse feedResponse = FeedResponse.builder()
+                    .userId(userId)
+                    .feedId(feedId)
+                    .clubId(clubId)
+                    .clubName(clubName)
                     .userName(userName)
                     .content(content)
                     .imageUrls(imageUrls)
                     .likeYn(likeYn)
                     .likesCount(likesCount)
                     .commentCount(commentCount)
+                    .hashtags(hashtags)
                     .build();
             resultList.add(feedResponse);
         }
@@ -122,20 +140,28 @@ public class FeedController {
                                            HttpServletRequest httpServletRequest) {
         Feed feed = feedService.findById(id);
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-
         String userName = feed.getUser().getName();
+        Long feedId = feed.getId();
+        Long clubId = feed.getClub().getId();
+        String clubName = feed.getClub().getName();
         String content = feed.getContent();
+        List<String> hashtags = feedService.getHashtags(feed);
         List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
         boolean likeYn = likesService.isLikes(userId, feed.getId());
         int likesCount = feed.getLikes().size();
         int commentCount = feed.getComments().size();
         FeedResponse feedResponse = FeedResponse.builder()
+                .userId(userId)
+                .feedId(feedId)
+                .clubId(clubId)
+                .clubName(clubName)
                 .userName(userName)
                 .content(content)
                 .imageUrls(imageUrls)
                 .likeYn(likeYn)
                 .likesCount(likesCount)
                 .commentCount(commentCount)
+                .hashtags(hashtags)
                 .build();
 
         return Header.OK(feedResponse);
@@ -149,19 +175,27 @@ public class FeedController {
         List<FeedResponse> resultList = new ArrayList<>();
 
         for (Feed feed : feeds) {
+            Long feedId = feed.getId();
+            String clubName = feed.getClub().getName();
             String userName = feed.getUser().getName();
             String content = feed.getContent();
+            List<String> hashtags = feedService.getHashtags(feed);
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
             int commentCount = feed.getComments().size();
             FeedResponse feedResponse = FeedResponse.builder()
+                    .userId(userId)
+                    .feedId(feedId)
+                    .clubId(clubId)
+                    .clubName(clubName)
                     .userName(userName)
                     .content(content)
                     .imageUrls(imageUrls)
                     .likeYn(likeYn)
                     .likesCount(likesCount)
                     .commentCount(commentCount)
+                    .hashtags(hashtags)
                     .build();
             resultList.add(feedResponse);
         }
