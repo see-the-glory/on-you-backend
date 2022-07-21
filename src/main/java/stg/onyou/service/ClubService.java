@@ -1,8 +1,15 @@
 package stg.onyou.service;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
@@ -15,6 +22,7 @@ import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +52,10 @@ public class ClubService {
     private UserClubApplicationRepository userClubApplicationRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ClubQRepository clubQRepository;
+//    @Autowired
+//    EntityManager em;
 
     /**
      * 특정 클럽 select
@@ -57,23 +69,68 @@ public class ClubService {
                 );
     }
 
+    public Page<Club> selectClubs(int page, ClubSearchRequest clubSearchRequest) {
+        //페이징 조건과 정렬 조건을 같이 보내 준다.
+        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
+        return clubQRepository.findClubSearchList(pageRequest, clubSearchRequest);
+    }
+
+//    public void selectClubs(){
+//
+//        RecruitStatus rs = null;
+//        Integer minMemberNum = 1;
+//        Integer maxMemberNum = 9;
+//        OrderByCriteria orderByCriteria = OrderByCriteria.CLUB_CREATED;
+//        String orderBy = "ASC";
+//
+//        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+//
+//        QClub club = QClub.club;
+//        BooleanBuilder builder = new BooleanBuilder();
+//        if(rs != null){
+//            builder.and(club.recruitStatus.eq(rs.RECRUIT));
+//        }
+//        if(minMemberNum != null && maxMemberNum != null){
+//            builder.and(club.maxNumber.between(minMemberNum,maxMemberNum));
+//        }
+//        if(orderByCriteria != null){
+//            if (orderByCriteria.equals(OrderByCriteria.CLUB_CREATED)) {
+//                builder.and(club.created)
+//            } else if (orderByCriteria.equals(OrderByCriteria.MEMBER_NUM)){
+//
+//            } else if (orderByCriteria.equals(OrderByCriteria.FEED_NUM)) {
+//
+//            } else {
+//
+//            }
+//        }
+
+//        List<Club> findClubs = queryFactory.selectFrom(club)
+//                .where(builder)
+//                .orderBy(clubSort())
+//                .fetch();
+//
+//        System.out.println(findClubs);
+//    }
+
+
     /**
      * 전체 클럽 select
      */
-    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id, String searchKeyword) {
-
-        List<ClubResponse> clubs = new ArrayList<>();
-
-        getClubList(cursorId, page, category1Id, category2Id)
-            .forEach(club->{
-                clubs.add(selectClubResponse(club));
-            });
-
-        final Long lastIdOfList = clubs.isEmpty() ?
-                null : clubs.get(clubs.size() - 1).getId();
-
-        return new CursorResult<>(clubs, hasNext(lastIdOfList));
-    }
+//    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id, String searchKeyword) {
+//
+//        List<ClubResponse> clubs = new ArrayList<>();
+//
+//        getClubList(cursorId, page, category1Id, category2Id)
+//            .forEach(club->{
+//                clubs.add(selectClubResponse(club));
+//            });
+//
+//        final Long lastIdOfList = clubs.isEmpty() ?
+//                null : clubs.get(clubs.size() - 1).getId();
+//
+//        return new CursorResult<>(clubs, hasNext(lastIdOfList));
+//    }
 
     public Header<ClubRoleResponse> selectClubRole(Long clubId, Long userId){
 
@@ -254,7 +311,7 @@ public class ClubService {
 
         UserClub userClub;
         // 관리자의 승인이 필요하지 않은 가입이라면 바로 APPROVED로 저장
-        if ( club.getIsApproveRequired().equals("Y") ){
+        if ( club.getIsApproveRequired().equals("N") ){
             userClub = UserClub.builder()
                     .club(club)
                     .user(user)
@@ -608,32 +665,32 @@ public class ClubService {
 
     }
 
-    private List<Club> getClubList(Long id, Pageable page, Long category1Id, Long category2Id) {
-
-        if (id == null) { // cursor-id 가 존재하지 않는 경우에 대하여, ( initial 호출 )
-            if (category1Id == null && category2Id == null) { //category 필터 존재 x
-                return clubRepository.findAllByOrderByIdDesc(page);
-            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
-                List<Club> joined = new ArrayList<>();
-                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category1Id, category2Id, page));
-                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category2Id, category1Id, page));
-                return joined;
-            } else { // category filter 1개만 존재
-                return clubRepository.findByCategory1IdOrCategory2IdOrderByIdDesc(category1Id, category1Id, page);
-            }
-        } else { // cursor-id 가 존재하는 경우에 대하여, ( 2번째 이상의 호출 )
-            if (category1Id == null && category2Id == null) { //category 필터 존재 X
-                return clubRepository.findByIdLessThanOrderByIdDesc(id, page);
-            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
-                List<Club> joined = new ArrayList<>();
-                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category1Id, category2Id, id, page));
-                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category2Id, category1Id, id, page));
-                return joined;
-            } else { // category filter 1개만 존재
-                return clubRepository.findByCategory1IdOrCategory2IdAndIdLessThanOrderByIdDesc(category1Id, category1Id, id, page);
-            }
-        }
-    }
+//    private List<Club> getClubList(Long id, Pageable page, Long category1Id, Long category2Id) {
+//
+//        if (id == null) { // cursor-id 가 존재하지 않는 경우에 대하여, ( initial 호출 )
+//            if (category1Id == null && category2Id == null) { //category 필터 존재 x
+//                return clubRepository.findAllByOrderByIdDesc(page);
+//            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
+//                List<Club> joined = new ArrayList<>();
+//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category1Id, category2Id, page));
+//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category2Id, category1Id, page));
+//                return joined;
+//            } else { // category filter 1개만 존재
+//                return clubRepository.findByCategory1IdOrCategory2IdOrderByIdDesc(category1Id, category1Id, page);
+//            }
+//        } else { // cursor-id 가 존재하는 경우에 대하여, ( 2번째 이상의 호출 )
+//            if (category1Id == null && category2Id == null) { //category 필터 존재 X
+//                return clubRepository.findByIdLessThanOrderByIdDesc(id, page);
+//            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
+//                List<Club> joined = new ArrayList<>();
+//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category1Id, category2Id, id, page));
+//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category2Id, category1Id, id, page));
+//                return joined;
+//            } else { // category filter 1개만 존재
+//                return clubRepository.findByCategory1IdOrCategory2IdAndIdLessThanOrderByIdDesc(category1Id, category1Id, id, page);
+//            }
+//        }
+//    }
 
     private Boolean hasNext(Long id) {
         if (id == null) return false;

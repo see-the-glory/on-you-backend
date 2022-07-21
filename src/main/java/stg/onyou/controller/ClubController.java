@@ -40,12 +40,21 @@ public class ClubController {
         return clubService.selectClub(id);
     }
 
-    @GetMapping("")
-    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id, String searchKeyword){
+//    @GetMapping("")
+//    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id, String searchKeyword){
+//
+//        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
+//
+//        return Header.OK(clubs);
+//    }
 
-        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
+    @GetMapping("/test")
+    public void selectClubs(){
 
-        return Header.OK(clubs);
+        int page = 0;
+        ClubSearchRequest clubSearchRequest = null;
+
+        clubService.selectClubs(page, clubSearchRequest);
     }
 
     @GetMapping("/{id}/role")
