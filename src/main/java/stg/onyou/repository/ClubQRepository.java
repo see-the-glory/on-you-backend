@@ -5,10 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import stg.onyou.model.entity.Club;
 import stg.onyou.model.network.request.ClubSearchRequest;
+import stg.onyou.model.network.response.ClubConditionResponse;
 
 
 public interface ClubQRepository {
 
-    Page<Club> findClubSearchList(Pageable page, ClubSearchRequest clubSearchRequest);
+    Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubSearchRequest clubSearchRequest);
 
 }

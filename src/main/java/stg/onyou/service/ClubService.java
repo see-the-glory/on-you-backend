@@ -69,7 +69,7 @@ public class ClubService {
                 );
     }
 
-    public Page<Club> selectClubs(int page, ClubSearchRequest clubSearchRequest) {
+    public Page<ClubConditionResponse> selectClubs(int page, ClubSearchRequest clubSearchRequest) {
         //페이징 조건과 정렬 조건을 같이 보내 준다.
         PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
         return clubQRepository.findClubSearchList(pageRequest, clubSearchRequest);

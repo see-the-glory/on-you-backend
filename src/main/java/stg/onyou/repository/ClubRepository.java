@@ -1,5 +1,6 @@
 package stg.onyou.repository;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,7 @@ import stg.onyou.model.network.request.ClubSearchRequest;
 
 import java.util.List;
 
+@Primary
 public interface ClubRepository extends JpaRepository<Club,Long>, ClubQRepository {
 
     List<Club> findAllByOrderByIdDesc(Pageable page);

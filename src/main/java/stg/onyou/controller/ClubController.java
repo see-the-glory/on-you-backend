@@ -3,6 +3,7 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
+import stg.onyou.model.network.response.ClubConditionResponse;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
@@ -49,12 +51,17 @@ public class ClubController {
 //    }
 
     @GetMapping("/test")
-    public void selectClubs(){
+    public Page<ClubConditionResponse> selectClubs(){
 
         int page = 0;
-        ClubSearchRequest clubSearchRequest = null;
+        ClubSearchRequest clubSearchRequest = ClubSearchRequest.builder()
+                .orderBy("ASC")
+                .sortType("created")
+//                .minMemberNum()
+//                .maxMemberNum()
+                .build();
 
-        clubService.selectClubs(page, clubSearchRequest);
+        return clubService.selectClubs(page, clubSearchRequest);
     }
 
     @GetMapping("/{id}/role")
