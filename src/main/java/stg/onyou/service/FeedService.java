@@ -14,6 +14,7 @@ import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,8 @@ public class FeedService {
     private final FeedImageRepository feedImageRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final FeedHashtagRepository feedHashtagRepository;
+    private final HashtagRepository hashtagRepository;
 
     /**
      * feed 등록
@@ -59,7 +62,7 @@ public class FeedService {
      * FeedSearch
      */
     public List<Feed> findAllByString(FeedSearch feedSearch) {
-        return feedRepository.findAllString(feedSearch.getContent());
+        return feedRepository.findAllString(feedSearch.getContent(), feedSearch.getHashtag());
     }
 
     /**
@@ -147,7 +150,7 @@ public class FeedService {
             throw new CustomException(ErrorCode.FEED_NOT_FOUND);
         } else {
              resultList = feed.getComments().stream().map(comment -> new CommentResponse(
-                     comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
+                     comment.getUser().getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
              )).collect(Collectors.toList());
         }
         return resultList;
@@ -161,6 +164,15 @@ public class FeedService {
         } else {
             return feed.getLikes().size();
         }
+    }
+
+    public List<String> getHashtags(Feed feed) {
+        List<String> result = new ArrayList<>();
+        List<FeedHashtag> feedHashtags = feed.getFeedHashtags();
+        for (FeedHashtag feedHashtag : feedHashtags) {
+            result.add(feedHashtag.getHashtag().getHashtag());
+        }
+        return result;
     }
 
 

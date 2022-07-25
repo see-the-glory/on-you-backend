@@ -26,7 +26,7 @@ public class CommentController {
     public Header<List<CommentResponse>> selectCommentListByFeed(@PathVariable Long id) {
         Feed feed = feedService.findById(id);
         List<CommentResponse> resultList = feed.getComments().stream()
-                .map(c -> new CommentResponse(c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList());
+                .map(c -> new CommentResponse(c.getUser().getId(), c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList());
         return Header.OK(resultList);
     }
 }
