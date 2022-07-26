@@ -54,6 +54,8 @@ public class ClubService {
     private ModelMapper modelMapper;
     @Autowired
     private ClubQRepository clubQRepository;
+    @Autowired
+    private ClubCategoryRepository clubCategoryRepository;
 //    @Autowired
 //    EntityManager em;
 
@@ -173,7 +175,7 @@ public class ClubService {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
 
-        // clubLongDesc, category2Id 는 optional값이므로 null체크
+        // 1. club 저장 : clubLongDesc는 optional값이므로 null체크
         Club club = Club.builder()
                 .name(clubCreateRequest.getClubName())
                 .shortDesc(clubCreateRequest.getClubShortDesc())
@@ -187,12 +189,6 @@ public class ClubService {
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .isApproveRequired(clubCreateRequest.getIsApproveRequired())
                 .created(LocalDateTime.now())
-                .category1(categoryRepository.findById(clubCreateRequest.getCategory1Id()).get())
-                .category2(
-                        Optional.ofNullable(clubCreateRequest.getCategory2Id())
-                                .map(r -> categoryRepository.findById(r).get())
-                                .orElse(null)
-                )
                 .thumbnail(clubCreateRequest.getThumbnailUrl())
                 .organization(organizationRepository.findById(1L).get())
                 .creator(userRepository.findById(userId)
@@ -202,7 +198,9 @@ public class ClubService {
                 )
                 .build();
 
-        Club savedClub = clubRepository.save(club); // Club 저장
+        Club savedClub = clubRepository.save(club);
+
+        // 2. user_club 저장
         UserClub userClub = UserClub.builder()      // creator도 club의 멤버(마스터)니깐 UserClub에 저장
                 .user(userRepository.findById(userId)
                         .orElseThrow(
@@ -217,6 +215,34 @@ public class ClubService {
 
         userClubRepository.save(userClub);
 
+        // 3. club_category 저장
+        ClubCategory clubCategory1 = ClubCategory.builder()
+                .club(savedClub)
+                .category(categoryRepository.findById(clubCreateRequest.getCategory1Id())
+                        .orElseThrow(
+                                () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                        )
+                )
+                .created(LocalDateTime.now())
+                .build();
+
+        clubCategoryRepository.save(clubCategory1);
+
+        if(clubCreateRequest.getCategory2Id() != null){
+            ClubCategory clubCategory2 = ClubCategory.builder()
+                    .club(savedClub)
+                    .category(categoryRepository.findById(clubCreateRequest.getCategory2Id())
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                            )
+                    )
+                    .created(LocalDateTime.now())
+                    .build();
+
+            clubCategoryRepository.save(clubCategory2);
+        }
+
+        // 4. 저장 성공한 club의 reponse 생성하여 return
         ClubResponse clubResponse = ClubResponse.builder()
                 .id(savedClub.getId())
                 .name(savedClub.getName())
@@ -227,12 +253,6 @@ public class ClubService {
                 .thumbnail(savedClub.getThumbnail())
                 .recruitStatus(savedClub.getRecruitStatus())
                 .creatorName(savedClub.getCreator().getName())
-                .category1Name(savedClub.getCategory1().getName())
-                .category2Name(
-                        Optional.ofNullable(savedClub.getCategory2())
-                            .map(r -> r.getName())
-                            .orElse(null)
-                )
                 .build();
 
         return Header.OK(clubResponse);
@@ -246,14 +266,6 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
 
-        club.setCategory1(
-                Optional.ofNullable(categoryRepository.findById(clubUpdateRequest.getCategory1Id()).get())
-                    .orElse(club.getCategory1())
-        );
-        club.setCategory1(
-                Optional.ofNullable(categoryRepository.findById(clubUpdateRequest.getCategory2Id()).get())
-                        .orElse(club.getCategory2())
-        );
         club.setName(
                 Optional.ofNullable(clubUpdateRequest.getClubName())
                         .orElse(club.getName())
@@ -286,7 +298,7 @@ public class ClubService {
     /**
      * 클럽 가입요청 : 디폴트로 APPLIED 상태로 UserClub 설정
      */
-    public UserClub applyClub(Long userId, Long clubId) {
+    public UserClub applyClub(Long userId, Long clubId, ClubApplyRequest clubApplyRequest) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
@@ -601,16 +613,20 @@ public class ClubService {
     private ClubResponse selectClubResponse(Club club){
 
         List<UserResponse> members = new ArrayList<>();
-        int recruitNumber;
 
         club.getUserClubs()
                 .forEach(userClub -> {
                     members.add(selectUserResponse(userClub.getUser(), club.getId()));
                 });
-        recruitNumber = club.getUserClubs().size();
 
+        List<ClubCategory> clubCategories = clubCategoryRepository.findByClub(club);
+        List<CategoryResponse> categoryResponseList = new ArrayList<>();
+        clubCategories.forEach(
+                clubCategory -> {
+                    categoryResponseList.add(selectCategoryResponse(clubCategory));
+                }
+        );
 
-        //private String applyStatus; //AVAILABLE, APPLIED, APPROVED
         ClubResponse clubResponse = ClubResponse.builder()
                 .id(club.getId())
                 .name(club.getName())
@@ -622,24 +638,27 @@ public class ClubService {
                 .members(members)
                 .maxNumber(club.getMaxNumber())
                 .thumbnail(club.getThumbnail())
-                .recruitNumber(recruitNumber)
+                .recruitNumber(club.getRecruitNumber())
                 .recruitStatus(club.getRecruitStatus())
-                .category1Name(Optional.ofNullable(club.getCategory1())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
-                .category2Name(Optional.ofNullable(club.getCategory2())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
+                .categories(categoryResponseList)
                 .creatorName(Optional.ofNullable(club.getCreator())
                         .map(r -> r.getName())
                         .orElse(null)
                 )
-                // applyStatus도 이 api서 현재 사용자 id값을 url에 포함시켜서 받아와야 할지. 아니면 별도의 api로 가져와야 할지.
                 .build();
 
         return clubResponse;
+    }
+
+    private CategoryResponse selectCategoryResponse(ClubCategory clubCategory) {
+
+        return CategoryResponse.builder()
+                .id(clubCategory.getCategory().getId())
+                .name(clubCategory.getCategory().getName())
+                .description(clubCategory.getCategory().getDescription())
+                .thumbnail(clubCategory.getCategory().getThumbnail())
+                .order(clubCategory.getOrder())
+                .build();
     }
 
     private UserResponse selectUserResponse(User user, Long clubId){
@@ -655,7 +674,7 @@ public class ClubService {
                 .organizationName(user.getOrganization().getName())
                 .name(user.getName())
                 .birthday(user.getBirthday())
-                .applyStatus(userClub.getApplyStatus())
+                .applyStatus(userClub.getApplyStatus()) //APPLIED, APPROVED
                 .sex(user.getSex())
                 .email(user.getAccount_email())
                 .created(user.getCreated())
@@ -664,33 +683,6 @@ public class ClubService {
         return userResponse;
 
     }
-
-//    private List<Club> getClubList(Long id, Pageable page, Long category1Id, Long category2Id) {
-//
-//        if (id == null) { // cursor-id 가 존재하지 않는 경우에 대하여, ( initial 호출 )
-//            if (category1Id == null && category2Id == null) { //category 필터 존재 x
-//                return clubRepository.findAllByOrderByIdDesc(page);
-//            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
-//                List<Club> joined = new ArrayList<>();
-//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category1Id, category2Id, page));
-//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdOrderByIdDesc(category2Id, category1Id, page));
-//                return joined;
-//            } else { // category filter 1개만 존재
-//                return clubRepository.findByCategory1IdOrCategory2IdOrderByIdDesc(category1Id, category1Id, page);
-//            }
-//        } else { // cursor-id 가 존재하는 경우에 대하여, ( 2번째 이상의 호출 )
-//            if (category1Id == null && category2Id == null) { //category 필터 존재 X
-//                return clubRepository.findByIdLessThanOrderByIdDesc(id, page);
-//            } else if (category1Id != null && category2Id != null) { //category filter 2개 존재하면 category1,2순서 관계없이 각각 find해서 Union
-//                List<Club> joined = new ArrayList<>();
-//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category1Id, category2Id, id, page));
-//                joined.addAll(clubRepository.findByCategory1IdAndCategory2IdLessThanOrderByIdDesc(category2Id, category1Id, id, page));
-//                return joined;
-//            } else { // category filter 1개만 존재
-//                return clubRepository.findByCategory1IdOrCategory2IdAndIdLessThanOrderByIdDesc(category1Id, category1Id, id, page);
-//            }
-//        }
-//    }
 
     private Boolean hasNext(Long id) {
         if (id == null) return false;

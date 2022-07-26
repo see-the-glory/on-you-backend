@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClubUpdateRequest {
 
-    private Long category1Id;
-    private Long category2Id;
     @Size(max = 20, message = "클럽 명을 20자 이내로 입력해주세요.")
     private String clubName;
     @Pattern(regexp = "^[Y|N]{1}$", message ="Y 또는 N 값만 가능합니다.")

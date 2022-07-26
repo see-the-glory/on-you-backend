@@ -107,13 +107,13 @@ public class ClubController {
         return clubService.updateClub(clubUpdateRequest, id);
     }
 
-    @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/apply")
+    public Header<String> applyClub(@PathVariable Long clubId, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
         // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        UserClub userClub = clubService.applyClub(userId,id);
+        UserClub userClub = clubService.applyClub(userId, clubId, clubApplyRequest);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }

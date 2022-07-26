@@ -29,6 +29,7 @@ public class Club {
     @Enumerated(EnumType.STRING)
     private RecruitStatus recruitStatus;
     private int maxNumber;
+    private int recruitNumber;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String isApproveRequired;
@@ -38,10 +39,6 @@ public class Club {
     @JsonManagedReference
     private List<UserClub> userClubs;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Category category1;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Category category2;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)

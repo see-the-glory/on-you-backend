@@ -22,6 +22,7 @@ public class ClubResponse {
     private String clubLongDesc;
     private String organizationName;
     private List<UserResponse> members;
+    private List<CategoryResponse> categories;
     private int maxNumber;
     private int recruitNumber;
     private String thumbnail;
