@@ -17,20 +17,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.repository.NoRepositoryBean;
+import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.Club;
+import stg.onyou.model.entity.QUser;
 import stg.onyou.model.network.request.ClubSearchRequest;
-import stg.onyou.model.network.response.ClubConditionResponse;
-import stg.onyou.model.network.response.QClubConditionResponse;
+import stg.onyou.model.network.response.*;
 
-import stg.onyou.model.network.response.ClubResponse;
-import stg.onyou.model.network.response.UserResponse;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static stg.onyou.model.entity.QClub.club;
 import static stg.onyou.model.entity.QUser.user;
 import static stg.onyou.model.entity.QUserClub.userClub;
+import static stg.onyou.model.entity.QOrganization.organization;
+import static stg.onyou.model.entity.QClubCategory.clubCategory;
+import static stg.onyou.model.entity.QCategory.category;
 
 public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements ClubQRepository{
 
@@ -45,42 +47,79 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     @Override
     public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubSearchRequest clubSearchRequest) {
 
+        List<ClubConditionResponse> clubResult = findClubList(page, clubSearchRequest);
 
-//        List<Club> result = from(club)
-//                .where(
-//                        eqRecruitStatus(clubSearchRequest.getRecruitStatus())
-//                )
-//                .offset(page.getOffset())
-//                .limit(page.getPageSize())
-////                .orderBy(clubSort(page))
-//                .fetch();
-//
-//        long total = result.size();
-//        return new PageImpl<>(result, page, total);
+        clubResult.forEach(
+                r -> {
+                    r.setMembers(setMember(r));
+                    r.setCategories(setCategory(r));
+                }
+        );
 
-//        private List<UserResponse> members;
-//        private int maxNumber;
-//        private int recruitNumber;
-//        private String thumbnail;
-//        private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
-//        private String creatorName;
-//        private String category1Name;
-//        private String category2Name;
-        List<ClubConditionResponse> result = queryFactory
+        long total = clubResult.size();
+        return new PageImpl<ClubConditionResponse>(clubResult, page, total);
+    }
+
+    private List<CategoryResponse> setCategory(ClubConditionResponse r) {
+        return queryFactory
+                .select(new QCategoryResponse(
+                        category.id,
+                        category.name,
+                        category.description,
+                        category.thumbnail,
+                        clubCategory.order
+                ))
+                .from(clubCategory)
+                .leftJoin(clubCategory.category, category)
+                .where(clubCategory.club.id.eq(r.getId()))
+                .fetch();
+    }
+
+    private List<UserResponse> setMember(ClubConditionResponse r) {
+        return queryFactory
+                .select(new QUserResponse(
+                        user.id,
+                        user.name,
+                        user.birthday,
+                        organization.name,
+                        userClub.applyStatus,
+                        user.sex,
+                        user.account_email,
+                        user.created
+                ))
+                .from(userClub)
+                .leftJoin(userClub.user, user)
+                .leftJoin(user.organization, organization)
+                .where(userClub.club.id.eq(r.getId()))
+                .fetch();
+    }
+
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubSearchRequest clubSearchRequest) {
+        return queryFactory
                 .select(new QClubConditionResponse(
                         club.id,
                         club.name,
                         club.shortDesc,
-                        club.longDesc
+                        club.longDesc,
+                        organization.name,
+                        club.maxNumber,
+                        club.recruitNumber,
+                        club.thumbnail,
+                        club.recruitStatus,
+                        user.name
                 ))
                 .from(club)
-                .leftJoin(club.userClubs, userClub)
+                .leftJoin(club.organization, organization)
+                .leftJoin(club.creator, user)
+                .where(
+
+                )
+                .limit(6)
                 .fetch();
+    }
 
-
-        long total = result.size();
-        return new PageImpl<ClubConditionResponse>(result, page, total);
-//        return new PageImpl<>(result, page, total);
+    private BooleanExpression cursorId(Long cursorId){
+        return cursorId == null ? null : club.id.lt(cursorId);
     }
 
     private BooleanExpression eqRecruitStatus(RecruitStatus recruitStatus) {
