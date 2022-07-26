@@ -17,6 +17,7 @@ public class UserResponse {
 
     private Long id;
     private String organizationName;
+    private String thumbnail;
     private String name;
     private String birthday;
     private ApplyStatus applyStatus;
