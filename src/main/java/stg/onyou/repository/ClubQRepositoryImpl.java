@@ -1,11 +1,11 @@
 package stg.onyou.repository;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
@@ -45,9 +45,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubSearchRequest clubSearchRequest) {
+    public Page<ClubConditionResponse> findClubSearchList(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest) {
 
-        List<ClubConditionResponse> clubResult = findClubList(page, clubSearchRequest);
+        List<ClubConditionResponse> clubResult = findClubList(customCursor, page, clubSearchRequest);
 
         clubResult.forEach(
                 r -> {
@@ -94,7 +94,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(Pageable page, ClubSearchRequest clubSearchRequest) {
+    private List<ClubConditionResponse> findClubList(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest) {
         return queryFactory
                 .select(new QClubConditionResponse(
                         club.id,
@@ -106,16 +106,70 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.recruitNumber,
                         club.thumbnail,
                         club.recruitStatus,
-                        user.name
+                        user.name,
+                        club.created
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
+                        customCursor(customCursor, page, clubSearchRequest)
 
                 )
-                .limit(6)
+                .orderBy(club.created.asc(), club.id.asc())
+                .limit(page.getPageSize())
                 .fetch();
+    }
+
+    private BooleanExpression customCursor(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest){
+
+        if (customCursor == null) { // 1. 첫 페이지 조회를 위한 null 처리
+            return null;
+        }
+
+        /* 2. Querydsl에서 MySQL의 함수를 사용하기 위해서 Expressions.stringTemplate()를 사용
+              첫 번째 파라미터에 원하는 템플릿을 명시하고, {0}과 {1} 부분이 다음 파라미터로 치환 */
+        StringTemplate stringTemplate = Expressions.stringTemplate("");
+
+        String customSortType = "";
+        Sort.Direction customDirection = Sort.Direction.ASC;
+
+        for(Sort.Order order : page.getSort()){
+            customSortType = order.getProperty();
+        }
+
+        switch(customSortType){
+            case "CLUB_CREATED":
+                stringTemplate = Expressions.stringTemplate(
+                        "DATE_FORMAT({0}, {1})",
+                        club.created,
+                        ConstantImpl.create("%Y%m%d%H%i%s"));
+                break;
+            case "MEMBER_NUM":
+                stringTemplate = Expressions.stringTemplate(
+                        "DATE_FORMAT({0}, {1})",
+                        club.recruitNumber,
+                        ConstantImpl.create("%Y%m%d%H%i%s"));
+                break;
+            //case "FEED_NUM" :
+            //    break;
+            //case "LIKES_NUM" :
+            //    break;
+            default :
+                System.out.println("default");
+        }
+
+        if( customDirection.isAscending() ){
+            return StringExpressions.lpad(stringTemplate, 20, '0')
+                    .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
+                    .gt(customCursor);
+//            .gt("000000201908010925120000000005");
+        } else {
+            return StringExpressions.lpad(stringTemplate, 20, '0')
+                    .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
+                    .lt(customCursor);
+        }
+
     }
 
     private BooleanExpression cursorId(Long cursorId){

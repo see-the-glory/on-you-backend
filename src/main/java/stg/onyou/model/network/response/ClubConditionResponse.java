@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.RecruitStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,12 +24,13 @@ public class ClubConditionResponse {
     private String thumbnail;
     private RecruitStatus recruitStatus;
     private String creatorName;
+    private LocalDateTime created;
     private List<UserResponse> members;
     private List<CategoryResponse> categories;
 
     @QueryProjection
     public ClubConditionResponse(Long id, String name, String clubLongDesc, String clubShortDesc, String organizationName,
-        int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName){
+        int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName, LocalDateTime created){
         this.id = id;
         this.name = name;
         this.clubShortDesc = clubShortDesc;
@@ -39,6 +41,7 @@ public class ClubConditionResponse {
         this.thumbnail = thumbnail;
         this.recruitStatus = recruitStatus;
         this.creatorName = creatorName;
+        this.created = created;
     }
 
 }

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -22,6 +24,7 @@ import stg.onyou.service.CursorResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"Club API Controller"})
@@ -51,17 +54,21 @@ public class ClubController {
 //    }
 
     @GetMapping("/test")
-    public Page<ClubConditionResponse> selectClubs(){
+    public Page<ClubConditionResponse> selectClubs(@RequestParam(required = false) Long cursorId,
+        @RequestBody ClubSearchRequest clubSearchRequest,
+       @RequestParam(required = false)
+           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
+        Pageable pageable){
 
-        int page = 0;
-        ClubSearchRequest clubSearchRequest = ClubSearchRequest.builder()
-                .orderBy("ASC")
-                .sortType("created")
-//                .minMemberNum()
-//                .maxMemberNum()
-                .build();
+//        int page = 0;
+//        ClubSearchRequest clubSearchRequest = ClubSearchRequest.builder()
+//                .orderBy("ASC")
+//                .sortType("created")
+////                .minMemberNum()
+////                .maxMemberNum()
+//                .build();
 
-        return clubService.selectClubs(page, clubSearchRequest);
+        return clubService.selectClubs(cursorId, pageable, clubSearchRequest, cursorCreated);
     }
 
     @GetMapping("/{id}/role")

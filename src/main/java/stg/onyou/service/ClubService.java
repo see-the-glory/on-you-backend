@@ -71,49 +71,40 @@ public class ClubService {
                 );
     }
 
-    public Page<ClubConditionResponse> selectClubs(int page, ClubSearchRequest clubSearchRequest) {
-        //페이징 조건과 정렬 조건을 같이 보내 준다.
-        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
-        return clubQRepository.findClubSearchList(pageRequest, clubSearchRequest);
+    public Page<ClubConditionResponse> selectClubs(Long cursorId, Pageable page, ClubSearchRequest clubSearchRequest, LocalDateTime cursorCreated) {
+
+        String customCursor = generateCustomCursor(page, clubSearchRequest, cursorId, cursorCreated);
+
+//        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
+        return clubQRepository.findClubSearchList(customCursor, page, clubSearchRequest);
     }
 
-//    public void selectClubs(){
-//
-//        RecruitStatus rs = null;
-//        Integer minMemberNum = 1;
-//        Integer maxMemberNum = 9;
-//        OrderByCriteria orderByCriteria = OrderByCriteria.CLUB_CREATED;
-//        String orderBy = "ASC";
-//
-//        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
-//
-//        QClub club = QClub.club;
-//        BooleanBuilder builder = new BooleanBuilder();
-//        if(rs != null){
-//            builder.and(club.recruitStatus.eq(rs.RECRUIT));
-//        }
-//        if(minMemberNum != null && maxMemberNum != null){
-//            builder.and(club.maxNumber.between(minMemberNum,maxMemberNum));
-//        }
-//        if(orderByCriteria != null){
-//            if (orderByCriteria.equals(OrderByCriteria.CLUB_CREATED)) {
-//                builder.and(club.created)
-//            } else if (orderByCriteria.equals(OrderByCriteria.MEMBER_NUM)){
-//
-//            } else if (orderByCriteria.equals(OrderByCriteria.FEED_NUM)) {
-//
-//            } else {
-//
-//            }
-//        }
+    private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {
+        if (page.getSort() == null && cursorId == null) {
+            return null;
+        }
+//        cursorCreated = cursorCreated.minusHours(9);
 
-//        List<Club> findClubs = queryFactory.selectFrom(club)
-//                .where(builder)
-//                .orderBy(clubSort())
-//                .fetch();
-//
-//        System.out.println(findClubs);
-//    }
+        String customCursorSortType = "";
+        String customCursorId;
+
+        for(Sort.Order order : page.getSort() ){
+            customCursorSortType = order.getProperty();
+        }
+
+        String customCursorCreated = cursorCreated.toString()
+                .replaceAll("T", "")
+                .replaceAll("-", "")
+                .replaceAll(":", "") + "00";
+
+        customCursorCreated = String.format("%1$" + 20 + "s", customCursorCreated)
+                .replace(' ', '0');
+
+        customCursorId = String.format("%1$" + 10 + "s", cursorId)
+                .replace(' ', '0');
+
+        return customCursorCreated + customCursorId;
+    }
 
 
     /**

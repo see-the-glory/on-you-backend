@@ -13,8 +13,9 @@ import stg.onyou.model.RecruitStatus;
 @Builder
 public class ClubSearchRequest {
 
-    String orderBy;
-    String sortType; // CLUB_CREATED, MEMBER_NUM, FEED_NUM, LIKES_NUM
+    //String orderBy; // ASC or DESC
+    //String sortType; // CLUB_CREATED, MEMBER_NUM, FEED_NUM, LIKES_NUM
+
     RecruitStatus recruitStatus;
     Integer minMemberNum;
     Integer maxMemberNum;
