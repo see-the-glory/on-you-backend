@@ -60,14 +60,6 @@ public class ClubController {
            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
         Pageable pageable){
 
-//        int page = 0;
-//        ClubSearchRequest clubSearchRequest = ClubSearchRequest.builder()
-//                .orderBy("ASC")
-//                .sortType("created")
-////                .minMemberNum()
-////                .maxMemberNum()
-//                .build();
-
         return clubService.selectClubs(cursorId, pageable, clubSearchRequest, cursorCreated);
     }
 

@@ -80,30 +80,40 @@ public class ClubService {
     }
 
     private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {
-        if (page.getSort() == null && cursorId == null) {
+        if (page.getSort() == null || cursorId == null) {
             return null;
         }
 //        cursorCreated = cursorCreated.minusHours(9);
 
         String customCursorSortType = "";
-        String customCursorId;
+        String customCursorId = "";
+        String customCreatedCursor = "";
 
         for(Sort.Order order : page.getSort() ){
             customCursorSortType = order.getProperty();
         }
 
-        String customCursorCreated = cursorCreated.toString()
-                .replaceAll("T", "")
-                .replaceAll("-", "")
-                .replaceAll(":", "") + "00";
-
-        customCursorCreated = String.format("%1$" + 20 + "s", customCursorCreated)
-                .replace(' ', '0');
-
         customCursorId = String.format("%1$" + 10 + "s", cursorId)
                 .replace(' ', '0');
 
-        return customCursorCreated + customCursorId;
+        if(customCursorSortType.equals("created")){
+            customCreatedCursor = cursorCreated.toString()
+                    .replaceAll("T", "")
+                    .replaceAll("-", "")
+                    .replaceAll(":", "") + "00";
+
+            customCreatedCursor = String.format("%1$" + 20 + "s", customCreatedCursor)
+                    .replace(' ', '0');
+
+            return customCreatedCursor + customCursorId;
+
+        } else {
+            String customValueCursor = String.format("%1$" + 20 + "s", clubSearchRequest.getCursorValue())
+                    .replace(' ', '0');
+            return customValueCursor + customCursorId;
+        }
+
+
     }
 
 
