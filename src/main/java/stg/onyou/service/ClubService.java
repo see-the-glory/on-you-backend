@@ -71,12 +71,14 @@ public class ClubService {
                 );
     }
 
-    public Page<ClubConditionResponse> selectClubs(Long cursorId, Pageable page, ClubSearchRequest clubSearchRequest, LocalDateTime cursorCreated) {
+    public Page<ClubConditionResponse> selectClubs(Pageable page, ClubCondition clubCondition, String customCursor) {
 
-        String customCursor = generateCustomCursor(page, clubSearchRequest, cursorId, cursorCreated);
+//        if(customCursor == null){
+//            customCursor = generateCustomCursor(page, clubCondition, cursorId, cursorCreated);
+//        }
 
 //        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
-        return clubQRepository.findClubSearchList(customCursor, page, clubSearchRequest);
+        return clubQRepository.findClubSearchList(page, clubCondition, customCursor);
     }
 
     private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {

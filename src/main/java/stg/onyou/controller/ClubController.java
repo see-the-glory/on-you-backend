@@ -54,19 +54,33 @@ public class ClubController {
 //        return Header.OK(clubs);
 //    }
 
-//    sort(정렬타입), orderBy("ASC"/"DESC")
-//    howRecruiting(t/f)
+//    sort(정렬타입),
+//    orderBy("ASC"/"DESC")
+//    customCursor
+//    showRecruiting(t/f)
 //    showMy(t/f)
 //    min (int )
 //    max (int)
     @GetMapping("/test")
-    public Page<ClubConditionResponse> selectClubs(@RequestParam(required = false) Long cursorId,
-        @RequestBody ClubSearchRequest clubSearchRequest,
-       @RequestParam(required = false)
-           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
-        @PageableDefault (size = 6) Pageable pageable){
+    public Page<ClubConditionResponse> selectClubs(
+        @RequestParam(required = false) String customCursor,
+        @RequestParam(defaultValue = "ASC", required = false) String orderBy,
+        @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
+        @RequestParam(defaultValue = "0", required = false) int showMy,
+        @RequestParam(defaultValue = "0", required = false) int min,
+        @RequestParam(defaultValue = "1000", required = false) int max,
+//        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
+        @PageableDefault (size = 2) Pageable pageable){
 
-        return clubService.selectClubs(cursorId, pageable, clubSearchRequest, cursorCreated);
+        ClubCondition clubCondition = ClubCondition.builder()
+                .orderBy(orderBy)
+                .showRecruitingOnly(showRecruitingOnly)
+                .showMy(showMy)
+                .min(min)
+                .max(max)
+                .build();
+
+        return clubService.selectClubs(pageable, clubCondition, customCursor);
     }
 
     @GetMapping("/{id}/role")

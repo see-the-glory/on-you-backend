@@ -21,6 +21,7 @@ import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.QUser;
+import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.ClubSearchRequest;
 import stg.onyou.model.network.response.*;
 
@@ -45,9 +46,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest) {
+    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor) {
 
-        List<ClubConditionResponse> clubResult = findClubList(customCursor, page, clubSearchRequest);
+        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor);
 
         clubResult.forEach(
                 r -> {
@@ -94,7 +95,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest) {
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
 
         String customSortType = getCustomSortType(page);
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
@@ -120,23 +121,23 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
-                        customCursorCompare(customCursor, page, clubSearchRequest)
+                        customCursorCompare(page, clubCondition, customCursor)
 
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
-                .orderBy(clubSort(page, clubSearchRequest))
+                .orderBy(clubSort(page, clubCondition))
                 .limit(page.getPageSize())
                 .fetch();
     }
 
-    private BooleanExpression customCursorCompare(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest){
+    private BooleanExpression customCursorCompare(Pageable page, ClubCondition clubCondition, String customCursor){
 
         if (customCursor == null) { // 첫 페이지 조회를 위한 처리
             return null;
         }
 
         String customSortType = getCustomSortType(page);
-        Order customDirection = getCustomDirection(clubSearchRequest);
+        Order customDirection = getCustomDirection(clubCondition);
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
         if( customDirection.equals(Order.ASC) ){
@@ -151,8 +152,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
 
     }
 
-    private Order getCustomDirection(ClubSearchRequest clubSearchRequest) {
-        return clubSearchRequest.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
+    private Order getCustomDirection(ClubCondition clubCondition) {
+        return clubCondition.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
     }
 
     private StringTemplate getCustomStringTemplate(String customSortType) {
@@ -197,14 +198,14 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         return club.maxNumber.between(minMemberNum, maxMemberNum);
     }
 
-    private OrderSpecifier<?> clubSort(Pageable page, ClubSearchRequest clubSearchRequest) {
+    private OrderSpecifier<?> clubSort(Pageable page, ClubCondition clubCondition) {
 
         //서비스에서 보내준 Pageable 객체에 정렬조건 값 체크
         if (!page.getSort().isEmpty()) {
 
             for (Sort.Order order : page.getSort()) {
 
-                Order direction = clubSearchRequest.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
+                Order direction = getCustomDirection(clubCondition);
 
                 switch (order.getProperty()){
                     case "created":
