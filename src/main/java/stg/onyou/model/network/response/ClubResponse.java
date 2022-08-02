@@ -22,12 +22,11 @@ public class ClubResponse {
     private String clubLongDesc;
     private String organizationName;
     private List<UserResponse> members;
+    private List<CategoryResponse> categories;
     private int maxNumber;
     private int recruitNumber;
     private String thumbnail;
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String creatorName;
-    private String category1Name;
-    private String category2Name;
 }
 
