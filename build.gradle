@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3' //jasypt 암호화
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.6.2' //p6spy querydsl SQL Logging
 
 }
 

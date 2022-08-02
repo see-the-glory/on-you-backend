@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class UserResponse {
 
@@ -26,6 +26,18 @@ public class UserResponse {
     private LocalDateTime created;
     private Role role;
 
+    @QueryProjection
+    public UserResponse(Long id, String organizationName, String name, String birthday,
+                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created){
+
+        this.id = id;
+        this.organizationName = organizationName;
+        this.birthday = birthday;
+        this.applyStatus = applyStatus;
+        this.sex = sex;
+        this.email = email;
+        this.created = created;
+    }
 }
 
 

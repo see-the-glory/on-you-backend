@@ -24,7 +24,4 @@ public class Category {
     private String description;
     private String thumbnail;
 
-    @OneToMany(mappedBy = "category1")
-    @JsonIgnore
-    private List<Club> clubs;
 }

@@ -3,7 +3,11 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -11,6 +15,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
+import stg.onyou.model.network.response.ClubConditionResponse;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
@@ -20,6 +25,7 @@ import stg.onyou.service.CursorResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"Club API Controller"})
@@ -40,12 +46,41 @@ public class ClubController {
         return clubService.selectClub(id);
     }
 
-    @GetMapping("")
-    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id, String searchKeyword){
+//    @GetMapping("")
+//    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id, String searchKeyword){
+//
+//        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
+//
+//        return Header.OK(clubs);
+//    }
 
-        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
+//    sort(정렬타입),
+//    orderBy("ASC"/"DESC")
+//    customCursor
+//    showRecruiting(t/f)
+//    showMy(t/f)
+//    min (int )
+//    max (int)
+    @GetMapping("/test")
+    public Page<ClubConditionResponse> selectClubs(
+        @RequestParam(required = false) String customCursor,
+        @RequestParam(defaultValue = "ASC", required = false) String orderBy,
+        @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
+        @RequestParam(defaultValue = "0", required = false) int showMy,
+        @RequestParam(defaultValue = "0", required = false) int min,
+        @RequestParam(defaultValue = "1000", required = false) int max,
+//        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
+        @PageableDefault (size = 2) Pageable pageable){
 
-        return Header.OK(clubs);
+        ClubCondition clubCondition = ClubCondition.builder()
+                .orderBy(orderBy)
+                .showRecruitingOnly(showRecruitingOnly)
+                .showMy(showMy)
+                .min(min)
+                .max(max)
+                .build();
+
+        return clubService.selectClubs(pageable, clubCondition, customCursor);
     }
 
     @GetMapping("/{id}/role")
@@ -91,13 +126,13 @@ public class ClubController {
         return clubService.updateClub(clubUpdateRequest, id);
     }
 
-    @PostMapping("/{id}/apply")
-    public Header<String> applyClub(@PathVariable Long id, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/apply")
+    public Header<String> applyClub(@PathVariable Long clubId, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
         // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        UserClub userClub = clubService.applyClub(userId,id);
+        UserClub userClub = clubService.applyClub(userId, clubId, clubApplyRequest);
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
