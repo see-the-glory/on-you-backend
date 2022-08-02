@@ -46,22 +46,7 @@ public class ClubController {
         return clubService.selectClub(id);
     }
 
-//    @GetMapping("")
-//    public Header<CursorResult<ClubResponse>> selectClubList(Long cursorId, Long category1Id, Long category2Id, String searchKeyword){
-//
-//        CursorResult<ClubResponse> clubs = clubService.selectClubList(cursorId, PageRequest.of(0, DEFAULT_PAGINATION_SIZE), category1Id, category2Id, searchKeyword);
-//
-//        return Header.OK(clubs);
-//    }
-
-//    sort(정렬타입),
-//    orderBy("ASC"/"DESC")
-//    customCursor
-//    showRecruiting(t/f)
-//    showMy(t/f)
-//    min (int )
-//    max (int)
-    @GetMapping("/test")
+    @GetMapping("")
     public Page<ClubConditionResponse> selectClubs(
         @RequestParam(required = false) String customCursor,
         @RequestParam(defaultValue = "ASC", required = false) String orderBy,
@@ -69,7 +54,6 @@ public class ClubController {
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
         @RequestParam(defaultValue = "1000", required = false) int max,
-//        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
         @PageableDefault (size = 2) Pageable pageable){
 
         ClubCondition clubCondition = ClubCondition.builder()

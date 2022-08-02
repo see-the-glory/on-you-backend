@@ -73,11 +73,6 @@ public class ClubService {
 
     public Page<ClubConditionResponse> selectClubs(Pageable page, ClubCondition clubCondition, String customCursor) {
 
-//        if(customCursor == null){
-//            customCursor = generateCustomCursor(page, clubCondition, cursorId, cursorCreated);
-//        }
-
-//        PageRequest pageRequest = PageRequest.of(page, 5, Sort.by(Sort.Direction.fromString(clubSearchRequest.getOrderBy()), clubSearchRequest.getSortType()));
         return clubQRepository.findClubSearchList(page, clubCondition, customCursor);
     }
 
