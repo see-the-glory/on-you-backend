@@ -19,8 +19,9 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.data.repository.NoRepositoryBean;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
+import stg.onyou.model.Role;
 import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.QUser;
+//import stg.onyou.model.entity.QUser;
 import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.ClubSearchRequest;
 import stg.onyou.model.network.response.*;
@@ -80,13 +81,15 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         return queryFactory
                 .select(new QUserResponse(
                         user.id,
+                        organization.name,
+                        user.thumbnail,
                         user.name,
                         user.birthday,
-                        organization.name,
                         userClub.applyStatus,
                         user.sex,
                         user.account_email,
-                        user.created
+                        user.created,
+                        userClub.role
                 ))
                 .from(userClub)
                 .leftJoin(userClub.user, user)

@@ -20,7 +20,6 @@ public class UserResponse {
     private String thumbnail;
     private String name;
     private String birthday;
-    private String organizationName;
     private ApplyStatus applyStatus;
     private char sex;
     private String email;
@@ -28,16 +27,19 @@ public class UserResponse {
     private Role role;
 
     @QueryProjection
-    public UserResponse(Long id, String organizationName, String name, String birthday,
-                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created){
+    public UserResponse(Long id, String organizationName, String thumbnail, String name, String birthday,
+                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created, Role role){
 
         this.id = id;
         this.organizationName = organizationName;
+        this.thumbnail = thumbnail;
+        this.name = name;
         this.birthday = birthday;
         this.applyStatus = applyStatus;
         this.sex = sex;
         this.email = email;
         this.created = created;
+        this.role = role;
     }
 }
 
