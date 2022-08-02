@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,12 +54,17 @@ public class ClubController {
 //        return Header.OK(clubs);
 //    }
 
+//    sort(정렬타입), orderBy("ASC"/"DESC")
+//    howRecruiting(t/f)
+//    showMy(t/f)
+//    min (int )
+//    max (int)
     @GetMapping("/test")
     public Page<ClubConditionResponse> selectClubs(@RequestParam(required = false) Long cursorId,
         @RequestBody ClubSearchRequest clubSearchRequest,
        @RequestParam(required = false)
            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime cursorCreated,
-        Pageable pageable){
+        @PageableDefault (size = 6) Pageable pageable){
 
         return clubService.selectClubs(cursorId, pageable, clubSearchRequest, cursorCreated);
     }

@@ -17,7 +17,7 @@ public class ClubSearchRequest {
     //String sortType; // CLUB_CREATED, MEMBER_NUM, FEED_NUM, LIKES_NUM
 
     String orderBy; //ASC or DESC
-    Integer cursorValue; // created, recruitNum, feedNum, likesNum
+    Integer cursorValue; // recruitNum, feedNum, likesNum
     RecruitStatus recruitStatus;
     Integer minMemberNum;
     Integer maxMemberNum;

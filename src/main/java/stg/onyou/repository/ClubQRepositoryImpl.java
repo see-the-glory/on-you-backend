@@ -57,7 +57,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         );
 
         long total = clubResult.size();
-        return new PageImpl<ClubConditionResponse>(clubResult, page, total);
+        return new PageImpl<>(clubResult, page, total);
     }
 
     private List<CategoryResponse> setCategory(ClubConditionResponse r) {
@@ -95,6 +95,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     private List<ClubConditionResponse> findClubList(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest) {
+
+        String customSortType = getCustomSortType(page);
+        StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
+
         return queryFactory
                 .select(new QClubConditionResponse(
                         club.id,
@@ -107,13 +111,16 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.thumbnail,
                         club.recruitStatus,
                         user.name,
-                        club.created
+                        club.created,
+                        StringExpressions.lpad(stringTemplate, 20, '0')
+                                .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
+
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
-                        customCursor(customCursor, page, clubSearchRequest)
+                        customCursorCompare(customCursor, page, clubSearchRequest)
 
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
@@ -122,59 +129,58 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private BooleanExpression customCursor(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest){
+    private BooleanExpression customCursorCompare(String customCursor, Pageable page, ClubSearchRequest clubSearchRequest){
 
-        if (customCursor == null) { // 1. 첫 페이지 조회를 위한 처리
+        if (customCursor == null) { // 첫 페이지 조회를 위한 처리
             return null;
         }
 
-        StringTemplate stringTemplate = Expressions.stringTemplate("");
-
-        String customSortType = "";
-        Order customDirection = clubSearchRequest.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
-//
-//        Sort.Direction customDirection = Sort.Direction.ASC;
-
-        for(Sort.Order order : page.getSort()){
-            customSortType = order.getProperty();
-        }
-
-
-        /* 2. Querydsl에서 MySQL의 함수를 사용하기 위해서 Expressions.stringTemplate()를 사용
-              첫 번째 파라미터에 원하는 템플릿을 명시하고, {0}과 {1} 부분이 다음 파라미터로 치환 */
-        switch(customSortType){
-            case "created":
-                stringTemplate = Expressions.stringTemplate(
-                        "DATE_FORMAT({0}, {1})",
-                        club.created,
-                        ConstantImpl.create("%Y%m%d%H%i%s"));
-                break;
-            case "recruitNum":
-//                stringTemplate = Expressions.stringTemplate("%d",club.recruitNumber);
-                break;
-            //case "FEED_NUM" :
-            //    break;
-            //case "LIKES_NUM" :
-            //    break;
-            default :
-                System.out.println("default");
-        }
+        String customSortType = getCustomSortType(page);
+        Order customDirection = getCustomDirection(clubSearchRequest);
+        StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
         if( customDirection.equals(Order.ASC) ){
             return StringExpressions.lpad(stringTemplate, 20, '0')
                     .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
                     .gt(customCursor);
-//            .gt("000000201908010925120000000005");
         } else {
-            return StringExpressions.lpad(club.recruitNumber.stringValue(), 20, '0')
+            return StringExpressions.lpad(stringTemplate, 20, '0')
                     .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
                     .lt(customCursor);
         }
 
     }
 
-    private BooleanExpression cursorId(Long cursorId){
-        return cursorId == null ? null : club.id.lt(cursorId);
+    private Order getCustomDirection(ClubSearchRequest clubSearchRequest) {
+        return clubSearchRequest.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
+    }
+
+    private StringTemplate getCustomStringTemplate(String customSortType) {
+
+        switch(customSortType){
+            case "created":
+                return Expressions.stringTemplate(
+                        "DATE_FORMAT({0}, {1})",
+                        club.created,
+                        ConstantImpl.create("%Y%m%d%H%i%s"));
+            case "recruitNum":
+                return Expressions.stringTemplate(""+club.recruitNumber);
+            //case "FEED_NUM" :
+            //    break;
+            //case "LIKES_NUM" :
+            //    break;
+            default :
+                return null;
+        }
+    }
+
+    private String getCustomSortType(Pageable page) {
+
+        String res="";
+        for(Sort.Order order : page.getSort()){
+            res = order.getProperty();
+        }
+        return res;
     }
 
     private BooleanExpression eqRecruitStatus(RecruitStatus recruitStatus) {
@@ -193,15 +199,11 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
 
     private OrderSpecifier<?> clubSort(Pageable page, ClubSearchRequest clubSearchRequest) {
 
-        //서비스에서 보내준 Pageable 객체에 정렬조건 null 값 체크
+        //서비스에서 보내준 Pageable 객체에 정렬조건 값 체크
         if (!page.getSort().isEmpty()) {
-            //정렬값이 들어 있으면 for 사용하여 값을 가져온다
-
-            PathBuilder orderByExpression = new PathBuilder(Club.class, "club");
 
             for (Sort.Order order : page.getSort()) {
 
-                // 서비스에서 넣어준 DESC or ASC 를 가져온다.
                 Order direction = clubSearchRequest.getOrderBy().equals("ASC") ? Order.ASC : Order.DESC;
 
                 switch (order.getProperty()){

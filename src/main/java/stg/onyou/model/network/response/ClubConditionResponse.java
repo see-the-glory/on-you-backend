@@ -27,10 +27,11 @@ public class ClubConditionResponse {
     private LocalDateTime created;
     private List<UserResponse> members;
     private List<CategoryResponse> categories;
+    private String customCursor;
 
     @QueryProjection
     public ClubConditionResponse(Long id, String name, String clubLongDesc, String clubShortDesc, String organizationName,
-        int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName, LocalDateTime created){
+        int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName, LocalDateTime created, String customCursor){
         this.id = id;
         this.name = name;
         this.clubShortDesc = clubShortDesc;
@@ -42,6 +43,7 @@ public class ClubConditionResponse {
         this.recruitStatus = recruitStatus;
         this.creatorName = creatorName;
         this.created = created;
+        this.customCursor = customCursor;
     }
 
 }
