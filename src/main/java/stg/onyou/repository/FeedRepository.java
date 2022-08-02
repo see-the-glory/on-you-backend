@@ -12,6 +12,7 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query("select f from Feed f where f.delYn = 'n' and f.reportCount < 5 and f.access = 'PUBLIC'")
     List<Feed> findAll();
 
-    @Query("select f from Feed f where f.delYn = 'n' and f.content like concat('%', :content, '%')")
-    List<Feed> findAllString(@Param("content") String content);
+    @Query("select f from Feed f where f.delYn = 'n' and f.reportCount < 5 and f.content like concat('%', :content, '%') " +
+            "or f.content like concat('%', '#', :hashtag, '%')")
+    List<Feed> findAllString(@Param("content") String content, @Param("hashtag") String hashtag);
 }

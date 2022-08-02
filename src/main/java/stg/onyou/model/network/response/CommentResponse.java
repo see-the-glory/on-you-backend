@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CommentResponse {
-
+    Long userId;
     String userName;
     String content;
     LocalDateTime created;

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.ApplyStatus;
+import stg.onyou.model.Role;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,8 @@ import java.time.LocalDateTime;
 public class UserResponse {
 
     private Long id;
+    private String organizationName;
+    private String thumbnail;
     private String name;
     private String birthday;
     private String organizationName;
@@ -22,6 +25,7 @@ public class UserResponse {
     private char sex;
     private String email;
     private LocalDateTime created;
+    private Role role;
 
     @QueryProjection
     public UserResponse(Long id, String organizationName, String name, String birthday,

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.Role;
 
 @Data
@@ -15,5 +16,6 @@ public class ClubRoleResponse {
     private Long userId;
     private Long clubId;
     private Role role;
+    private ApplyStatus applyStatus;
 
 }
