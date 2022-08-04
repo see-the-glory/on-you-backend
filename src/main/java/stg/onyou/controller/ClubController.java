@@ -50,7 +50,7 @@ public class ClubController {
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
         @RequestParam(defaultValue = "1000", required = false) int max,
-        @PageableDefault (sort="created", size = 2) Pageable pageable){
+        @PageableDefault (sort="created", size = 8) Pageable pageable){
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
