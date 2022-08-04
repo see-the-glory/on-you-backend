@@ -4,10 +4,8 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -15,17 +13,15 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
-import stg.onyou.model.network.response.ClubConditionResponse;
+import stg.onyou.model.network.response.ClubPageResponse;
 import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
-import stg.onyou.service.CursorResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Api(tags = {"Club API Controller"})
@@ -47,14 +43,14 @@ public class ClubController {
     }
 
     @GetMapping("")
-    public Page<ClubConditionResponse> selectClubs(
+    public ClubPageResponse selectClubList(
         @RequestParam(required = false) String customCursor,
         @RequestParam(defaultValue = "ASC", required = false) String orderBy,
         @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
         @RequestParam(defaultValue = "1000", required = false) int max,
-        @PageableDefault (size = 2) Pageable pageable){
+        @PageableDefault (sort="created", size = 8) Pageable pageable){
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
@@ -64,7 +60,7 @@ public class ClubController {
                 .max(max)
                 .build();
 
-        return clubService.selectClubs(pageable, clubCondition, customCursor);
+        return clubService.selectClubList(pageable, clubCondition, customCursor);
     }
 
     @GetMapping("/{id}/role")

@@ -71,47 +71,68 @@ public class ClubService {
                 );
     }
 
-    public Page<ClubConditionResponse> selectClubs(Pageable page, ClubCondition clubCondition, String customCursor) {
+    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
 
-        return clubQRepository.findClubSearchList(page, clubCondition, customCursor);
+        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor);
+
+        ClubPageResponse response = ClubPageResponse.builder()
+                .hasNext(hasNextElement(findClubList, page, clubCondition))
+                .responses(findClubList)
+                .build();
+
+        return response;
     }
 
-    private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {
-        if (page.getSort() == null || cursorId == null) {
-            return null;
+    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition) {
+
+        List<ClubConditionResponse> clubConditionResponseList = findClubList.toList();
+        if(clubConditionResponseList.size()==0){
+            return false;
         }
-//        cursorCreated = cursorCreated.minusHours(9);
+        ClubConditionResponse lastElement = clubConditionResponseList.get(clubConditionResponseList.size()-1);
 
-        String customCursorSortType = "";
-        String customCursorId = "";
-        String customCreatedCursor = "";
-
-        for(Sort.Order order : page.getSort() ){
-            customCursorSortType = order.getProperty();
-        }
-
-        customCursorId = String.format("%1$" + 10 + "s", cursorId)
-                .replace(' ', '0');
-
-        if(customCursorSortType.equals("created")){
-            customCreatedCursor = cursorCreated.toString()
-                    .replaceAll("T", "")
-                    .replaceAll("-", "")
-                    .replaceAll(":", "") + "00";
-
-            customCreatedCursor = String.format("%1$" + 20 + "s", customCreatedCursor)
-                    .replace(' ', '0');
-
-            return customCreatedCursor + customCursorId;
-
-        } else {
-            String customValueCursor = String.format("%1$" + 20 + "s", clubSearchRequest.getCursorValue())
-                    .replace(' ', '0');
-            return customValueCursor + customCursorId;
-        }
+        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor());
 
 
+        return hasNextList.getTotalElements() == 0 ? false : true;
     }
+
+//    private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {
+//        if (page.getSort() == null || cursorId == null) {
+//            return null;
+//        }
+////        cursorCreated = cursorCreated.minusHours(9);
+//
+//        String customCursorSortType = "";
+//        String customCursorId = "";
+//        String customCreatedCursor = "";
+//
+//        for(Sort.Order order : page.getSort() ){
+//            customCursorSortType = order.getProperty();
+//        }
+//
+//        customCursorId = String.format("%1$" + 10 + "s", cursorId)
+//                .replace(' ', '0');
+//
+//        if(customCursorSortType.equals("created")){
+//            customCreatedCursor = cursorCreated.toString()
+//                    .replaceAll("T", "")
+//                    .replaceAll("-", "")
+//                    .replaceAll(":", "") + "00";
+//
+//            customCreatedCursor = String.format("%1$" + 20 + "s", customCreatedCursor)
+//                    .replace(' ', '0');
+//
+//            return customCreatedCursor + customCursorId;
+//
+//        } else {
+//            String customValueCursor = String.format("%1$" + 20 + "s", clubSearchRequest.getCursorValue())
+//                    .replace(' ', '0');
+//            return customValueCursor + customCursorId;
+//        }
+//
+//
+//    }
 
 
     /**

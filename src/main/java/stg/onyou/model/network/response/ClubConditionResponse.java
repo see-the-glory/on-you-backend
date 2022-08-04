@@ -1,8 +1,6 @@
 package stg.onyou.model.network.response;
 
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.RecruitStatus;
@@ -30,8 +28,8 @@ public class ClubConditionResponse {
     private String customCursor;
 
     @QueryProjection
-    public ClubConditionResponse(Long id, String name, String clubLongDesc, String clubShortDesc, String organizationName,
-        int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName, LocalDateTime created, String customCursor){
+    public ClubConditionResponse(Long id, String name, String clubShortDesc, String clubLongDesc, String organizationName,
+                                 int maxNumber, int recruitNumber, String thumbnail, RecruitStatus recruitStatus, String creatorName, LocalDateTime created, String customCursor){
         this.id = id;
         this.name = name;
         this.clubShortDesc = clubShortDesc;
