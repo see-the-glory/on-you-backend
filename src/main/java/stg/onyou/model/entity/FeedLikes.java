@@ -3,7 +3,6 @@ package stg.onyou.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -12,7 +11,7 @@ import java.util.Optional;
 @Entity
 @Builder
 @ToString(of={"id"})
-public class Likes {
+public class FeedLikes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

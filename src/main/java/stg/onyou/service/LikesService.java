@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.Likes;
+import stg.onyou.model.entity.FeedLikes;
 import stg.onyou.repository.FeedRepository;
 import stg.onyou.repository.LikesRepository;
 import stg.onyou.repository.UserRepository;
@@ -20,7 +20,7 @@ public class LikesService {
 
     public void addLikes(Long userId, Long feedId) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        Likes like = Likes.builder()
+        FeedLikes like = FeedLikes.builder()
                 .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
                 .feed(feed)
                 .onOff(true)
@@ -30,14 +30,14 @@ public class LikesService {
 
     // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소
     public void reversLikes(Long userId, Long feedId) {
-        Likes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
+        FeedLikes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
         like.setOnOff(!like.isOnOff());
         likesRepository.save(like);
     }
 
     // '좋아요' 유무
     public boolean isLikes(Long userId, Long feedId) {
-        Likes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
+        FeedLikes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
         if (like == null) {
             return false;
         }

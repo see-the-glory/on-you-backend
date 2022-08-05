@@ -43,7 +43,7 @@ public class Feed {
     private Integer reportCount;
 
     @OneToMany(mappedBy = "feed")
-    private List<Likes> likes = new ArrayList<>();
+    private List<FeedLikes> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "feed")
     private List<Comment> comments = new ArrayList<>();
