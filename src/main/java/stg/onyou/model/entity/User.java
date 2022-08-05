@@ -2,6 +2,7 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import stg.onyou.model.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -43,7 +44,7 @@ public class User {
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<FeedLikes> likes = new ArrayList<>();
+    private List<Likes> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
