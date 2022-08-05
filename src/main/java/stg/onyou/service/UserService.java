@@ -48,6 +48,7 @@ public class UserService {
                 .sex(user.getSex())
                 .email(user.getAccount_email())
                 .created(user.getCreated())
+                .thumbnail(user.getThumbnail())
                 .build();
 
         return userResponse;
