@@ -122,6 +122,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         organization.name,
                         club.maxNumber,
                         club.recruitNumber,
+                        club.feedNumber,
+                        club.clubLikesNumber,
                         club.thumbnail,
                         club.recruitStatus,
                         user.name,
@@ -136,9 +138,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .where(
                         customCursorCompare(page, clubCondition, customCursor),
                         showMyClub(clubCondition, currentUser),
-                        showRecruitingOnly(),
-                        showMemberBetween(),
-                        club.delYn.eq('Y')
+                        showRecruitingOnly(clubCondition),
+                        showMemberBetween(clubCondition),
+                        club.delYn.eq('N')
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
                 .orderBy(clubSort(page, clubCondition))
@@ -153,14 +155,14 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         return userClub.user.eq(currentUser);
     }
 
-    private BooleanExpression showRecruitingOnly(ClubCondition clubCondition, User currentUser){
+    private BooleanExpression showRecruitingOnly(ClubCondition clubCondition){
         if (clubCondition == null || clubCondition.getShowRecruitingOnly()==0) {
             return null;
         }
         return club.recruitStatus.eq(RecruitStatus.RECRUIT);
     }
 
-    private BooleanExpression showMemberBetween(ClubCondition clubCondition, User currentUser){
+    private BooleanExpression showMemberBetween(ClubCondition clubCondition){
         if (clubCondition == null || clubCondition.getMin()==0 || clubCondition.getMax()==1000) {
             return null;
         }
@@ -206,7 +208,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 return Expressions.stringTemplate(""+club.recruitNumber);
             case "feedNum" :
                 return Expressions.stringTemplate(""+club.feedNumber);
-            case "clubLikesNum" :
+            case "likesNum" :
                 return Expressions.stringTemplate(""+club.clubLikesNumber);
             default :
                 return null;
@@ -250,10 +252,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         return new OrderSpecifier(direction, club.created);
                     case "recruitNum":
                         return new OrderSpecifier(direction, club.recruitNumber);
-//                    case "feedNum":
-//                        return new OrderSpecifier(direction, orderByExpression.get(order.getProperty()));
-//                    case "likesNum":
-//                        return new OrderSpecifier(direction, orderByExpression.get(order.getProperty()));
+                    case "feedNum":
+                        return new OrderSpecifier(direction, club.feedNumber);
+                    case "likesNum":
+                        return new OrderSpecifier(direction, club.clubLikesNumber);
                 }
             }
         }

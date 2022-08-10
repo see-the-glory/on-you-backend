@@ -76,14 +76,14 @@ public class ClubService {
         Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId);
 
         ClubPageResponse response = ClubPageResponse.builder()
-                .hasNext(hasNextElement(findClubList, page, clubCondition))
+                .hasNext(hasNextElement(findClubList, page, clubCondition, userId))
                 .responses(findClubList)
                 .build();
 
         return response;
     }
 
-    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition) {
+    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition, Long userId) {
 
         List<ClubConditionResponse> clubConditionResponseList = findClubList.toList();
         if(clubConditionResponseList.size()==0){
@@ -91,7 +91,7 @@ public class ClubService {
         }
         ClubConditionResponse lastElement = clubConditionResponseList.get(clubConditionResponseList.size()-1);
 
-        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor());
+        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor(), userId);
 
 
         return hasNextList.getTotalElements() == 0 ? false : true;
