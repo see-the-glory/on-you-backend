@@ -12,7 +12,7 @@ import java.util.Optional;
 @Entity
 @Builder
 @ToString(of={"id"})
-public class Likes {
+public class FeedLikes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

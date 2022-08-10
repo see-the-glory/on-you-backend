@@ -17,11 +17,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.repository.NoRepositoryBean;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.Club;
 //import stg.onyou.model.entity.QUser;
+import stg.onyou.model.entity.User;
 import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.ClubSearchRequest;
 import stg.onyou.model.network.response.*;
@@ -40,6 +43,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
 
     @Autowired
     private final JPAQueryFactory queryFactory;
+    @Autowired
+    private UserRepository userRepository;
 
     public ClubQRepositoryImpl(JPAQueryFactory queryFactory) {
         super(Club.class);
@@ -47,9 +52,14 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
 
-        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor);
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor, currentUser);
 
         clubResult.forEach(
                 r -> {
@@ -98,9 +108,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor, User currentUser) {
 
-        String customSortType = getCustomSortType(page);
+        String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
         return queryFactory
@@ -124,14 +134,25 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
-                        customCursorCompare(page, clubCondition, customCursor)
-
+                        customCursorCompare(page, clubCondition, customCursor),
+                        showMyClub(clubCondition, currentUser),
+                        showRecruitingOnly(),
+                        showMemberBetween(),
+                        club.delYn.eq('Y')
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
                 .orderBy(clubSort(page, clubCondition))
                 .limit(page.getPageSize())
                 .fetch();
     }
+
+    private BooleanExpression showMyClub(ClubCondition clubCondition, User currentUser){
+        if (clubCondition == null || clubCondition.getShowMy()==0) {
+            return null;
+        }
+        return userClub.user.eq(currentUser);
+    }
+
 
     private BooleanExpression customCursorCompare(Pageable page, ClubCondition clubCondition, String customCursor){
 
@@ -169,10 +190,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         ConstantImpl.create("%Y%m%d%H%i%s"));
             case "recruitNum":
                 return Expressions.stringTemplate(""+club.recruitNumber);
-            //case "FEED_NUM" :
-            //    break;
-            //case "LIKES_NUM" :
-            //    break;
+            case "feedNum" :
+                return Expressions.stringTemplate(""+club.feedNumber);
+            case "clubLikesNum" :
+                return Expressions.stringTemplate(""+club.clubLikesNumber);
             default :
                 return null;
         }

@@ -30,6 +30,8 @@ public class Club {
     private RecruitStatus recruitStatus;
     private int maxNumber;
     private int recruitNumber;
+    private int clubLikesNumber;
+    private int feedNumber;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String isApproveRequired;

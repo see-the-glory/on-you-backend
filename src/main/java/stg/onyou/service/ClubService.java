@@ -71,9 +71,9 @@ public class ClubService {
                 );
     }
 
-    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
 
-        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor);
+        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId);
 
         ClubPageResponse response = ClubPageResponse.builder()
                 .hasNext(hasNextElement(findClubList, page, clubCondition))

@@ -8,6 +8,6 @@ import stg.onyou.model.network.response.ClubConditionResponse;
 
 public interface ClubQRepository {
 
-    Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor);
+    Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId);
 
 }

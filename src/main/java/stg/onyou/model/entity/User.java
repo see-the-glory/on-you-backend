@@ -44,7 +44,7 @@ public class User {
     private List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Likes> likes = new ArrayList<>();
+    private List<FeedLikes> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
