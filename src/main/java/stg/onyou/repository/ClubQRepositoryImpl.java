@@ -153,6 +153,20 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         return userClub.user.eq(currentUser);
     }
 
+    private BooleanExpression showRecruitingOnly(ClubCondition clubCondition, User currentUser){
+        if (clubCondition == null || clubCondition.getShowRecruitingOnly()==0) {
+            return null;
+        }
+        return club.recruitStatus.eq(RecruitStatus.RECRUIT);
+    }
+
+    private BooleanExpression showMemberBetween(ClubCondition clubCondition, User currentUser){
+        if (clubCondition == null || clubCondition.getMin()==0 || clubCondition.getMax()==1000) {
+            return null;
+        }
+        return club.recruitNumber.between(clubCondition.getMin(), clubCondition.getMax());
+    }
+
 
     private BooleanExpression customCursorCompare(Pageable page, ClubCondition clubCondition, String customCursor){
 
