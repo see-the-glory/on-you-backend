@@ -35,6 +35,7 @@ public class Club {
     private LocalDateTime created;
     private LocalDateTime updated;
     private String isApproveRequired;
+    private String contactPhone;
 
     @OneToMany(mappedBy = "club")
     @JsonIgnore

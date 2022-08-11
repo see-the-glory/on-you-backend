@@ -41,11 +41,12 @@ import static stg.onyou.model.entity.QCategory.category;
 
 public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements ClubQRepository{
 
-    @Autowired
+
     private final JPAQueryFactory queryFactory;
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
     public ClubQRepositoryImpl(JPAQueryFactory queryFactory) {
         super(Club.class);
         this.queryFactory = queryFactory;
@@ -128,6 +129,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.recruitStatus,
                         user.name,
                         club.created,
+                        club.contactPhone,
                         StringExpressions.lpad(stringTemplate, 20, '0')
                                 .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
 
@@ -222,20 +224,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
             res = order.getProperty();
         }
         return res;
-    }
-
-    private BooleanExpression eqRecruitStatus(RecruitStatus recruitStatus) {
-        if(recruitStatus == null) {
-            return null;
-        }
-        return club.recruitStatus.eq(recruitStatus);
-    }
-
-    private BooleanExpression betweenMemberMinMax(Integer minMemberNum, Integer maxMemberNum) {
-        if(minMemberNum == null || maxMemberNum == null) {
-            return null;
-        }
-        return club.maxNumber.between(minMemberNum, maxMemberNum);
     }
 
     private OrderSpecifier<?> clubSort(Pageable page, ClubCondition clubCondition) {
