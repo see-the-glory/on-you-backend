@@ -50,7 +50,10 @@ public class ClubController {
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
         @RequestParam(defaultValue = "1000", required = false) int max,
-        @PageableDefault (sort="created", size = 8) Pageable pageable){
+        @PageableDefault (sort="created", size = 8) Pageable pageable,
+        HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
@@ -60,7 +63,7 @@ public class ClubController {
                 .max(max)
                 .build();
 
-        return clubService.selectClubList(pageable, clubCondition, customCursor);
+        return clubService.selectClubList(pageable, clubCondition, customCursor, userId);
     }
 
     @GetMapping("/{id}/role")
