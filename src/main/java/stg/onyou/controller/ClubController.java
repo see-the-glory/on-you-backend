@@ -37,9 +37,17 @@ public class ClubController {
 
     private final Integer DEFAULT_PAGINATION_SIZE = 5;
 
+
+
     @GetMapping("/{id}")
     public Header<ClubResponse> selectClub(@PathVariable Long id){
         return clubService.selectClub(id);
+    }
+
+    @GetMapping("/my")
+    public Header<List<ClubResponse>> selectMyClubs(HttpServletRequest httpServletRequest){
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        return clubService.selectMyClubs(userId);
     }
 
     @GetMapping("")

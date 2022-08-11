@@ -8,6 +8,7 @@ import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserClub;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserCreateRequest;
+import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -17,6 +18,7 @@ import stg.onyou.repository.UserRepository;
 import stg.onyou.model.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -118,4 +120,5 @@ public class UserService {
 
         return Header.OK(userRepository.save(user));
     }
+
 }

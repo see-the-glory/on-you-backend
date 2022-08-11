@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.tomcat.jni.Local;
 import stg.onyou.model.RecruitStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -27,6 +29,9 @@ public class ClubResponse {
     private int recruitNumber;
     private String thumbnail;
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
+    private String contactPhone;
     private String creatorName;
+    private LocalDateTime created;
+
 }
 
