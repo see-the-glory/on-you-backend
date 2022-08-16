@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.UserClub;
+import stg.onyou.model.InterestCategory;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.UserClubResponse;
@@ -14,10 +14,11 @@ import stg.onyou.model.network.response.UserUpdateRequest;
 import stg.onyou.repository.ClubRepository;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
-import stg.onyou.model.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -39,7 +40,7 @@ public class UserService {
     }
 
     private UserResponse selectUserResponse(User user){
-
+        List<InterestCategory> interests = user.getInterests().stream().map(Interest::getCategory).collect(Collectors.toList());
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -49,6 +50,8 @@ public class UserService {
                 .email(user.getAccount_email())
                 .created(user.getCreated())
                 .thumbnail(user.getThumbnail())
+                .phoneNumber(user.getPhoneNumber())
+                .interests(interests)
                 .build();
 
         return userResponse;

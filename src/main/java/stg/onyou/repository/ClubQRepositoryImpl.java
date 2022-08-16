@@ -1,10 +1,7 @@
 package stg.onyou.repository;
 
 import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.ConstantImpl;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -18,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.repository.NoRepositoryBean;
 import stg.onyou.model.ApplyStatus;
+import stg.onyou.model.InterestCategory;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.Club;
@@ -89,7 +87,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         user.sex,
                         user.account_email,
                         user.created,
-                        userClub.role
+                        userClub.role,
+                        user.phoneNumber
                 ))
                 .from(userClub)
                 .leftJoin(userClub.user, user)

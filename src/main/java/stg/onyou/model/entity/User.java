@@ -2,6 +2,7 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import stg.onyou.model.InterestCategory;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class User {
     private LocalDateTime created;
     private LocalDateTime updated;
     private String socialId;
+    private String phoneNumber;
 
     @OneToMany(mappedBy = "creator")
     private List<Club> clubs = new ArrayList<>();
@@ -50,5 +52,8 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Report> reports = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Interest> interests = new ArrayList<>();
 
 }
