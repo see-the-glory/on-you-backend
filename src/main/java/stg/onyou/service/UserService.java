@@ -2,6 +2,7 @@ package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.InterestCategory;
@@ -29,6 +30,8 @@ public class UserService {
     private UserClubRepository userClubRepository;
     @Autowired
     private ClubRepository clubRepository;
+    @Autowired
+    private AwsS3Service awsS3Service;
 
     public Header<UserResponse> selectUser(Long id){
 
@@ -91,7 +94,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) {
+    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -99,7 +102,8 @@ public class UserService {
 
         user.setName(userUpdateRequest.getName());
         user.setBirthday(userUpdateRequest.getBirthday());
-        user.setThumbnail(userUpdateRequest.getThumbnail());
+        String url = awsS3Service.uploadFile(thumbnailFile);
+        user.setThumbnail(url);
         user.setAccount_email(userUpdateRequest.getEmail());
         user.setUpdated(LocalDateTime.now());
 
