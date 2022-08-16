@@ -71,6 +71,8 @@ public class FeedController {
                     .likesCount(likesCount)
                     .commentCount(commentCount)
                     .hashtags(hashtags)
+                    .created(feed.getCreated())
+                    .updated(feed.getUpdated())
                     .build();
             resultList.add(feedResponse);
         }
@@ -108,6 +110,8 @@ public class FeedController {
                     .likesCount(likesCount)
                     .commentCount(commentCount)
                     .hashtags(hashtags)
+                    .created(feed.getCreated())
+                    .updated(feed.getUpdated())
                     .build();
             resultList.add(feedResponse);
         }
@@ -162,6 +166,8 @@ public class FeedController {
                 .likesCount(likesCount)
                 .commentCount(commentCount)
                 .hashtags(hashtags)
+                .created(feed.getCreated())
+                .updated(feed.getUpdated())
                 .build();
 
         return Header.OK(feedResponse);
@@ -196,6 +202,8 @@ public class FeedController {
                     .likesCount(likesCount)
                     .commentCount(commentCount)
                     .hashtags(hashtags)
+                    .created(feed.getCreated())
+                    .updated(feed.getUpdated())
                     .build();
             resultList.add(feedResponse);
         }
