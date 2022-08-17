@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import stg.onyou.model.InterestCategory;
 
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

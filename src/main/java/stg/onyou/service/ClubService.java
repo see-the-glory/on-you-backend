@@ -71,19 +71,19 @@ public class ClubService {
                 );
     }
 
-    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
 
-        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor);
+        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId);
 
         ClubPageResponse response = ClubPageResponse.builder()
-                .hasNext(hasNextElement(findClubList, page, clubCondition))
+                .hasNext(hasNextElement(findClubList, page, clubCondition, userId))
                 .responses(findClubList)
                 .build();
 
         return response;
     }
 
-    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition) {
+    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition, Long userId) {
 
         List<ClubConditionResponse> clubConditionResponseList = findClubList.toList();
         if(clubConditionResponseList.size()==0){
@@ -91,7 +91,7 @@ public class ClubService {
         }
         ClubConditionResponse lastElement = clubConditionResponseList.get(clubConditionResponseList.size()-1);
 
-        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor());
+        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor(), userId);
 
 
         return hasNextList.getTotalElements() == 0 ? false : true;
@@ -268,17 +268,7 @@ public class ClubService {
         }
 
         // 4. 저장 성공한 club의 reponse 생성하여 return
-        ClubResponse clubResponse = ClubResponse.builder()
-                .id(savedClub.getId())
-                .name(savedClub.getName())
-                .clubShortDesc(savedClub.getShortDesc())
-                .clubLongDesc(savedClub.getLongDesc())
-                .organizationName(savedClub.getOrganization().getName())
-                .maxNumber(savedClub.getMaxNumber())
-                .thumbnail(savedClub.getThumbnail())
-                .recruitStatus(savedClub.getRecruitStatus())
-                .creatorName(savedClub.getCreator().getName())
-                .build();
+        ClubResponse clubResponse = selectClubResponse(savedClub);
 
         return Header.OK(clubResponse);
 
@@ -314,6 +304,10 @@ public class ClubService {
         club.setThumbnail(
                 Optional.ofNullable(clubUpdateRequest.getThumbnailUrl())
                         .orElse(club.getThumbnail())
+        );
+        club.setContactPhone(
+                Optional.ofNullable(clubUpdateRequest.getContactPhone())
+                        .orElse(club.getContactPhone())
         );
         club.setUpdated(LocalDateTime.now());
 
@@ -720,10 +714,12 @@ public class ClubService {
                 .recruitNumber(club.getRecruitNumber())
                 .recruitStatus(club.getRecruitStatus())
                 .categories(categoryResponseList)
+                .contactPhone(club.getContactPhone())
                 .creatorName(Optional.ofNullable(club.getCreator())
                         .map(r -> r.getName())
                         .orElse(null)
                 )
+                .created(club.getCreated())
                 .build();
 
         return clubResponse;
@@ -773,4 +769,22 @@ public class ClubService {
         return clubSchedule.getClub().getId() != clubId;
     }
 
+    public Header<List<ClubResponse>> selectMyClubs(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        List<ClubResponse> myClubsResponse = userClubRepository.findAll()
+                .stream()
+                .filter(uc -> uc.getUser().getId() == userId)
+                .map(uc -> uc.getClub())
+                .distinct()
+                .map(club -> selectClubResponse(club))
+                .collect(Collectors.toList());
+
+        return Header.OK(myClubsResponse);
+
+    }
 }

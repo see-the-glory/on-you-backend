@@ -14,12 +14,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.data.repository.NoRepositoryBean;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.InterestCategory;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.Club;
 //import stg.onyou.model.entity.QUser;
+import stg.onyou.model.entity.User;
 import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.ClubSearchRequest;
 import stg.onyou.model.network.response.*;
@@ -36,18 +39,26 @@ import static stg.onyou.model.entity.QCategory.category;
 
 public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements ClubQRepository{
 
-    @Autowired
-    private final JPAQueryFactory queryFactory;
 
+    private final JPAQueryFactory queryFactory;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     public ClubQRepositoryImpl(JPAQueryFactory queryFactory) {
         super(Club.class);
         this.queryFactory = queryFactory;
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
 
-        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor);
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor, currentUser);
 
         clubResult.forEach(
                 r -> {
@@ -97,9 +108,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor) {
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor, User currentUser) {
 
-        String customSortType = getCustomSortType(page);
+        String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
         return queryFactory
@@ -111,10 +122,13 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         organization.name,
                         club.maxNumber,
                         club.recruitNumber,
+                        club.feedNumber,
+                        club.clubLikesNumber,
                         club.thumbnail,
                         club.recruitStatus,
                         user.name,
                         club.created,
+                        club.contactPhone,
                         StringExpressions.lpad(stringTemplate, 20, '0')
                                 .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
 
@@ -123,14 +137,39 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
-                        customCursorCompare(page, clubCondition, customCursor)
-
+                        customCursorCompare(page, clubCondition, customCursor),
+                        showMyClub(clubCondition, currentUser),
+                        showRecruitingOnly(clubCondition),
+                        showMemberBetween(clubCondition),
+                        club.delYn.eq('N')
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
                 .orderBy(clubSort(page, clubCondition))
                 .limit(page.getPageSize())
                 .fetch();
     }
+
+    private BooleanExpression showMyClub(ClubCondition clubCondition, User currentUser){
+        if (clubCondition == null || clubCondition.getShowMy()==0) {
+            return null;
+        }
+        return userClub.user.eq(currentUser);
+    }
+
+    private BooleanExpression showRecruitingOnly(ClubCondition clubCondition){
+        if (clubCondition == null || clubCondition.getShowRecruitingOnly()==0) {
+            return null;
+        }
+        return club.recruitStatus.eq(RecruitStatus.RECRUIT);
+    }
+
+    private BooleanExpression showMemberBetween(ClubCondition clubCondition){
+        if (clubCondition == null || clubCondition.getMin()==0 || clubCondition.getMax()==1000) {
+            return null;
+        }
+        return club.recruitNumber.between(clubCondition.getMin(), clubCondition.getMax());
+    }
+
 
     private BooleanExpression customCursorCompare(Pageable page, ClubCondition clubCondition, String customCursor){
 
@@ -168,10 +207,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         ConstantImpl.create("%Y%m%d%H%i%s"));
             case "recruitNum":
                 return Expressions.stringTemplate(""+club.recruitNumber);
-            //case "FEED_NUM" :
-            //    break;
-            //case "LIKES_NUM" :
-            //    break;
+            case "feedNum" :
+                return Expressions.stringTemplate(""+club.feedNumber);
+            case "likesNum" :
+                return Expressions.stringTemplate(""+club.clubLikesNumber);
             default :
                 return null;
         }
@@ -184,20 +223,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
             res = order.getProperty();
         }
         return res;
-    }
-
-    private BooleanExpression eqRecruitStatus(RecruitStatus recruitStatus) {
-        if(recruitStatus == null) {
-            return null;
-        }
-        return club.recruitStatus.eq(recruitStatus);
-    }
-
-    private BooleanExpression betweenMemberMinMax(Integer minMemberNum, Integer maxMemberNum) {
-        if(minMemberNum == null || maxMemberNum == null) {
-            return null;
-        }
-        return club.maxNumber.between(minMemberNum, maxMemberNum);
     }
 
     private OrderSpecifier<?> clubSort(Pageable page, ClubCondition clubCondition) {
@@ -214,10 +239,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         return new OrderSpecifier(direction, club.created);
                     case "recruitNum":
                         return new OrderSpecifier(direction, club.recruitNumber);
-//                    case "feedNum":
-//                        return new OrderSpecifier(direction, orderByExpression.get(order.getProperty()));
-//                    case "likesNum":
-//                        return new OrderSpecifier(direction, orderByExpression.get(order.getProperty()));
+                    case "feedNum":
+                        return new OrderSpecifier(direction, club.feedNumber);
+                    case "likesNum":
+                        return new OrderSpecifier(direction, club.clubLikesNumber);
                 }
             }
         }

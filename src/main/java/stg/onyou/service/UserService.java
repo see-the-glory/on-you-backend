@@ -9,6 +9,7 @@ import stg.onyou.model.InterestCategory;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserCreateRequest;
+import stg.onyou.model.network.response.ClubResponse;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -126,4 +127,5 @@ public class UserService {
 
         return Header.OK(userRepository.save(user));
     }
+
 }

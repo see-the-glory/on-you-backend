@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class FeedResponse {
 
-    Long feedId;
+    Long id;
     Long clubId;
     String clubName;
     Long userId;

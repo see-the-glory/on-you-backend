@@ -62,7 +62,7 @@ public class FeedController {
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(userId)
                     .userName(userName)
-                    .feedId(feedId)
+                    .id(feedId)
                     .clubId(clubId)
                     .clubName(clubName)
                     .content(content)
@@ -100,7 +100,7 @@ public class FeedController {
             List<String> hashtags = feedService.getHashtags(feed);
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(userId)
-                    .feedId(feedId)
+                    .id(feedId)
                     .clubId(clubId)
                     .clubName(clubName)
                     .userName(userName)
@@ -156,7 +156,7 @@ public class FeedController {
         int commentCount = feed.getComments().size();
         FeedResponse feedResponse = FeedResponse.builder()
                 .userId(userId)
-                .feedId(feedId)
+                .id(feedId)
                 .clubId(clubId)
                 .clubName(clubName)
                 .userName(userName)
@@ -192,7 +192,7 @@ public class FeedController {
             int commentCount = feed.getComments().size();
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(userId)
-                    .feedId(feedId)
+                    .id(feedId)
                     .clubId(clubId)
                     .clubName(clubName)
                     .userName(userName)
