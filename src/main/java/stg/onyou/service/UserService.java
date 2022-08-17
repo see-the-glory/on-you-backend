@@ -2,10 +2,11 @@ package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.UserClub;
+import stg.onyou.model.InterestCategory;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.ClubResponse;
@@ -15,11 +16,11 @@ import stg.onyou.model.network.response.UserUpdateRequest;
 import stg.onyou.repository.ClubRepository;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
-import stg.onyou.model.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -30,6 +31,8 @@ public class UserService {
     private UserClubRepository userClubRepository;
     @Autowired
     private ClubRepository clubRepository;
+    @Autowired
+    private AwsS3Service awsS3Service;
 
     public Header<UserResponse> selectUser(Long id){
 
@@ -41,7 +44,7 @@ public class UserService {
     }
 
     private UserResponse selectUserResponse(User user){
-
+        List<InterestCategory> interests = user.getInterests().stream().map(Interest::getCategory).collect(Collectors.toList());
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -50,6 +53,9 @@ public class UserService {
                 .sex(user.getSex())
                 .email(user.getAccount_email())
                 .created(user.getCreated())
+                .thumbnail(user.getThumbnail())
+                .phoneNumber(user.getPhoneNumber())
+                .interests(interests)
                 .build();
 
         return userResponse;
@@ -89,7 +95,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) {
+    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -97,7 +103,8 @@ public class UserService {
 
         user.setName(userUpdateRequest.getName());
         user.setBirthday(userUpdateRequest.getBirthday());
-        user.setThumbnail(userUpdateRequest.getThumbnail());
+        String url = awsS3Service.uploadFile(thumbnailFile);
+        user.setThumbnail(url);
         user.setAccount_email(userUpdateRequest.getEmail());
         user.setUpdated(LocalDateTime.now());
 

@@ -6,12 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.ApplyStatus;
+import stg.onyou.model.InterestCategory;
 import stg.onyou.model.Role;
+import stg.onyou.model.entity.Interest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class UserResponse {
 
@@ -25,10 +29,12 @@ public class UserResponse {
     private String email;
     private LocalDateTime created;
     private Role role;
+    private String phoneNumber;
+    private List<InterestCategory> interests;
 
     @QueryProjection
     public UserResponse(Long id, String organizationName, String thumbnail, String name, String birthday,
-                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created, Role role){
+                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created, Role role, String phoneNumber){
 
         this.id = id;
         this.organizationName = organizationName;
@@ -40,6 +46,7 @@ public class UserResponse {
         this.email = email;
         this.created = created;
         this.role = role;
+        this.phoneNumber = phoneNumber;
     }
 }
 

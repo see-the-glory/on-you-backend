@@ -1,18 +1,17 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
+import stg.onyou.model.InterestCategory;
 
 import javax.persistence.*;
 
+@Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Builder
-@ToString(of={"id"})
-public class FeedLikes {
-
+public class Interest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,9 +20,7 @@ public class FeedLikes {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private Feed feed;
+    @Enumerated(EnumType.STRING)
+    private InterestCategory category;
 
-    private boolean onOff;
 }

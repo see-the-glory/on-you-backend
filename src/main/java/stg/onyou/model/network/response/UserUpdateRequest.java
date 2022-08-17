@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import stg.onyou.model.entity.Interest;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -13,6 +16,5 @@ public class UserUpdateRequest {
 
     private String name;
     private String birthday;
-    private String thumbnail;
     private String email;
 }
