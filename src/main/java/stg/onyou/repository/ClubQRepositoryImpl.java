@@ -126,6 +126,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.clubLikesNumber,
                         club.thumbnail,
                         club.recruitStatus,
+                        club.isApproveRequired,
                         user.name,
                         club.created,
                         club.contactPhone,
