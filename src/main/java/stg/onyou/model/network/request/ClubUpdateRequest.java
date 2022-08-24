@@ -24,7 +24,7 @@ public class ClubUpdateRequest {
     private String clubShortDesc;
     private String clubLongDesc;
     private String thumbnailUrl;
-    @NotBlank(message = "모임 대표번호를 작성해주세요.")
+//    @NotBlank(message = "모임 대표번호를 작성해주세요.")
     @Pattern(regexp = "[0-9]{10,11}", message = "10~11자리의 숫자만 입력가능합니다")
     private String contactPhone;
 }

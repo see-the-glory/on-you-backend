@@ -109,7 +109,7 @@ public class ClubController {
                                              ClubUpdateRequest clubUpdateRequest,
                                      HttpServletRequest httpServletRequest){
 
-        if(!thumbnail.isEmpty()){
+        if(thumbnail != null){
             String thumbnailUrl = awsS3Service.uploadFile(thumbnail);
             clubUpdateRequest.setThumbnailUrl(thumbnailUrl);
         }
