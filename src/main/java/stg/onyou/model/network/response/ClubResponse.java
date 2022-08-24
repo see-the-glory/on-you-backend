@@ -29,6 +29,7 @@ public class ClubResponse {
     private int recruitNumber;
     private String thumbnail;
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
+    private String isApprovedRequired; // "Y", "N"
     private String contactPhone;
     private String creatorName;
     private LocalDateTime created;

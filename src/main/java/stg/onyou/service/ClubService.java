@@ -209,8 +209,8 @@ public class ClubService {
                             .orElse(null)
                 )
                 .delYn('N')
-                .thumbnail("default image url")
-                .recruitStatus(RecruitStatus.RECRUIT)
+                .thumbnail(clubCreateRequest.getThumbnailUrl())
+                .recruitStatus(RecruitStatus.OPEN)
                 .maxNumber(clubCreateRequest.getClubMaxMember())
                 .isApproveRequired(clubCreateRequest.getIsApproveRequired())
                 .created(LocalDateTime.now())
@@ -274,7 +274,7 @@ public class ClubService {
 
     }
 
-    public Header<Club> updateClub(ClubUpdateRequest clubUpdateRequest, Long clubId) {
+    public Header<ClubResponse> updateClub(ClubUpdateRequest clubUpdateRequest, Long clubId) {
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(
@@ -311,7 +311,7 @@ public class ClubService {
         );
         club.setUpdated(LocalDateTime.now());
 
-        return Header.OK(clubRepository.save(club));
+        return Header.OK(selectClubResponse(club));
     }
 
     /**
@@ -713,6 +713,7 @@ public class ClubService {
                 .thumbnail(club.getThumbnail())
                 .recruitNumber(club.getRecruitNumber())
                 .recruitStatus(club.getRecruitStatus())
+                .isApprovedRequired(club.getIsApproveRequired())
                 .categories(categoryResponseList)
                 .contactPhone(club.getContactPhone())
                 .creatorName(Optional.ofNullable(club.getCreator())

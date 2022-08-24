@@ -104,7 +104,7 @@ public class ClubController {
     }
 
     @PutMapping("/{id}")
-    public Header<Club> updateClub(@PathVariable Long id, @RequestPart(value = "file", required = false) MultipartFile thumbnail,
+    public Header<ClubResponse> updateClub(@PathVariable Long id, @RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubUpdateRequest")
                                              ClubUpdateRequest clubUpdateRequest,
                                      HttpServletRequest httpServletRequest){

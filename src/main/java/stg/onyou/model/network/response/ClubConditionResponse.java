@@ -23,6 +23,7 @@ public class ClubConditionResponse {
     private int clubLikesNumber;
     private String thumbnail;
     private RecruitStatus recruitStatus;
+    private String isApprovedRequired;
     private String creatorName;
     private LocalDateTime created;
     private List<UserResponse> members;
@@ -33,7 +34,7 @@ public class ClubConditionResponse {
     @QueryProjection
     public ClubConditionResponse(Long id, String name, String clubShortDesc, String clubLongDesc, String organizationName,
                                  int maxNumber, int recruitNumber, int feedNumber, int clubLikesNumber, String thumbnail, RecruitStatus recruitStatus,
-                                 String creatorName, LocalDateTime created, String contactPhone, String customCursor){
+                                 String isApprovedRequired, String creatorName, LocalDateTime created, String contactPhone, String customCursor){
 
         this.id = id;
         this.name = name;
@@ -46,6 +47,7 @@ public class ClubConditionResponse {
         this.clubLikesNumber = clubLikesNumber;
         this.thumbnail = thumbnail;
         this.recruitStatus = recruitStatus;
+        this.isApprovedRequired = isApprovedRequired;
         this.creatorName = creatorName;
         this.created = created;
         this.customCursor = customCursor;
