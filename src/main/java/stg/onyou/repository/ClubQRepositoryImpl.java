@@ -161,7 +161,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         if (clubCondition == null || clubCondition.getShowRecruitingOnly()==0) {
             return null;
         }
-        return club.recruitStatus.eq(RecruitStatus.RECRUIT);
+        return club.recruitStatus.eq(RecruitStatus.OPEN);
     }
 
     private BooleanExpression showMemberBetween(ClubCondition clubCondition){

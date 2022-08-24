@@ -1,5 +1,6 @@
 package stg.onyou.model;
 
 public enum RecruitStatus {
-    BEGIN, RECRUIT, CLOSED
+//    BEGIN, RECRUIT, CLOSED
+    OPEN, CLOSE
 }
