@@ -52,7 +52,7 @@ public class ClubController {
 
     @GetMapping("")
     public ClubPageResponse selectClubList(
-        @RequestParam(required = false) String customCursor,
+        @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "ASC", required = false) String orderBy,
         @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
         @RequestParam(defaultValue = "0", required = false) int showMy,
@@ -71,7 +71,7 @@ public class ClubController {
                 .max(max)
                 .build();
 
-        return clubService.selectClubList(pageable, clubCondition, customCursor, userId);
+        return clubService.selectClubList(pageable, clubCondition, cursor, userId);
     }
 
     @GetMapping("/{id}/role")
