@@ -15,4 +15,7 @@ public class ClubApproveRequest {
     @NotNull
     @Positive
     private Long approvedUserId;
+    @NotNull
+    @Positive
+    private Long approvedClubId;
 }

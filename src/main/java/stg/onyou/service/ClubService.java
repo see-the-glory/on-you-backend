@@ -368,7 +368,7 @@ public class ClubService {
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public UserClub approveClub(Long approverId, Long approvedUserId, Long clubId) {
+    public UserClub approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
 
         User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
@@ -378,7 +378,7 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
-        Club club  = clubRepository.findById(clubId)
+        Club club  = clubRepository.findById(approvedClubId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
@@ -402,11 +402,13 @@ public class ClubService {
             throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
         }
 
-        if(!approverUserClub.getRole().equals(Role.MEMBER)){
-            approvedUserClub.setRole(Role.MEMBER);
-            approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
-            approvedUserClub.setApproveDate(LocalDateTime.now());
+        if(approverUserClub.getRole().equals(Role.MEMBER)){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
         }
+
+        approvedUserClub.setRole(Role.MEMBER);
+        approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
+        approvedUserClub.setApproveDate(LocalDateTime.now());
 
         return userClubRepository.save(approvedUserClub);
     }
@@ -786,6 +788,31 @@ public class ClubService {
                 .collect(Collectors.toList());
 
         return Header.OK(myClubsResponse);
+
+    }
+
+    public void withdrawClub(Long clubId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user,club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if( userClub.getApplyStatus().equals(ApplyStatus.APPLIED)){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        userClubRepository.delete(userClub);
 
     }
 }

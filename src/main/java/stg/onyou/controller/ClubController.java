@@ -120,6 +120,16 @@ public class ClubController {
         return clubService.updateClub(clubUpdateRequest, id);
     }
 
+    @PostMapping("/{clubId}/withdraw")
+    public Header<String> withdrawClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.withdrawClub(clubId, userId);
+
+        return Header.OK("user_id: "+userId+"club_id: "+clubId);
+    }
+
+
     @PostMapping("/{clubId}/apply")
     public Header<String> applyClub(@PathVariable Long clubId, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
@@ -133,11 +143,11 @@ public class ClubController {
         return Header.OK("user_id: "+ userClub.getUser().getId()+", club_id: "+userClub.getClub().getId());
     }
 
-    @PostMapping("/{id}/approve")
-    public Header<String> approveClub(@PathVariable Long id, @RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
+    @PostMapping("/approve")
+    public Header<String> approveClub(@RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
         Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        UserClub userClub = clubService.approveClub(approverId, clubApproveRequest.getApprovedUserId(), id);
+        UserClub userClub = clubService.approveClub(approverId, clubApproveRequest.getApprovedUserId(), clubApproveRequest.getApprovedClubId());
         if(userClub == null){
             throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
         }
