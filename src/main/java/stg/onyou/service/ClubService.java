@@ -733,7 +733,7 @@ public class ClubService {
                 .name(clubCategory.getCategory().getName())
                 .description(clubCategory.getCategory().getDescription())
                 .thumbnail(clubCategory.getCategory().getThumbnail())
-                .order(clubCategory.getOrder())
+                .order(clubCategory.getSortOrder())
                 .build();
     }
 

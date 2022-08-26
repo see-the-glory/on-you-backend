@@ -52,8 +52,10 @@ public class ClubController {
 
     @GetMapping("")
     public ClubPageResponse selectClubList(
+            
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "ASC", required = false) String orderBy,
+        @RequestParam(defaultValue = "0", required = false) Long categoryId,
         @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
@@ -65,6 +67,7 @@ public class ClubController {
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
+                .categoryId(categoryId)
                 .showRecruitingOnly(showRecruitingOnly)
                 .showMy(showMy)
                 .min(min)

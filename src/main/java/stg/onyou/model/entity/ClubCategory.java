@@ -29,6 +29,6 @@ public class ClubCategory {
     private LocalDateTime created;
     private LocalDateTime updated;
 
-    private int order;
+    private int sortOrder;
 
 }
