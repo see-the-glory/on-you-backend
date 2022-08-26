@@ -154,22 +154,30 @@ public class ClubController {
         return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
     }
 
-    @PostMapping("/{id}/likes")
-    public Header<String> likesClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/changeRole")
+    public Header<String> changeRole(@PathVariable Long clubId, @RequestBody List<UserAllocatedRole> changeRoleRequest, HttpServletRequest httpServletRequest){
+        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.changeRole(approverId, clubId, changeRoleRequest);
+
+        return Header.OK("권한변경 및 탈퇴처리 완료");
+    }
+
+    @PostMapping("/{clubId}/likes")
+    public Header<String> likesClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        clubService.likesClub(id, userId);
+        clubService.likesClub(clubId, userId);
 
         return Header.OK("Likes 등록 또는 해제 완료");
     }
 
 
-    @PostMapping("/{id}/allocate")
-    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
-        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
-
-        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
-    }
+//    @PostMapping("/{id}/allocate")
+//    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
+//        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
+//
+//        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
+//    }
 
 
     @GetMapping("/{id}/schedules")
@@ -222,7 +230,7 @@ public class ClubController {
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        UserClubSchedule userClubSchedule = clubService.joinOrCacnelClubSchedule(clubId, scheduleId, userId);
+        UserClubSchedule userClubSchedule = clubService.joinOrCancelClubSchedule(clubId, scheduleId, userId);
 
         return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
 

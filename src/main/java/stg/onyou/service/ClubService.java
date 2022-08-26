@@ -614,7 +614,7 @@ public class ClubService {
         return Header.OK(clubScheduleResponseList);
     }
 
-    public UserClubSchedule joinOrCacnelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+    public UserClubSchedule joinOrCancelClubSchedule(Long clubId, Long scheduleId, Long userId) {
 
         ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
@@ -648,25 +648,25 @@ public class ClubService {
        return userClubSchedule;
     }
 
-    public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
-
-        User user = userRepository.findById(clubRoleAllocateRequest.getUserId())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                );
-
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
-                );
-
-        userClub.setRole(clubRoleAllocateRequest.getRole());
-        return userClubRepository.save(userClub);
-    }
+//    public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
+//
+//        User user = userRepository.findById(clubRoleAllocateRequest.getUserId())
+//                .orElseThrow(
+//                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+//                );
+//
+//        Club club = clubRepository.findById(clubId)
+//                .orElseThrow(
+//                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+//                );
+//        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
+//                .orElseThrow(
+//                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+//                );
+//
+//        userClub.setRole(clubRoleAllocateRequest.getRole());
+//        return userClubRepository.save(userClub);
+//    }
 
     private boolean isClubFull(Club club) {
 
@@ -814,5 +814,51 @@ public class ClubService {
 
         userClubRepository.delete(userClub);
 
+    }
+
+    public void changeRole(Long approverId, Long clubId, List<UserAllocatedRole> changeRoleRequest) {
+
+        User changer = userRepository.findById(approverId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club changeClub = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(changer,changeClub)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if(!userClub.getRole().isCanAllocateRole()){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        changeRoleRequest
+                .forEach(ur-> allocateRole(ur.getUserId(),ur.getRole(), changeClub));
+
+    }
+
+    private void allocateRole(Long userId, Role role, Club changeClub) {
+
+        User allocatedUser = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(allocatedUser,changeClub)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if(role==null){
+            userClubRepository.delete(userClub);
+        } else {
+            userClub.setRole(role);
+            userClubRepository.save(userClub);
+        }
     }
 }
