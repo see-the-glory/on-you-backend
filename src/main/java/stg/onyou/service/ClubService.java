@@ -648,26 +648,6 @@ public class ClubService {
        return userClubSchedule;
     }
 
-//    public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
-//
-//        User user = userRepository.findById(clubRoleAllocateRequest.getUserId())
-//                .orElseThrow(
-//                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-//                );
-//
-//        Club club = clubRepository.findById(clubId)
-//                .orElseThrow(
-//                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-//                );
-//        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
-//                .orElseThrow(
-//                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
-//                );
-//
-//        userClub.setRole(clubRoleAllocateRequest.getRole());
-//        return userClubRepository.save(userClub);
-//    }
-
     private boolean isClubFull(Club club) {
 
         // return club.getMaxNumber() <= userClubRepository.findAllByClubId(club.getId()).size();
