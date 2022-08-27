@@ -33,7 +33,7 @@ public enum ErrorCode {
     HASHTAG_NOT_FOUND(NOT_FOUND, "존재하지 않는 해시태그입니다."),
     CATEGORY_NOT_FOUND(NOT_FOUND, "카테고리가 존재하지 않습니다."),
     USER_CLUB_NOT_FOUND(NOT_FOUND, "UserClub이 존재하지 않습니다."),
-    USER_APPOVE_ERROR(NOT_FOUND, "가입신청 이력이 없거나 이미 가입된 사용자입니다."),
+    USER_APPROVE_ERROR(NOT_FOUND, "가입신청 이력이 없거나 이미 가입된 사용자입니다."),
     CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "존재하지 않는 clubSchedule 입니다."),
     USER_CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "UserClubSchedule이 존재하지 않습니다"),
     CLUB_CATEGORY_NOT_FOUND(NOT_FOUND, "ClubCaegory가 존재하지 않습니다."),

@@ -3,7 +3,6 @@ package stg.onyou.model.network.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
 
@@ -14,4 +13,7 @@ public class ClubApplyRequest {
 
     @NotEmpty
     private String memo;
+    @NotNull
+    @Positive
+    private Long clubId;
 }

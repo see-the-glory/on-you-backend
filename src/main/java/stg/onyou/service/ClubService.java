@@ -317,14 +317,14 @@ public class ClubService {
     /**
      * 클럽 가입요청 : 디폴트로 APPLIED 상태로 UserClub 설정
      */
-    public UserClub applyClub(Long userId, Long clubId, ClubApplyRequest clubApplyRequest) {
+    public UserClub applyClub(Long userId, ClubApplyRequest clubApplyRequest) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        Club club  = clubRepository.findById(clubId)
+        Club club  = clubRepository.findById(clubApplyRequest.getClubId())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
@@ -350,7 +350,14 @@ public class ClubService {
                     .applyDate(LocalDateTime.now())
                     .approveDate(LocalDateTime.now())
                     .role(Role.MEMBER)
+                    .updated(LocalDateTime.now())
                     .build();
+
+            // approve로 인해 모집인원이 maxNumber와 같아진다면 모집 상태 자동 CLOSE 처리
+            if(club.getRecruitNumber()+1==club.getMaxNumber()){
+                club.setRecruitStatus(RecruitStatus.CLOSE);
+            }
+            clubRepository.save(club);
 
         } else { // 관리자의 승인이 필요한 가입이라면 APPLIED 상태로 저장
             userClub = UserClub.builder()
@@ -361,14 +368,13 @@ public class ClubService {
                     .build();
         }
 
-
         return userClubRepository.save(userClub);
     }
 
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public UserClub approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
+    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
 
         User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
@@ -398,19 +404,27 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+
         if(approvedUserClub.getApplyStatus() == null || approvedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
-            throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
+            throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
         }
 
-        if(approverUserClub.getRole().equals(Role.MEMBER)){
+        if(!approverUserClub.getRole().isCanApproveApply()){
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
         approvedUserClub.setRole(Role.MEMBER);
         approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
         approvedUserClub.setApproveDate(LocalDateTime.now());
+        approvedUserClub.setUpdated(LocalDateTime.now());
 
-        return userClubRepository.save(approvedUserClub);
+        userClubRepository.save(approvedUserClub);
+
+        // approve로 인해 모집인원이 maxNumber와 같아진다면 모집 상태 자동 CLOSE 처리
+        if(club.getRecruitNumber()+1==club.getMaxNumber()){
+            club.setRecruitStatus(RecruitStatus.CLOSE);
+        }
+        clubRepository.save(club);
     }
 
     public void likesClub(Long clubId, Long userId){
