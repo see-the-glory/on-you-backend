@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Data
 public class ClubCondition {
     private String orderBy;
+    private Long categoryId;
     private int showRecruitingOnly;
     private int showMy;
     private int min;

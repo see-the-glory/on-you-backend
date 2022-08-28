@@ -33,4 +33,7 @@ public class UserClub {
     private LocalDateTime applyDate;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private LocalDateTime updated;
+
 }

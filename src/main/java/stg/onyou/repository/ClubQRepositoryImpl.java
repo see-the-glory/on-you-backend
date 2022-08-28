@@ -3,6 +3,7 @@ package stg.onyou.repository;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.InterestCategory;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
+import stg.onyou.model.entity.Category;
 import stg.onyou.model.entity.Club;
 //import stg.onyou.model.entity.QUser;
 import stg.onyou.model.entity.User;
@@ -43,6 +45,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     private final JPAQueryFactory queryFactory;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     public ClubQRepositoryImpl(JPAQueryFactory queryFactory) {
@@ -78,7 +82,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         category.name,
                         category.description,
                         category.thumbnail,
-                        clubCategory.order
+                        clubCategory.sortOrder
                 ))
                 .from(clubCategory)
                 .leftJoin(clubCategory.category, category)
@@ -113,6 +117,11 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
+        Category requestedCategory = categoryRepository.findById(clubCondition.getCategoryId())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                );
+
         return queryFactory
                 .select(new QClubConditionResponse(
                         club.id,
@@ -132,12 +141,17 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.contactPhone,
                         StringExpressions.lpad(stringTemplate, 20, '0')
                                 .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
-
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
                 .leftJoin(club.creator, user)
                 .where(
+                        club.id.in(
+                                JPAExpressions.
+                                select(club.id).from(clubCategory)
+                                        .innerJoin(clubCategory.club, club)
+                                        .where(clubCategory.category.eq(requestedCategory))
+                        ),
                         customCursorCompare(page, clubCondition, customCursor),
                         showMyClub(clubCondition, currentUser),
                         showRecruitingOnly(clubCondition),
@@ -161,7 +175,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         if (clubCondition == null || clubCondition.getShowRecruitingOnly()==0) {
             return null;
         }
-        return club.recruitStatus.eq(RecruitStatus.OPEN);
+        return club.recruitStatus.eq(RecruitStatus.OPEN); //showRecruitingOnly == 1
     }
 
     private BooleanExpression showMemberBetween(ClubCondition clubCondition){

@@ -52,8 +52,10 @@ public class ClubController {
 
     @GetMapping("")
     public ClubPageResponse selectClubList(
-        @RequestParam(required = false) String customCursor,
+            
+        @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "ASC", required = false) String orderBy,
+        @RequestParam(defaultValue = "0", required = false) Long categoryId,
         @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
@@ -65,13 +67,14 @@ public class ClubController {
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
+                .categoryId(categoryId)
                 .showRecruitingOnly(showRecruitingOnly)
                 .showMy(showMy)
                 .min(min)
                 .max(max)
                 .build();
 
-        return clubService.selectClubList(pageable, clubCondition, customCursor, userId);
+        return clubService.selectClubList(pageable, clubCondition, cursor, userId);
     }
 
     @GetMapping("/{id}/role")
@@ -117,46 +120,58 @@ public class ClubController {
         return clubService.updateClub(clubUpdateRequest, id);
     }
 
-    @PostMapping("/{clubId}/apply")
-    public Header<String> applyClub(@PathVariable Long clubId, @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/withdraw")
+    public Header<String> withdrawClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
-        // JwtAuthorizationFilter에서 jwt를 검증해서 얻은 userId를 가져온다.
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.withdrawClub(clubId, userId);
 
-        UserClub userClub = clubService.applyClub(userId, clubId, clubApplyRequest);
-        if(userClub == null){
-            throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
-        }
-        return Header.OK("user_id: "+ userClub.getUser().getId()+", club_id: "+userClub.getClub().getId());
+        return Header.OK("user_id: "+userId+"club_id: "+clubId);
     }
 
-    @PostMapping("/{id}/approve")
-    public Header<String> approveClub(@PathVariable Long id, @RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
+
+    @PostMapping("/apply")
+    public Header<String> applyClub(@RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
+
+        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+
+        UserClub userClub = clubService.applyClub(userId, clubApplyRequest);
+        return Header.OK("신청 완료");
+    }
+
+    @PostMapping("/approve")
+    public Header<String> approveClub(@RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
         Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        UserClub userClub = clubService.approveClub(approverId, clubApproveRequest.getApprovedUserId(), id);
-        if(userClub == null){
-            throw new CustomException(ErrorCode.CLUB_REGISTER_ERROR);
-        }
-        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
+        clubService.approveClub(approverId, clubApproveRequest.getUserId(), clubApproveRequest.getClubId());
+
+        return Header.OK("승인 완료");
     }
 
-    @PostMapping("/{id}/likes")
-    public Header<String> likesClub(@PathVariable Long id, HttpServletRequest httpServletRequest){
+    @PostMapping("/{clubId}/changeRole")
+    public Header<String> changeRole(@PathVariable Long clubId, @RequestBody List<UserAllocatedRole> changeRoleRequest, HttpServletRequest httpServletRequest){
+        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.changeRole(approverId, clubId, changeRoleRequest);
+
+        return Header.OK("권한변경 및 탈퇴처리 완료");
+    }
+
+    @PostMapping("/{clubId}/likes")
+    public Header<String> likesClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        clubService.likesClub(id, userId);
+        clubService.likesClub(clubId, userId);
 
         return Header.OK("Likes 등록 또는 해제 완료");
     }
 
 
-    @PostMapping("/{id}/allocate")
-    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
-        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
-
-        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
-    }
+//    @PostMapping("/{id}/allocate")
+//    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
+//        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
+//
+//        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
+//    }
 
 
     @GetMapping("/{id}/schedules")
@@ -209,7 +224,7 @@ public class ClubController {
 
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
 
-        UserClubSchedule userClubSchedule = clubService.joinOrCacnelClubSchedule(clubId, scheduleId, userId);
+        UserClubSchedule userClubSchedule = clubService.joinOrCancelClubSchedule(clubId, scheduleId, userId);
 
         return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
 

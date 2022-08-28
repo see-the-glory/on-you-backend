@@ -317,14 +317,14 @@ public class ClubService {
     /**
      * 클럽 가입요청 : 디폴트로 APPLIED 상태로 UserClub 설정
      */
-    public UserClub applyClub(Long userId, Long clubId, ClubApplyRequest clubApplyRequest) {
+    public UserClub applyClub(Long userId, ClubApplyRequest clubApplyRequest) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        Club club  = clubRepository.findById(clubId)
+        Club club  = clubRepository.findById(clubApplyRequest.getClubId())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
@@ -350,7 +350,14 @@ public class ClubService {
                     .applyDate(LocalDateTime.now())
                     .approveDate(LocalDateTime.now())
                     .role(Role.MEMBER)
+                    .updated(LocalDateTime.now())
                     .build();
+
+            // approve로 인해 모집인원이 maxNumber와 같아진다면 모집 상태 자동 CLOSE 처리
+            if(club.getRecruitNumber()+1==club.getMaxNumber()){
+                club.setRecruitStatus(RecruitStatus.CLOSE);
+            }
+            clubRepository.save(club);
 
         } else { // 관리자의 승인이 필요한 가입이라면 APPLIED 상태로 저장
             userClub = UserClub.builder()
@@ -361,14 +368,13 @@ public class ClubService {
                     .build();
         }
 
-
         return userClubRepository.save(userClub);
     }
 
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public UserClub approveClub(Long approverId, Long approvedUserId, Long clubId) {
+    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
 
         User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
@@ -378,7 +384,7 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
-        Club club  = clubRepository.findById(clubId)
+        Club club  = clubRepository.findById(approvedClubId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
@@ -398,17 +404,27 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+
         if(approvedUserClub.getApplyStatus() == null || approvedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
-            throw new CustomException(ErrorCode.USER_APPOVE_ERROR);
+            throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
         }
 
-        if(!approverUserClub.getRole().equals(Role.MEMBER)){
-            approvedUserClub.setRole(Role.MEMBER);
-            approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
-            approvedUserClub.setApproveDate(LocalDateTime.now());
+        if(!approverUserClub.getRole().isCanApproveApply()){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
-        return userClubRepository.save(approvedUserClub);
+        approvedUserClub.setRole(Role.MEMBER);
+        approvedUserClub.setApplyStatus(ApplyStatus.APPROVED);
+        approvedUserClub.setApproveDate(LocalDateTime.now());
+        approvedUserClub.setUpdated(LocalDateTime.now());
+
+        userClubRepository.save(approvedUserClub);
+
+        // approve로 인해 모집인원이 maxNumber와 같아진다면 모집 상태 자동 CLOSE 처리
+        if(club.getRecruitNumber()+1==club.getMaxNumber()){
+            club.setRecruitStatus(RecruitStatus.CLOSE);
+        }
+        clubRepository.save(club);
     }
 
     public void likesClub(Long clubId, Long userId){
@@ -612,7 +628,7 @@ public class ClubService {
         return Header.OK(clubScheduleResponseList);
     }
 
-    public UserClubSchedule joinOrCacnelClubSchedule(Long clubId, Long scheduleId, Long userId) {
+    public UserClubSchedule joinOrCancelClubSchedule(Long clubId, Long scheduleId, Long userId) {
 
         ClubSchedule clubSchedule = clubScheduleRepository.findById(scheduleId).orElseThrow(
                 () -> new CustomException(ErrorCode.CLUB_SCHEDULE_NOT_FOUND)
@@ -644,26 +660,6 @@ public class ClubService {
                 );
 
        return userClubSchedule;
-    }
-
-    public UserClub allocateUserClubRole(ClubRoleAllocateRequest clubRoleAllocateRequest, Long clubId) {
-
-        User user = userRepository.findById(clubRoleAllocateRequest.getUserId())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                );
-
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
-                );
-        UserClub userClub = userClubRepository.findByUserAndClub(user, club)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
-                );
-
-        userClub.setRole(clubRoleAllocateRequest.getRole());
-        return userClubRepository.save(userClub);
     }
 
     private boolean isClubFull(Club club) {
@@ -733,7 +729,7 @@ public class ClubService {
                 .name(clubCategory.getCategory().getName())
                 .description(clubCategory.getCategory().getDescription())
                 .thumbnail(clubCategory.getCategory().getThumbnail())
-                .order(clubCategory.getOrder())
+                .order(clubCategory.getSortOrder())
                 .build();
     }
 
@@ -787,5 +783,76 @@ public class ClubService {
 
         return Header.OK(myClubsResponse);
 
+    }
+
+    public void withdrawClub(Long clubId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user,club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if( userClub.getApplyStatus().equals(ApplyStatus.APPLIED)){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        userClubRepository.delete(userClub);
+
+    }
+
+    public void changeRole(Long approverId, Long clubId, List<UserAllocatedRole> changeRoleRequest) {
+
+        User changer = userRepository.findById(approverId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club changeClub = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(changer,changeClub)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if(!userClub.getRole().isCanAllocateRole()){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        changeRoleRequest
+                .forEach(ur-> allocateRole(ur.getUserId(),ur.getRole(), changeClub));
+
+    }
+
+    private void allocateRole(Long userId, Role role, Club changeClub) {
+
+        User allocatedUser = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        UserClub userClub = userClubRepository.findByUserAndClub(allocatedUser,changeClub)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        if(role==null){
+            userClubRepository.delete(userClub);
+        } else {
+            userClub.setRole(role);
+            userClubRepository.save(userClub);
+        }
     }
 }

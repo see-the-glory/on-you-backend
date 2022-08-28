@@ -3,17 +3,13 @@ package stg.onyou.model.network.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.*;
+import stg.onyou.model.Role;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClubApplyRequest {
+public class UserAllocatedRole {
 
-    @NotEmpty
-    private String memo;
-    @NotNull
-    @Positive
-    private Long clubId;
+    private Long userId;
+    private Role role;
 }
