@@ -1,9 +1,11 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.Action;
+import stg.onyou.model.ActionType;
+import stg.onyou.model.ApplyStatus;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -11,25 +13,30 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserClubApplication {
+public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="club_id")
-    private Club club;
+    @JoinColumn(name="action_club_id")
+    private Club actionClub;
+
+    @ManyToOne
+    @JoinColumn(name="action_feed_id")
+    private Club actionFeed;
 
     @ManyToOne
     @JoinColumn(name="actioner_id")
     private User actioner;
-
     @ManyToOne
     @JoinColumn(name="actionee_id")
     private User actionee;
 
     @Enumerated(EnumType.STRING)
-    private Action action;
-    private String action_content;
+    private ActionType actionType;
+
+    private String applyMessage;
+    private LocalDateTime created;
 }
