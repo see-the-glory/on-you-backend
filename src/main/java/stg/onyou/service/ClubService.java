@@ -49,8 +49,6 @@ public class ClubService {
     @Autowired
     private ClubLikesRepository clubLikesRepository;
     @Autowired
-    private UserClubApplicationRepository userClubApplicationRepository;
-    @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private ClubQRepository clubQRepository;
