@@ -22,7 +22,7 @@ import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
-import javax.persistence.EntityManager;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -274,6 +274,7 @@ public class ClubService {
 
     public Header<ClubResponse> updateClub(ClubUpdateRequest clubUpdateRequest, Long clubId) {
 
+        // 1. Club UPDATE
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
@@ -307,9 +308,41 @@ public class ClubService {
                 Optional.ofNullable(clubUpdateRequest.getContactPhone())
                         .orElse(club.getContactPhone())
         );
-        club.setUpdated(LocalDateTime.now());
 
-        return Header.OK(selectClubResponse(club));
+        Club savedClub = clubRepository.save(club);
+
+        // 2. ClubCategory UPDATE
+        List<ClubCategory> clubCategoryList = clubCategoryRepository.findByClub(savedClub);
+
+        clubCategoryList.forEach(
+                cc -> {
+                    if(cc.getSortOrder()==0){
+                        cc.setCategory(categoryRepository.findById(
+                                Optional.ofNullable(clubUpdateRequest.getCategory1Id())
+                                    .orElse(cc.getCategory().getId())
+                                )
+                                .orElseThrow(
+                                        () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                )
+                        );
+                    } else {
+                        cc.setCategory(categoryRepository.findById(
+                                Optional.ofNullable(clubUpdateRequest.getCategory2Id())
+                                        .orElse(cc.getCategory().getId())
+                                )
+                                        .orElseThrow(
+                                                () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                        )
+                        );
+                    }
+
+                    cc.setUpdated(LocalDateTime.now());
+                    clubCategoryRepository.save(cc);
+                }
+
+        );
+
+        return Header.OK(selectClubResponse(savedClub));
     }
 
     /**
