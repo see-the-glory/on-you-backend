@@ -24,5 +24,9 @@ public class ClubNotification {
     @JoinColumn(name="club_id")
     private Club club;
 
+    @ManyToOne
+    @JoinColumn(name="action_id")
+    private Action action;
+
     private LocalDateTime created;
 }

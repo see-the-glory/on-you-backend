@@ -1,15 +1,9 @@
 package stg.onyou.service;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
@@ -22,8 +16,8 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
+import stg.onyou.repository.ClubNotificationRepository;
 
-import javax.persistence.*;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,8 +53,10 @@ public class ClubService {
     private ClubCategoryRepository clubCategoryRepository;
     @Autowired
     private ActionRepository actionRepository;
-//    @Autowired
-//    EntityManager em;
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+    @Autowired
+    private ClubNotificationRepository clubNotificationRepository;
 
     /**
      * 특정 클럽 select
@@ -414,9 +410,39 @@ public class ClubService {
 
             actionRepository.save(action);
 
+            List<User> adminList = getAdminList(club);
+            adminList.forEach(
+                    admin -> {
+                        UserNotification userNotification = UserNotification.builder()
+                                .action(action)
+                                .recipient(admin)
+                                .created(LocalDateTime.now())
+                                .build();
+
+                        userNotificationRepository.save(userNotification);
+                    }
+            );
+
+            ClubNotification clubNotification = ClubNotification.builder()
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .action(action)
+                    .build();
+
+            clubNotificationRepository.save(clubNotification);
+
         }
 
         return userClubRepository.save(userClub);
+    }
+
+    private List<User> getAdminList(Club club) {
+        List<UserClub> userClubList = userClubRepository.findAllByClubId(club.getId());
+        return userClubList.stream()
+                .filter(userClub -> !userClub.getRole().equals(Role.MEMBER))
+                .map(userClub -> userClub.getUser())
+                .collect(Collectors.toList());
+
     }
 
     /**
