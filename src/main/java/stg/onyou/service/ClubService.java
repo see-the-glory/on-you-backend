@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.ActionType;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
@@ -23,6 +24,7 @@ import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ClubService {
 
     @Autowired
@@ -54,6 +57,8 @@ public class ClubService {
     private ClubQRepository clubQRepository;
     @Autowired
     private ClubCategoryRepository clubCategoryRepository;
+    @Autowired
+    private ActionRepository actionRepository;
 //    @Autowired
 //    EntityManager em;
 
@@ -397,6 +402,18 @@ public class ClubService {
                     .applyDate(LocalDateTime.now())
                     .applyStatus(ApplyStatus.APPLIED)
                     .build();
+
+            Action action = Action.builder()
+                    .actioner(user)
+                    .actionClub(club)
+                    .actionType(ActionType.APPLY)
+                    .applyMessage(clubApplyRequest.getMemo())
+                    .isApplyProcessDone(false)
+                    .created(LocalDateTime.now())
+                    .build();
+
+            actionRepository.save(action);
+
         }
 
         return userClubRepository.save(userClub);
@@ -694,20 +711,7 @@ public class ClubService {
     }
 
     private boolean isClubFull(Club club) {
-
-        // return club.getMaxNumber() <= userClubRepository.findAllByClubId(club.getId()).size();
-        int a = club.getMaxNumber();
-        Long b = userClubRepository.findAllByClubId(club.getId())
-                .stream()
-                .filter(item->item.getApplyStatus() == ApplyStatus.APPROVED)
-                .count();
-
-        //b= userClubRepository.findAllByClubId(club.getId())
-        //  .stream()
-        //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
-        //.count();
-
-        return a!=0 && a <= b ;
+        return club.getMaxNumber()!=0 && club.getMaxNumber() <= club.getRecruitNumber();
     }
 
     private ClubResponse selectClubResponse(Club club){
@@ -876,7 +880,7 @@ public class ClubService {
 
         UserClub userClub = userClubRepository.findByUserAndClub(allocatedUser,changeClub)
                 .orElseThrow(
-                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
         if(role==null){
