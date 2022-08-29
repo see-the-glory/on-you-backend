@@ -117,11 +117,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
 
-        Category requestedCategory = categoryRepository.findById(clubCondition.getCategoryId())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                );
-
         return queryFactory
                 .select(new QClubConditionResponse(
                         club.id,
