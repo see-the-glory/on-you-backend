@@ -462,11 +462,6 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
-
-        if( isClubFull(club) ){
-            throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
-        }
-
         //user_id, club_id로 UserClub find
         UserClub approvedUserClub  = userClubRepository.findByUserAndClub(approvedUser, club)
                 .orElseThrow(
@@ -478,6 +473,9 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        if( isClubFull(club) ){
+            throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
+        }
 
         if(approvedUserClub.getApplyStatus() == null || approvedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
@@ -499,6 +497,25 @@ public class ClubService {
             club.setRecruitStatus(RecruitStatus.CLOSE);
         }
         clubRepository.save(club);
+
+        Action action = Action.builder()
+                .actioner(approver)
+                .actionee(approvedUser)
+                .actionClub(club)
+                .actionType(ActionType.APPROVE)
+                .created(LocalDateTime.now())
+                .build();
+
+        actionRepository.save(action);
+
+        UserNotification userNotification = UserNotification.builder()
+                .action(action)
+                .recipient(approvedUser)
+                .created(LocalDateTime.now())
+                .build();
+
+        userNotificationRepository.save(userNotification);
+
     }
 
     public void likesClub(Long clubId, Long userId){
