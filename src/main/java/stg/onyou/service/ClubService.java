@@ -289,6 +289,10 @@ public class ClubService {
                 Optional.ofNullable(clubUpdateRequest.getIsApproveRequired())
                         .orElse(club.getIsApproveRequired())
         );
+        club.setRecruitStatus(
+                Optional.ofNullable(clubUpdateRequest.getRecruitStatus())
+                        .orElse(club.getRecruitStatus())
+        );
         club.setMaxNumber(
                 Optional.ofNullable(clubUpdateRequest.getClubMaxMember())
                         .orElse(club.getMaxNumber())
@@ -308,6 +312,12 @@ public class ClubService {
         club.setContactPhone(
                 Optional.ofNullable(clubUpdateRequest.getContactPhone())
                         .orElse(club.getContactPhone())
+        );
+        club.setOrganization(
+                organizationRepository.findById(clubUpdateRequest.getOrganizationId())
+                    .orElseThrow(
+                            () -> new CustomException(ErrorCode.ORGANIZATION_NOT_FOUND)
+                    )
         );
 
         Club savedClub = clubRepository.save(club);
