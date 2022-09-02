@@ -407,6 +407,7 @@ public class ClubService {
                     .user(user)
                     .applyDate(LocalDateTime.now())
                     .applyStatus(ApplyStatus.APPLIED)
+                    .role(Role.PENDING)
                     .build();
 
             Action action = Action.builder()
