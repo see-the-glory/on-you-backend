@@ -83,13 +83,6 @@ public class ClubController {
         return clubService.selectClubRole(id, userId);
     }
 
-//    @GetMapping("/{id}")
-//    public Header<ClubApplierResponse> selectClubMessages(@PathVariable Long id, HttpServletRequest httpServletRequest){
-//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-//        return clubService.selectClubMessages(id, userId);
-//    }
-
-
     @PostMapping("")
     public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubCreateRequest")
@@ -165,15 +158,6 @@ public class ClubController {
         return Header.OK("Likes 등록 또는 해제 완료");
     }
 
-
-//    @PostMapping("/{id}/allocate")
-//    public Header<String > allocateUserClubRole(@PathVariable Long id, @RequestBody ClubRoleAllocateRequest clubRoleAllocateRequest){
-//        UserClub userClub  = clubService.allocateUserClubRole(clubRoleAllocateRequest, id);
-//
-//        return Header.OK("user_id: "+ userClub.getUser().getId()+",club_id: "+userClub.getClub().getId());
-//    }
-
-
     @GetMapping("/{id}/schedules")
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(@PathVariable Long id, HttpServletRequest httpServletRequest){
 
@@ -229,16 +213,5 @@ public class ClubController {
         return Header.OK("user_id: "+userClubSchedule.getUser().getId()+", club_schedule_id: "+ userClubSchedule.getClubSchedule().getId());
 
     }
-
-//    @DeleteMapping("{clubId}/schedules/{scheduleId}/cancel")
-//    public Header<String> cancelClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, HttpServletRequest httpServletRequest){
-//
-//        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-//
-//        clubService.cancelClubSchedule(clubId, scheduleId, userId);
-//
-//        return Header.OK("Deleted successfully");
-//
-//    }
 
 }

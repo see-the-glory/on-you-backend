@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
+    PENDING(false, false, false, false, false, false, false, false),
     MEMBER(false, false, false, false, false, false, false, false),
     MANAGER(false, false, false, false, true, true, true, true),
     MASTER(true, true, true, true, true, true, true, true);

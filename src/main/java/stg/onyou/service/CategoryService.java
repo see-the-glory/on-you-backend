@@ -10,10 +10,12 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.CategoryResponse;
 import stg.onyou.repository.CategoryRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CategoryService {
 
     @Autowired

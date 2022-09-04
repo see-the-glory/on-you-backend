@@ -1,18 +1,13 @@
 package stg.onyou.service;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.ActionType;
 import stg.onyou.model.ApplyStatus;
 import stg.onyou.model.RecruitStatus;
 import stg.onyou.model.Role;
@@ -21,8 +16,9 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
+import stg.onyou.repository.ClubNotificationRepository;
 
-import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ClubService {
 
     @Autowired
@@ -54,8 +51,12 @@ public class ClubService {
     private ClubQRepository clubQRepository;
     @Autowired
     private ClubCategoryRepository clubCategoryRepository;
-//    @Autowired
-//    EntityManager em;
+    @Autowired
+    private ActionRepository actionRepository;
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+    @Autowired
+    private ClubNotificationRepository clubNotificationRepository;
 
     /**
      * 특정 클럽 select
@@ -288,6 +289,10 @@ public class ClubService {
                 Optional.ofNullable(clubUpdateRequest.getIsApproveRequired())
                         .orElse(club.getIsApproveRequired())
         );
+        club.setRecruitStatus(
+                Optional.ofNullable(clubUpdateRequest.getRecruitStatus())
+                        .orElse(club.getRecruitStatus())
+        );
         club.setMaxNumber(
                 Optional.ofNullable(clubUpdateRequest.getClubMaxMember())
                         .orElse(club.getMaxNumber())
@@ -307,6 +312,12 @@ public class ClubService {
         club.setContactPhone(
                 Optional.ofNullable(clubUpdateRequest.getContactPhone())
                         .orElse(club.getContactPhone())
+        );
+        club.setOrganization(
+                organizationRepository.findById(clubUpdateRequest.getOrganizationId())
+                    .orElseThrow(
+                            () -> new CustomException(ErrorCode.ORGANIZATION_NOT_FOUND)
+                    )
         );
 
         Club savedClub = clubRepository.save(club);
@@ -396,10 +407,53 @@ public class ClubService {
                     .user(user)
                     .applyDate(LocalDateTime.now())
                     .applyStatus(ApplyStatus.APPLIED)
+                    .role(Role.PENDING)
                     .build();
+
+            Action action = Action.builder()
+                    .actioner(user)
+                    .actionClub(club)
+                    .actionType(ActionType.APPLY)
+                    .applyMessage(clubApplyRequest.getMemo())
+                    .isApplyProcessDone(false)
+                    .created(LocalDateTime.now())
+                    .build();
+
+            actionRepository.save(action);
+
+            List<User> adminList = getAdminList(club);
+            adminList.forEach(
+                    admin -> {
+                        UserNotification userNotification = UserNotification.builder()
+                                .action(action)
+                                .recipient(admin)
+                                .created(LocalDateTime.now())
+                                .build();
+
+                        userNotificationRepository.save(userNotification);
+                    }
+            );
+
+            ClubNotification clubNotification = ClubNotification.builder()
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .action(action)
+                    .build();
+
+            clubNotificationRepository.save(clubNotification);
+
         }
 
         return userClubRepository.save(userClub);
+    }
+
+    private List<User> getAdminList(Club club) {
+        List<UserClub> userClubList = userClubRepository.findAllByClubId(club.getId());
+        return userClubList.stream()
+                .filter(userClub -> !userClub.getRole().equals(Role.MEMBER))
+                .map(userClub -> userClub.getUser())
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -419,11 +473,6 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
-
-        if( isClubFull(club) ){
-            throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
-        }
-
         //user_id, club_id로 UserClub find
         UserClub approvedUserClub  = userClubRepository.findByUserAndClub(approvedUser, club)
                 .orElseThrow(
@@ -435,6 +484,9 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        if( isClubFull(club) ){
+            throw new CustomException(ErrorCode.CLUB_MEMBER_FULL);
+        }
 
         if(approvedUserClub.getApplyStatus() == null || approvedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
@@ -456,6 +508,25 @@ public class ClubService {
             club.setRecruitStatus(RecruitStatus.CLOSE);
         }
         clubRepository.save(club);
+
+        Action action = Action.builder()
+                .actioner(approver)
+                .actionee(approvedUser)
+                .actionClub(club)
+                .actionType(ActionType.APPROVE)
+                .created(LocalDateTime.now())
+                .build();
+
+        actionRepository.save(action);
+
+        UserNotification userNotification = UserNotification.builder()
+                .action(action)
+                .recipient(approvedUser)
+                .created(LocalDateTime.now())
+                .build();
+
+        userNotificationRepository.save(userNotification);
+
     }
 
     public void likesClub(Long clubId, Long userId){
@@ -694,20 +765,7 @@ public class ClubService {
     }
 
     private boolean isClubFull(Club club) {
-
-        // return club.getMaxNumber() <= userClubRepository.findAllByClubId(club.getId()).size();
-        int a = club.getMaxNumber();
-        Long b = userClubRepository.findAllByClubId(club.getId())
-                .stream()
-                .filter(item->item.getApplyStatus() == ApplyStatus.APPROVED)
-                .count();
-
-        //b= userClubRepository.findAllByClubId(club.getId())
-        //  .stream()
-        //.filter(item -> item.getApplyStatus() == ApplyStatus.APPROVED)
-        //.count();
-
-        return a!=0 && a <= b ;
+        return club.getMaxNumber()!=0 && club.getMaxNumber() <= club.getRecruitNumber();
     }
 
     private ClubResponse selectClubResponse(Club club){
@@ -876,7 +934,7 @@ public class ClubService {
 
         UserClub userClub = userClubRepository.findByUserAndClub(allocatedUser,changeClub)
                 .orElseThrow(
-                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
         if(role==null){
