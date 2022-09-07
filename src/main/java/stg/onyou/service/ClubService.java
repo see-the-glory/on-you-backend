@@ -707,7 +707,7 @@ public class ClubService {
                         .applyStatus(ApplyStatus.APPROVED)
                         .birthday(userClubSchedule.getUser().getBirthday())
                         .sex(userClubSchedule.getUser().getSex())
-                        .email(userClubSchedule.getUser().getAccount_email())
+                        .email(userClubSchedule.getUser().getEmail())
                         .created(userClubSchedule.getUser().getCreated())
                         .build();
 
@@ -837,7 +837,7 @@ public class ClubService {
                 .birthday(user.getBirthday())
                 .applyStatus(userClub.getApplyStatus()) //APPLIED, APPROVED
                 .sex(user.getSex())
-                .email(user.getAccount_email())
+                .email(user.getEmail())
                 .created(user.getCreated())
                 .role(userClub.getRole())
                 .build();

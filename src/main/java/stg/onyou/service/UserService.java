@@ -51,7 +51,7 @@ public class UserService {
                 .organizationName(user.getOrganization().getName())
                 .birthday(user.getBirthday())
                 .sex(user.getSex())
-                .email(user.getAccount_email())
+                .email(user.getEmail())
                 .created(user.getCreated())
                 .thumbnail(user.getThumbnail())
                 .phoneNumber(user.getPhoneNumber())
@@ -105,7 +105,6 @@ public class UserService {
         user.setBirthday(userUpdateRequest.getBirthday());
         String url = awsS3Service.uploadFile(thumbnailFile);
         user.setThumbnail(url);
-        user.setAccount_email(userUpdateRequest.getEmail());
         user.setUpdated(LocalDateTime.now());
 
         Header.OK(userRepository.save(user));
@@ -121,11 +120,15 @@ public class UserService {
         user.setOrganization(userCreateRequest.getOrganization());
         user.setBirthday(userCreateRequest.getBirthday());
         user.setThumbnail(userCreateRequest.getThumbnail());
-        user.setAccount_email(userCreateRequest.getEmail());
+        user.setEmail(userCreateRequest.getEmail());
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
 
         return Header.OK(userRepository.save(user));
     }
 
+    public String getUserEmailByNameAndPhoneNumber(String username, String phoneNumber){
+        User user = userRepository.findByNameAndPhoneNumber(username, phoneNumber).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.getEmail();
+    }
 }

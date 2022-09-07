@@ -16,5 +16,9 @@ public class UserUpdateRequest {
 
     private String name;
     private String birthday;
-    private String email;
+    private String organization;
+    private String phoneNumber;
+    private String interests;
+
+
 }
