@@ -46,7 +46,7 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return userRepository.findBySocialId(kakaoUser.getSocialId())
                 .orElseGet(() -> userRepository.save(User.builder()
                         .name(kakaoUser.getName())
-                        .account_email(kakaoUser.getEmail())
+                        .email(kakaoUser.getEmail())
                         .socialId(kakaoUser.getSocialId())
                         .birthday(kakaoUser.getBirthday())
                         .thumbnail(kakaoUser.getThumbnail())

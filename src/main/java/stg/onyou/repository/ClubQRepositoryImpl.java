@@ -100,7 +100,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         user.birthday,
                         userClub.applyStatus,
                         user.sex,
-                        user.account_email,
+                        user.email,
                         user.created,
                         userClub.role,
                         user.phoneNumber

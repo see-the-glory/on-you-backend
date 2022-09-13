@@ -2,7 +2,6 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import stg.onyou.model.InterestCategory;
 
 
 import javax.persistence.*;
@@ -29,7 +28,7 @@ public class User {
     private String birthday;
     private String thumbnail;
     private char sex;
-    private String account_email;
+    private String email;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String socialId;

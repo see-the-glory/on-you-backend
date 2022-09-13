@@ -9,6 +9,7 @@ import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
+import stg.onyou.model.network.request.UserFindIdRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -56,6 +57,14 @@ public class UserController {
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
         userService.registerUserInfo(userCreateRequest, userId);
         return Header.OK();
+    }
+
+    @GetMapping("/findId")
+    public Header<Object> findUserId(@RequestBody UserFindIdRequest userFindIdRequest) {
+        String username = userFindIdRequest.getUsername();
+        String phoneNumber = userFindIdRequest.getPhoneNumber();
+        String email = userService.getUserEmailByNameAndPhoneNumber(username, phoneNumber);
+        return Header.OK(email);
     }
 
 }
