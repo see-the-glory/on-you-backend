@@ -141,6 +141,15 @@ public class ClubController {
         return Header.OK("승인 완료");
     }
 
+    @PostMapping("/reject")
+    public Header<String> rejectAppliance(@RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
+
+        Long rejectorId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        clubService.rejectAppliance(rejectorId, clubRejectRequest.getUserId(), clubRejectRequest.getClubId());
+
+        return Header.OK("승인 완료");
+    }
+
     @PostMapping("/{clubId}/changeRole")
     public Header<String> changeRole(@PathVariable Long clubId, @RequestBody List<UserAllocatedRole> changeRoleRequest, HttpServletRequest httpServletRequest){
         Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());

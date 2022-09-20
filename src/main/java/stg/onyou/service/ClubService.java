@@ -529,6 +529,63 @@ public class ClubService {
 
     }
 
+    public void rejectAppliance(Long rejectorId, Long userId, Long clubId) {
+
+        User rejector  = userRepository.findById(rejectorId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        User rejectedUser  = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club  = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub rejectedUserClub  = userClubRepository.findByUserAndClub(rejectedUser, club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        UserClub rejectorUserClub  = userClubRepository.findByUserAndClub(rejector, club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        if(rejectedUserClub.getApplyStatus() == null || rejectedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
+            throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
+        }
+
+        if(!rejectorUserClub.getRole().isCanRejectApply()){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        userClubRepository.delete(rejectedUserClub);
+
+        Action action = Action.builder()
+                .actioner(rejector)
+                .actionee(rejectedUser)
+                .actionClub(club)
+                .actionType(ActionType.REJECT)
+                .created(LocalDateTime.now())
+                .build();
+
+        actionRepository.save(action);
+
+        UserNotification userNotification = UserNotification.builder()
+                .action(action)
+                .recipient(rejectedUser)
+                .created(LocalDateTime.now())
+                .build();
+
+        userNotificationRepository.save(userNotification);
+
+    }
+
     public void likesClub(Long clubId, Long userId){
 
         Club club = clubRepository.findById(clubId)
@@ -944,4 +1001,5 @@ public class ClubService {
             userClubRepository.save(userClub);
         }
     }
+
 }
