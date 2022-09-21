@@ -131,7 +131,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.thumbnail,
                         club.recruitStatus,
                         club.isApproveRequired,
-                        user.name,
                         club.created,
                         club.contactPhone,
                         StringExpressions.lpad(stringTemplate, 20, '0')
@@ -139,7 +138,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
-                .leftJoin(club.creator, user)
+                .leftJoin(userClub).on(club.eq(userClub.club)) // 연관관계 없이 조인도 가능
                 .where(
                         showRequestedCategory(clubCondition),
                         customCursorCompare(page, clubCondition, customCursor),

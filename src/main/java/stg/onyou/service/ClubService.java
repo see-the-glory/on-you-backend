@@ -314,10 +314,12 @@ public class ClubService {
                         .orElse(club.getContactPhone())
         );
         club.setOrganization(
-                organizationRepository.findById(clubUpdateRequest.getOrganizationId())
-                    .orElseThrow(
+                organizationRepository.findById(
+                        Optional.ofNullable(clubUpdateRequest.getOrganizationId())
+                                .orElse(club.getOrganization().getId()))
+                        .orElseThrow(
                             () -> new CustomException(ErrorCode.ORGANIZATION_NOT_FOUND)
-                    )
+                         )
         );
 
         Club savedClub = clubRepository.save(club);
