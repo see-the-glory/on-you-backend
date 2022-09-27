@@ -148,6 +148,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.delYn.eq('N')
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
+                .groupBy(club)
                 .orderBy(clubSort(page, clubCondition))
                 .limit(page.getPageSize())
                 .fetch();
