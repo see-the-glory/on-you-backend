@@ -54,7 +54,7 @@ public class ClubController {
     public ClubPageResponse selectClubList(
             
         @RequestParam(required = false) String cursor,
-        @RequestParam(defaultValue = "ASC", required = false) String orderBy,
+        @RequestParam(defaultValue = "DESC", required = false) String orderBy,
         @RequestParam(defaultValue = "0", required = false) Long categoryId,
         @RequestParam(defaultValue = "0", required = false) int showRecruitingOnly,
         @RequestParam(defaultValue = "0", required = false) int showMy,
