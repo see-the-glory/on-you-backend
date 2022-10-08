@@ -1,6 +1,7 @@
 package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -14,6 +15,7 @@ import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
 import stg.onyou.repository.ClubRepository;
+import stg.onyou.repository.OrganizationRepository;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 
@@ -28,11 +30,16 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private OrganizationRepository organizationRepository;
+    @Autowired
     private UserClubRepository userClubRepository;
     @Autowired
     private ClubRepository clubRepository;
     @Autowired
     private AwsS3Service awsS3Service;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Header<UserResponse> selectUser(Long id){
 
@@ -110,20 +117,14 @@ public class UserService {
         Header.OK(userRepository.save(user));
     }
 
-    public Header<User> registerUserInfo(UserCreateRequest userCreateRequest, Long userId) {
+    public Header<User> registerUserInfo(UserCreateRequest userCreateRequest) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                );
-
-        user.setOrganization(userCreateRequest.getOrganization());
-        user.setBirthday(userCreateRequest.getBirthday());
-        user.setThumbnail(userCreateRequest.getThumbnail());
-        user.setEmail(userCreateRequest.getEmail());
+        User user = new User(userCreateRequest);
+        Organization organization = organizationRepository.findByName(userCreateRequest.getOrganizationName());
+        user.setOrganization(organization);
+        user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
         user.setCreated(LocalDateTime.now());
-        user.setUpdated(LocalDateTime.now());
-
+        user.setSocialId("-1");
         return Header.OK(userRepository.save(user));
     }
 

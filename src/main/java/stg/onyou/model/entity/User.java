@@ -2,6 +2,8 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import stg.onyou.model.network.request.UserCreateRequest;
 
 
 import javax.persistence.*;
@@ -33,6 +35,7 @@ public class User {
     private LocalDateTime updated;
     private String socialId;
     private String phoneNumber;
+    private String password;
 
     @OneToMany(mappedBy = "creator")
     private List<Club> clubs = new ArrayList<>();
@@ -56,4 +59,17 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Interest> interests = new ArrayList<>();
 
+    public User(UserCreateRequest userCreateRequest) {
+        birthday = userCreateRequest.getBirthday();
+        sex = userCreateRequest.getSex();
+        email = userCreateRequest.getEmail();
+        name = userCreateRequest.getName();
+        phoneNumber = userCreateRequest.getPhoneNumber();
+        password = userCreateRequest.getPassword();
+        interests = userCreateRequest.getInterests();
+    }
+
+    public void encryptPassword(PasswordEncoder passwordEncoder) {
+        password = passwordEncoder.encode(password);
+    }
 }
