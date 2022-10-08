@@ -43,6 +43,8 @@ dependencies {
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.6.2' //p6spy querydsl SQL Logging
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '1.2.0.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' //redis
+
 }
 
 tasks.named('test') {

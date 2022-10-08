@@ -16,7 +16,6 @@ public class ClubUpdateRequest {
 
     @Size(max = 20, message = "클럽 명을 20자 이내로 입력해주세요.")
     private String clubName;
-    @Size(max = 20, message = "기관 명을 20자 이내로 입력해주세요.")
     private Long organizationId;
     @Pattern(regexp = "^[Y|N]{1}$", message ="Y 또는 N 값만 가능합니다.")
     private String isApproveRequired;

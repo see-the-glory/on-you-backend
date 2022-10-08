@@ -55,14 +55,14 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
+    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String cursor, Long userId) {
 
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, customCursor, currentUser);
+        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, cursor, currentUser);
 
         clubResult.forEach(
                 r -> {
@@ -112,7 +112,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String customCursor, User currentUser) {
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String cursor, User currentUser) {
 
         String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
@@ -131,7 +131,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.thumbnail,
                         club.recruitStatus,
                         club.isApproveRequired,
-                        user.name,
                         club.created,
                         club.contactPhone,
                         StringExpressions.lpad(stringTemplate, 20, '0')
@@ -139,16 +138,17 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
-                .leftJoin(club.creator, user)
+                .leftJoin(userClub).on(club.eq(userClub.club)) // 연관관계 없이 조인도 가능
                 .where(
                         showRequestedCategory(clubCondition),
-                        customCursorCompare(page, clubCondition, customCursor),
+                        cursorCompare(page, clubCondition, cursor),
                         showMyClub(clubCondition, currentUser),
                         showRecruitingOnly(clubCondition),
                         showMemberBetween(clubCondition),
                         club.delYn.eq('N')
                 )
 //                .orderBy(club.created.asc(), club.id.asc())
+                .groupBy(club)
                 .orderBy(clubSort(page, clubCondition))
                 .limit(page.getPageSize())
                 .fetch();
@@ -196,9 +196,9 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
 
-    private BooleanExpression customCursorCompare(Pageable page, ClubCondition clubCondition, String customCursor){
+    private BooleanExpression cursorCompare(Pageable page, ClubCondition clubCondition, String cursor){
 
-        if (customCursor == null) { // 첫 페이지 조회를 위한 처리
+        if (cursor == null) { // 첫 페이지 조회를 위한 처리
             return null;
         }
 
@@ -209,11 +209,11 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         if( customDirection.equals(Order.ASC) ){
             return StringExpressions.lpad(stringTemplate, 20, '0')
                     .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
-                    .gt(customCursor);
+                    .gt(cursor);
         } else {
             return StringExpressions.lpad(stringTemplate, 20, '0')
                     .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
-                    .lt(customCursor);
+                    .lt(cursor);
         }
 
     }
