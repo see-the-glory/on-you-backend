@@ -51,12 +51,10 @@ public class UserController {
         return Header.OK();
     }
 
-    @PostMapping("")
-    public Header<Object> registerUserInfo(@RequestBody UserCreateRequest userCreateRequest,
-                                           HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        userService.registerUserInfo(userCreateRequest, userId);
-        return Header.OK();
+    @PostMapping("/signup")
+    public Header<Object> registerUserInfo(@RequestBody UserCreateRequest userCreateRequest) {
+        userService.registerUserInfo(userCreateRequest);
+        return Header.OK("회원가입 완료!");
     }
 
     @GetMapping("/findId")
@@ -66,5 +64,4 @@ public class UserController {
         String email = userService.getUserEmailByNameAndPhoneNumber(username, phoneNumber);
         return Header.OK(email);
     }
-
 }
