@@ -20,6 +20,7 @@ import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -117,15 +118,17 @@ public class UserService {
         Header.OK(userRepository.save(user));
     }
 
-    public Header<User> registerUserInfo(UserCreateRequest userCreateRequest) {
+    public String registerUserInfo(UserCreateRequest userCreateRequest) {
 
         User user = new User(userCreateRequest);
         Organization organization = organizationRepository.findByName(userCreateRequest.getOrganizationName());
         user.setOrganization(organization);
-        user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+        user.setRole(Collections.singletonList("ROLE_USER"));
         user.setCreated(LocalDateTime.now());
-        user.setSocialId("-1");
-        return Header.OK(userRepository.save(user));
+        user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+        userRepository.save(user);
+
+        return user.toString();
     }
 
     public String getUserEmailByNameAndPhoneNumber(String username, String phoneNumber){

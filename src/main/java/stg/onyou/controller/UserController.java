@@ -3,8 +3,10 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import stg.onyou.config.jwt.JwtTokenProvider;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
@@ -13,11 +15,17 @@ import stg.onyou.model.network.request.UserFindIdRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
+import stg.onyou.repository.UserRepository;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static stg.onyou.model.entity.QUser.user;
 
 @Api(tags = {"User API Controller"})
 @Slf4j
@@ -27,6 +35,13 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/{clubId}")
     public Header<UserClubResponse> selectUserClubResponse(@PathVariable Long clubId, HttpServletRequest httpServletRequest) {
@@ -53,7 +68,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public Header<Object> registerUserInfo(@RequestBody UserCreateRequest userCreateRequest) {
-        userService.registerUserInfo(userCreateRequest);
+        String result = userService.registerUserInfo(userCreateRequest);
         return Header.OK("회원가입 완료!");
     }
 
@@ -64,4 +79,16 @@ public class UserController {
         String email = userService.getUserEmailByNameAndPhoneNumber(username, phoneNumber);
         return Header.OK(email);
     }
+
+    // 로그인
+    @PostMapping("/login")
+    public String login(@RequestBody Map<String, String> user) {
+        User member = (User) userRepository.findByEmail(user.get("email"))
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+        if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
+            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+        }
+        return jwtTokenProvider.createToken(member.getUsername(), member.getRole());
+    }
+
 }
