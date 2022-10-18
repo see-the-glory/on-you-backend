@@ -2,6 +2,9 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import stg.onyou.model.network.request.UserCreateRequest;
 
@@ -9,15 +12,17 @@ import stg.onyou.model.network.request.UserCreateRequest;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Builder
-@ToString(of={"id","name","birthday", "thumbnail", "sex", "email", "role", "socialId"})
-public class User {
+@ToString(of={"id","name","birthday", "thumbnail", "sex", "email", "role"})
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +38,6 @@ public class User {
     private String email;
     private LocalDateTime created;
     private LocalDateTime updated;
-    private String socialId;
     private String phoneNumber;
     private String password;
 
@@ -59,6 +63,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Interest> interests = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<String> role = new ArrayList<>();
+
     public User(UserCreateRequest userCreateRequest) {
         birthday = userCreateRequest.getBirthday();
         sex = userCreateRequest.getSex();
@@ -69,7 +77,40 @@ public class User {
         interests = userCreateRequest.getInterests();
     }
 
-    public void encryptPassword(PasswordEncoder passwordEncoder) {
-        password = passwordEncoder.encode(password);
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.role.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
