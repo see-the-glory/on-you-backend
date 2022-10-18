@@ -3,10 +3,14 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.config.jwt.JwtTokenProvider;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
@@ -20,10 +24,7 @@ import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static stg.onyou.model.entity.QUser.user;
 
@@ -66,12 +67,6 @@ public class UserController {
         return Header.OK();
     }
 
-    @PostMapping("/signup")
-    public Header<Object> registerUserInfo(@RequestBody UserCreateRequest userCreateRequest) {
-        String result = userService.registerUserInfo(userCreateRequest);
-        return Header.OK("회원가입 완료!");
-    }
-
     @GetMapping("/findId")
     public Header<Object> findUserId(@RequestBody UserFindIdRequest userFindIdRequest) {
         String username = userFindIdRequest.getUsername();
@@ -80,15 +75,30 @@ public class UserController {
         return Header.OK(email);
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<Object> registerUserInfo(@RequestBody UserCreateRequest userCreateRequest) {
+        User user  = userService.registerUserInfo(userCreateRequest);
+        Map<String, Object> result = new HashMap<>();
+        if (user == null) {
+            throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
+        }
+
+        result.put("token", jwtTokenProvider.createToken(user.getUsername(), user.getRole()));
+        return new ResponseEntity<>(result, HttpStatus.OK);
+
+    }
+
     // 로그인
     @PostMapping("/login")
-    public String login(@RequestBody Map<String, String> user) {
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
         User member = (User) userRepository.findByEmail(user.get("email"))
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
-        return jwtTokenProvider.createToken(member.getUsername(), member.getRole());
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

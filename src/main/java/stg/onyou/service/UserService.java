@@ -118,7 +118,11 @@ public class UserService {
         Header.OK(userRepository.save(user));
     }
 
-    public String registerUserInfo(UserCreateRequest userCreateRequest) {
+    public User registerUserInfo(UserCreateRequest userCreateRequest) {
+
+        boolean existMember = userRepository.existsUserByEmail(userCreateRequest.getEmail());
+
+        if (existMember) return null;
 
         User user = new User(userCreateRequest);
         Organization organization = organizationRepository.findByName(userCreateRequest.getOrganizationName());
@@ -126,9 +130,10 @@ public class UserService {
         user.setRole(Collections.singletonList("ROLE_USER"));
         user.setCreated(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
+        user.setThumbnail("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg");
         userRepository.save(user);
 
-        return user.toString();
+        return user;
     }
 
     public String getUserEmailByNameAndPhoneNumber(String username, String phoneNumber){
