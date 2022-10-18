@@ -271,7 +271,7 @@ public class FeedController {
     public Header<Object> reverseLikeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest
                                           ) {
         Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
-        likesService.reversLikes(userId, id);
+        likesService.reverseLikes(userId, id);
         return Header.OK();
     }
 

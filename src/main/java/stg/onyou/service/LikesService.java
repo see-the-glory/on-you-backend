@@ -29,7 +29,7 @@ public class LikesService {
     }
 
     // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소
-    public void reversLikes(Long userId, Long feedId) {
+    public void reverseLikes(Long userId, Long feedId) {
         FeedLikes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
         like.setOnOff(!like.isOnOff());
         likesRepository.save(like);
