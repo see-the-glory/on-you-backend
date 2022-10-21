@@ -1,5 +1,6 @@
 package stg.onyou.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 public class ClubService {
@@ -831,10 +833,13 @@ public class ClubService {
 
         List<UserResponse> members = new ArrayList<>();
 
-        club.getUserClubs()
-                .forEach(userClub -> {
-                    members.add(selectUserResponse(userClub.getUser(), club.getId()));
-                });
+        if(club.getUserClubs()!=null){
+            club.getUserClubs()
+                    .stream()
+                    .map(uc -> members.add(selectUserResponse(uc.getUser(), club.getId())));
+
+        }
+
 
         List<ClubCategory> clubCategories = clubCategoryRepository.findByClub(club);
         List<CategoryResponse> categoryResponseList = new ArrayList<>();
