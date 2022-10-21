@@ -19,6 +19,7 @@ import stg.onyou.model.network.response.ClubRoleResponse;
 import stg.onyou.model.network.response.ClubScheduleResponse;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
+import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -34,6 +35,8 @@ public class ClubController {
     private ClubService clubService;
     @Autowired
     private AwsS3Service awsS3Service;
+    @Autowired
+    private UserService userService;
 
     private final Integer DEFAULT_PAGINATION_SIZE = 5;
 
@@ -46,7 +49,7 @@ public class ClubController {
 
     @GetMapping("/my")
     public Header<List<ClubResponse>> selectMyClubs(HttpServletRequest httpServletRequest){
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         return clubService.selectMyClubs(userId);
     }
 
@@ -63,7 +66,7 @@ public class ClubController {
         @PageableDefault (sort="created", size = 8) Pageable pageable,
         HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         ClubCondition clubCondition = ClubCondition.builder()
                 .orderBy(orderBy)
@@ -79,7 +82,7 @@ public class ClubController {
 
     @GetMapping("/{id}/role")
     public Header<ClubRoleResponse> selectClubRole(@PathVariable Long id, HttpServletRequest httpServletRequest){
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         return clubService.selectClubRole(id, userId);
     }
 
@@ -89,7 +92,7 @@ public class ClubController {
                                              ClubCreateRequest clubCreateRequest,
                                      HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         if(!thumbnail.isEmpty()){
             String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
@@ -116,7 +119,7 @@ public class ClubController {
     @PostMapping("/{clubId}/withdraw")
     public Header<String> withdrawClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         clubService.withdrawClub(clubId, userId);
 
         return Header.OK("user_id: "+userId+"club_id: "+clubId);
@@ -126,7 +129,7 @@ public class ClubController {
     @PostMapping("/apply")
     public Header<String> applyClub(@RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         UserClub userClub = clubService.applyClub(userId, clubApplyRequest);
         return Header.OK("신청 완료");
@@ -135,7 +138,7 @@ public class ClubController {
     @PostMapping("/approve")
     public Header<String> approveClub(@RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
-        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long approverId = userService.getUserId(httpServletRequest);
         clubService.approveClub(approverId, clubApproveRequest.getUserId(), clubApproveRequest.getClubId());
 
         return Header.OK("승인 완료");
@@ -144,7 +147,7 @@ public class ClubController {
     @PostMapping("/reject")
     public Header<String> rejectAppliance(@RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
 
-        Long rejectorId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long rejectorId = userService.getUserId(httpServletRequest);
         clubService.rejectAppliance(rejectorId, clubRejectRequest.getUserId(), clubRejectRequest.getClubId());
 
         return Header.OK("승인 완료");
@@ -152,7 +155,7 @@ public class ClubController {
 
     @PostMapping("/{clubId}/changeRole")
     public Header<String> changeRole(@PathVariable Long clubId, @RequestBody List<UserAllocatedRole> changeRoleRequest, HttpServletRequest httpServletRequest){
-        Long approverId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long approverId = userService.getUserId(httpServletRequest);
         clubService.changeRole(approverId, clubId, changeRoleRequest);
 
         return Header.OK("권한변경 및 탈퇴처리 완료");
@@ -161,7 +164,7 @@ public class ClubController {
     @PostMapping("/{clubId}/likes")
     public Header<String> likesClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         clubService.likesClub(clubId, userId);
 
         return Header.OK("Likes 등록 또는 해제 완료");
@@ -177,7 +180,7 @@ public class ClubController {
     @PostMapping("/schedules")
     public Header<String> createClubSchedule(@Valid @RequestBody ClubScheduleCreateRequest clubScheduleCreateRequest, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         ClubSchedule clubSchedule = clubService.createClubSchedule(clubScheduleCreateRequest, userId);
         if(clubSchedule == null){
@@ -192,7 +195,7 @@ public class ClubController {
     public Header<String> updateClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, @Valid @RequestBody ClubScheduleUpdateRequest clubScheduleUpdateRequest,
         HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         ClubSchedule clubSchedule = clubService.updateClubSchedule(clubScheduleUpdateRequest, clubId, scheduleId, userId);
         if(clubSchedule == null){
@@ -206,7 +209,7 @@ public class ClubController {
     @DeleteMapping("/{clubId}/schedules/{scheduleId}")
     public Header<String> deleteClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         clubService.deleteClubSchedule(clubId, scheduleId, userId);
         return Header.OK("Deleted successfully");
@@ -215,7 +218,7 @@ public class ClubController {
     @PostMapping("/{clubId}/schedules/{scheduleId}/joinOrCancel")
     public Header<String> joinOrCancelClubSchedule(@PathVariable Long clubId, @PathVariable Long scheduleId, HttpServletRequest httpServletRequest){
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
 
         UserClubSchedule userClubSchedule = clubService.joinOrCancelClubSchedule(clubId, scheduleId, userId);
 

@@ -19,6 +19,7 @@ import stg.onyou.repository.OrganizationRepository;
 import stg.onyou.repository.UserClubRepository;
 import stg.onyou.repository.UserRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -139,5 +140,11 @@ public class UserService {
     public String getUserEmailByNameAndPhoneNumber(String username, String phoneNumber){
         User user = userRepository.findByNameAndPhoneNumber(username, phoneNumber).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return user.getEmail();
+    }
+
+    public Long getUserId(HttpServletRequest httpServletRequest) {
+        String email = httpServletRequest.getUserPrincipal().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.getId();
     }
 }
