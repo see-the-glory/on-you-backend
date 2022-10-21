@@ -11,12 +11,14 @@ import stg.onyou.model.Reason;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedHashtag;
 import stg.onyou.model.entity.FeedImage;
+import stg.onyou.model.entity.User;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedResponse;
+import stg.onyou.repository.UserRepository;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +45,7 @@ public class FeedController {
 
     @GetMapping("/api/feeds")
     public Header<List<FeedResponse>> selectFeedList(HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         List<Feed> feeds = feedService.findFeeds();
 
         List<FeedResponse> resultList = new ArrayList<>();
@@ -83,7 +85,7 @@ public class FeedController {
     @GetMapping("/api/feeds/search")
     public Header<List<FeedResponse>> searchFeed(@RequestBody FeedSearch feedSearch,
                                                  HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         List<Feed> feeds = feedService.findAllByString(feedSearch);
         List<FeedResponse> resultList = new ArrayList<>();
 
@@ -125,7 +127,7 @@ public class FeedController {
                                      HttpServletRequest httpServletRequest
     ) {
 
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         List<FeedImage> feedImages = new ArrayList<>();
         Feed feed = feedService.createFeed(request, userId, feedImages);
         for (MultipartFile multipartFile : multipartFiles) {
@@ -143,7 +145,7 @@ public class FeedController {
     public Header<FeedResponse> selectFeed(@PathVariable Long id,
                                            HttpServletRequest httpServletRequest) {
         Feed feed = feedService.findById(id);
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         String userName = feed.getUser().getName();
         Long feedId = feed.getId();
         Long clubId = feed.getClub().getId();
@@ -176,7 +178,7 @@ public class FeedController {
     @GetMapping("/api/clubs/{clubId}/feeds")
     public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId,
                                                        HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         List<Feed> feeds = feedService.findAllByClub(clubId);
         List<FeedResponse> resultList = new ArrayList<>();
 
@@ -236,7 +238,7 @@ public class FeedController {
     @PutMapping("/api/feeds/{id}/report")
     public Header<String> reportFeed(@PathVariable Long id,
                                      @RequestParam("reason") Reason reason, HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         String result = reportService.feedReport(userId, id, reason);
         return Header.OK(result);
     }
@@ -249,7 +251,7 @@ public class FeedController {
     public Header<Object> commentFeed(@PathVariable Long id,
                                       @RequestBody Map<String, String> comment,
                                       HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         String content = comment.get("content");
         feedService.commentFeed(userId, id, content);
         return Header.OK();
@@ -262,7 +264,7 @@ public class FeedController {
 
     @PostMapping("/api/feeds/{id}/likes")
     public Header<Object> likeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         likesService.addLikes(userId, id);
         return Header.OK();
     }
@@ -270,7 +272,7 @@ public class FeedController {
     @PutMapping("/api/feeds/{id}/likes")
     public Header<Object> reverseLikeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest
                                           ) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         likesService.reverseLikes(userId, id);
         return Header.OK();
     }

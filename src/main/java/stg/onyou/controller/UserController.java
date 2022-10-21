@@ -46,15 +46,14 @@ public class UserController {
 
     @GetMapping("/{clubId}")
     public Header<UserClubResponse> selectUserClubResponse(@PathVariable Long clubId, HttpServletRequest httpServletRequest) {
-
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         return userService.selectUserClubResponse(userId, clubId);
 
     }
 
     @GetMapping("")
     public Header<UserResponse> getUserInfo(HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         return userService.selectUser(userId);
     }
 
@@ -62,7 +61,7 @@ public class UserController {
     public Header<Object> updateUserInfo(@RequestPart(value = "file") MultipartFile thumbnailFile,
                                          @RequestPart(value = "userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                          HttpServletRequest httpServletRequest) {
-        Long userId = Long.parseLong(httpServletRequest.getAttribute("userId").toString());
+        Long userId = userService.getUserId(httpServletRequest);
         userService.updateUser(thumbnailFile, userUpdateRequest, userId);
         return Header.OK();
     }
@@ -91,7 +90,7 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
-        User member = (User) userRepository.findByEmail(user.get("email"))
+        User member = userRepository.findByEmail(user.get("email"))
                 .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
             throw new IllegalArgumentException("잘못된 비밀번호입니다.");
