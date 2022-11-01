@@ -23,6 +23,7 @@ import stg.onyou.repository.UserRepository;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -71,7 +72,8 @@ public class UserController {
         String username = userFindIdRequest.getUsername();
         String phoneNumber = userFindIdRequest.getPhoneNumber();
         String email = userService.getUserEmailByNameAndPhoneNumber(username, phoneNumber);
-        return Header.OK(email);
+        String maskedEmail = userService.getMaskedEmail(email);
+        return Header.OK(maskedEmail);
     }
 
     @PostMapping("/signup")
@@ -99,5 +101,4 @@ public class UserController {
         result.put("token", jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
 }

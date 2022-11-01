@@ -8,8 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MailDto {
-    private String address;
-    private String title;
-    private String content;
+public class FindPwRequest {
+    private String email;
+    private String username;
+    private String phoneNumber;
+    private String birthday;
 }
