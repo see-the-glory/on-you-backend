@@ -74,7 +74,6 @@ public class User implements UserDetails {
         name = userCreateRequest.getName();
         phoneNumber = userCreateRequest.getPhoneNumber();
         password = userCreateRequest.getPassword();
-        interests = userCreateRequest.getInterests();
     }
 
     @Override

@@ -13,7 +13,6 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.request.UserFindIdRequest;
 import stg.onyou.model.network.response.UserClubResponse;
@@ -23,11 +22,7 @@ import stg.onyou.repository.UserRepository;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.*;
-
-import static stg.onyou.model.entity.QUser.user;
 
 @Api(tags = {"User API Controller"})
 @Slf4j

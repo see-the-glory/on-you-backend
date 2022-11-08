@@ -14,17 +14,11 @@ import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
-import stg.onyou.repository.ClubRepository;
-import stg.onyou.repository.OrganizationRepository;
-import stg.onyou.repository.UserClubRepository;
-import stg.onyou.repository.UserRepository;
+import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,6 +39,8 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private InterestRepository interestRepository;
 
     public Header<UserResponse> selectUser(Long id) {
 
@@ -137,6 +133,17 @@ public class UserService {
         user.setThumbnail("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg");
         userRepository.save(user);
 
+        List<InterestCategory> interestCategories = userCreateRequest.getInterests();
+        List<Interest> interests = new ArrayList<>();
+        for (InterestCategory category : interestCategories) {
+            Interest interest = new Interest();
+            interest.setUser(user);
+            interest.setCategory(category);
+            interests.add(interest);
+            interestRepository.save(interest);
+        }
+
+        user.setInterests(interests);
         return user;
     }
 
