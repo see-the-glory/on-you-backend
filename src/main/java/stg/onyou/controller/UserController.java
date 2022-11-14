@@ -62,7 +62,7 @@ public class UserController {
         return Header.OK();
     }
 
-    @GetMapping("/findId")
+    @PostMapping("/findId")
     public Header<Object> findUserId(@RequestBody UserFindIdRequest userFindIdRequest) {
         String username = userFindIdRequest.getUsername();
         String phoneNumber = userFindIdRequest.getPhoneNumber();
