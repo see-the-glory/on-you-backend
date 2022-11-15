@@ -62,7 +62,7 @@ public class FeedController {
             int likesCount = feed.getLikes().size();
             int commentCount = feed.getComments().size();
             FeedResponse feedResponse = FeedResponse.builder()
-                    .userId(userId)
+                    .userId(feed.getUser().getId())
                     .userName(userName)
                     .id(feedId)
                     .clubId(clubId)
@@ -157,7 +157,7 @@ public class FeedController {
         int likesCount = feed.getLikes().size();
         int commentCount = feed.getComments().size();
         FeedResponse feedResponse = FeedResponse.builder()
-                .userId(userId)
+                .userId(feed.getUser().getId())
                 .id(feedId)
                 .clubId(clubId)
                 .clubName(clubName)
@@ -193,7 +193,7 @@ public class FeedController {
             int likesCount = feed.getLikes().size();
             int commentCount = feed.getComments().size();
             FeedResponse feedResponse = FeedResponse.builder()
-                    .userId(userId)
+                    .userId(feed.getUser().getId())
                     .id(feedId)
                     .clubId(clubId)
                     .clubName(clubName)
@@ -224,13 +224,14 @@ public class FeedController {
         return Header.OK();
     }
 
-//    @DeleteMapping("/api/feeds/{id}")
-//    public Header<Object> deleteFeedBy(@PathVariable Long id) {
-//        feedService.deleteById(id);
+    @DeleteMapping("/api/feeds/{id}")
+    public Header<Object> deleteFeedBy(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+//        Long userId = userService.getUserId(httpServletRequest);
+        feedService.deleteById(id);
 //        Feed feed = feedService.findById(id);
-////        awsS3Service.deleteFile(feed.getFeedImages());
-//        return Header.OK();
-//    }
+//        awsS3Service.deleteFile(feed.getFeedImages());
+        return Header.OK("Feed 삭제 완료");
+    }
 
     /**
      * FEED 신고
