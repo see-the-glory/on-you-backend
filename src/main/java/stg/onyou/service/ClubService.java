@@ -833,10 +833,15 @@ public class ClubService {
 
         List<UserResponse> members = new ArrayList<>();
 
+
         if(club.getUserClubs()!=null){
-            club.getUserClubs()
-                    .stream()
-                    .map(uc -> members.add(selectUserResponse(uc.getUser(), club.getId())));
+
+            List<UserClub> userClubList = club.getUserClubs();
+
+            for(UserClub userClub : userClubList){
+                UserResponse userResponse = selectUserResponse(userClub.getUser(), club.getId());
+                members.add(userResponse);
+            }
 
         }
 
