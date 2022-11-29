@@ -88,9 +88,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
         User member = userRepository.findByEmail(user.get("email"))
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
         if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
         Map<String, Object> result = new HashMap<>();
         result.put("token", jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
