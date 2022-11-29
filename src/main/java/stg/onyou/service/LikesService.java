@@ -19,20 +19,19 @@ public class LikesService {
     private final UserRepository userRepository;
 
     public void addLikes(Long userId, Long feedId) {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        FeedLikes like = FeedLikes.builder()
-                .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
-                .feed(feed)
-                .onOff(true)
-                .build();
-        likesRepository.save(like);
-    }
-
-    // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소
-    public void reverseLikes(Long userId, Long feedId) {
-        FeedLikes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
-        like.setOnOff(!like.isOnOff());
-        likesRepository.save(like);
+        FeedLikes isLike = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
+        if (isLike == null) { // new Like
+            Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+            FeedLikes like = FeedLikes.builder()
+                    .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                    .feed(feed)
+                    .onOff(true)
+                    .build();
+            likesRepository.save(like);
+        } else { // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소. update Like
+            isLike.setOnOff(!isLike.isOnOff());
+            likesRepository.save(isLike);
+        }
     }
 
     // '좋아요' 유무

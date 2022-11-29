@@ -13,6 +13,7 @@ public enum ErrorCode {
 
     // 400 Bad request
     FILE_EMPTY(BAD_REQUEST, "업로드 한 파일이 존재하지 않습니다."),
+    LOGIN_FAIL(BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다."),
     // 401 UNAUTHORIZED : 인증되지 않은 사용자
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다."),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다."),

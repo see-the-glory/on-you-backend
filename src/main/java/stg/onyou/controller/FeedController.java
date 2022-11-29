@@ -8,10 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.Reason;
-import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.FeedHashtag;
-import stg.onyou.model.entity.FeedImage;
-import stg.onyou.model.entity.User;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
@@ -267,14 +264,6 @@ public class FeedController {
     public Header<Object> likeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
         likesService.addLikes(userId, id);
-        return Header.OK();
-    }
-
-    @PutMapping("/api/feeds/{id}/likes")
-    public Header<Object> reverseLikeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest
-                                          ) {
-        Long userId = userService.getUserId(httpServletRequest);
-        likesService.reverseLikes(userId, id);
         return Header.OK();
     }
 

@@ -15,6 +15,7 @@ import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,7 +149,7 @@ public class FeedService {
         if (feed == null) {
             throw new CustomException(ErrorCode.FEED_NOT_FOUND);
         } else {
-             resultList = feed.getComments().stream().map(comment -> new CommentResponse(
+             resultList = feed.getComments().stream().sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
                      comment.getUser().getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
              )).collect(Collectors.toList());
         }
