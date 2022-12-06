@@ -149,8 +149,11 @@ public class FeedService {
         if (feed == null) {
             throw new CustomException(ErrorCode.FEED_NOT_FOUND);
         } else {
-             resultList = feed.getComments().stream().sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
-                     comment.getUser().getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
+             resultList = feed.getComments()
+                     .stream()
+                     .filter(comment -> comment.getDelYn() != 'y')
+                     .sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
+                     comment.getUser().getId(), comment.getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
              )).collect(Collectors.toList());
         }
         return resultList;
