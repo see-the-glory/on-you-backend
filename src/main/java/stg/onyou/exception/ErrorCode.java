@@ -39,13 +39,13 @@ public enum ErrorCode {
     USER_CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "UserClubSchedule이 존재하지 않습니다"),
     CLUB_CATEGORY_NOT_FOUND(NOT_FOUND, "ClubCaegory가 존재하지 않습니다."),
     ORGANIZATION_NOT_FOUND(NOT_FOUND, "orgnanization이 존재하지 않습니다"),
+    COMMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 Comment입니다."),
 
     // 503 : Internal server error
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽 생성에 실패하였습니다"),
     CLUB_REGISTER_ERROR(INTERNAL_SERVER_ERROR, "클럽 등록에 실패하였습니다"),
     CLUB_SCHEDULE_MUTATION_ERROR(INTERNAL_SERVER_ERROR, "클럽일정 생성에 실패하였습니다"),
-    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "FEED 업데이트에 실패하였습니다."),
-    ;
+    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "FEED 업데이트에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;
