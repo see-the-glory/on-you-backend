@@ -829,6 +829,42 @@ public class ClubService {
         return club.getMaxNumber()!=0 && club.getMaxNumber() <= club.getRecruitNumber();
     }
 
+    private MyClubResponse selectMyClubResponse(Club club, User user){
+
+        UserClub userClub = userClubRepository.findByUserAndClub(user,club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_PERMISSION)
+                );
+
+        List<ClubCategory> clubCategories = clubCategoryRepository.findByClub(club);
+        List<CategoryResponse> categoryResponseList = new ArrayList<>();
+        clubCategories.forEach(
+                clubCategory -> {
+                    categoryResponseList.add(selectCategoryResponse(clubCategory));
+                }
+        );
+
+        MyClubResponse myClubResponse = MyClubResponse.builder()
+                .id(club.getId())
+                .name(club.getName())
+                .clubShortDesc(club.getShortDesc())
+                .clubLongDesc(club.getLongDesc())
+                .organizationName(Optional.ofNullable(club.getOrganization())
+                        .map(r->r.getName())
+                        .orElse(null))
+                .thumbnail(club.getThumbnail())
+                .categories(categoryResponseList)
+                .applyStatus(userClub.getApplyStatus())
+                .creatorName(Optional.ofNullable(club.getCreator())
+                        .map(r -> r.getName())
+                        .orElse(null)
+                )
+                .created(club.getCreated())
+                .build();
+
+        return myClubResponse;
+    }
+
     private ClubResponse selectClubResponse(Club club){
 
         List<UserResponse> members = new ArrayList<>();
@@ -924,19 +960,19 @@ public class ClubService {
         return clubSchedule.getClub().getId() != clubId;
     }
 
-    public Header<List<ClubResponse>> selectMyClubs(Long userId) {
+    public Header<List<MyClubResponse>> selectMyClubs(Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        List<ClubResponse> myClubsResponse = userClubRepository.findAll()
+        List<MyClubResponse> myClubsResponse = userClubRepository.findAll()
                 .stream()
                 .filter(uc -> uc.getUser().getId() == userId)
                 .map(uc -> uc.getClub())
                 .distinct()
-                .map(club -> selectClubResponse(club))
+                .map(club -> selectMyClubResponse(club, user))
                 .collect(Collectors.toList());
 
         return Header.OK(myClubsResponse);

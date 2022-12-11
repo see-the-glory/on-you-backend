@@ -20,7 +20,6 @@ import stg.onyou.model.entity.FeedHashtag;
 import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.network.response.FeedResponse;
 import stg.onyou.model.network.response.QFeedResponse;
-import stg.onyou.service.FeedService;
 import stg.onyou.service.LikesService;
 
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static stg.onyou.model.entity.QFeed.feed;
-import static stg.onyou.model.entity.QFeedImage.feedImage;
 
 @Repository
 public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements FeedQRepository{
