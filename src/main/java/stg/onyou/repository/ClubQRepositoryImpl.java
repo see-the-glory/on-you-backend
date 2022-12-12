@@ -122,7 +122,6 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.id,
                         club.name,
                         club.shortDesc,
-                        club.longDesc,
                         organization.name,
                         club.maxNumber,
                         club.recruitNumber,

@@ -3,6 +3,7 @@ package stg.onyou.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.UserNotificationResponse;
 import stg.onyou.repository.UserNotificationQRepositoryImpl;
 import javax.transaction.Transactional;
@@ -25,4 +26,7 @@ public class NotificationService {
         return Header.OK(userNotificationList);
     }
 
+    public Header<List<ClubNotificationResponse>> selectClubNotification(Long clubId) {
+        return null;
+    }
 }
