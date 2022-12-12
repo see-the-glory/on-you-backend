@@ -11,21 +11,19 @@ import stg.onyou.model.ActionType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserNotificationResponse {
+public class ClubNotificationResponse {
 
     private Long actionerId;
     private String actionerName;
     private Long actioneeId;
     private String actioneeName;
-    private Long actionClubId;
     private ActionType actionType;
     private String applyMessage;
 
     @QueryProjection
-    public UserNotificationResponse(Long actionerId, Long actioneeId, Long actionClubId, ActionType actionType, String applyMessage){
+    public ClubNotificationResponse(Long actionerId, Long actioneeId, ActionType actionType, String applyMessage){
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
-        this.actionClubId = actionClubId;
         this.actionType = actionType;
         this.applyMessage = applyMessage;
     }
