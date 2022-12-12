@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.UserNotificationResponse;
+import stg.onyou.repository.ClubNotificationQRepositoryImpl;
 import stg.onyou.repository.UserNotificationQRepositoryImpl;
 import javax.transaction.Transactional;
 import java.util.List;
@@ -15,6 +16,8 @@ public class NotificationService {
 
     @Autowired
     private UserNotificationQRepositoryImpl userNotificationQRepositoryImpl;
+    @Autowired
+    private ClubNotificationQRepositoryImpl clubNotificationQRepositoryImpl;
 
 
     /**
@@ -27,6 +30,7 @@ public class NotificationService {
     }
 
     public Header<List<ClubNotificationResponse>> selectClubNotification(Long clubId) {
-        return null;
+        List<ClubNotificationResponse> clubNotificationList = clubNotificationQRepositoryImpl.findClubNotificationList(clubId);
+        return Header.OK(clubNotificationList);
     }
 }
