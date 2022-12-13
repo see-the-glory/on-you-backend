@@ -106,6 +106,66 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
         return new PageImpl<>(feedResult, page, total);
     }
 
+    @Override
+    public Page<FeedResponse> findFeedListByClub(Pageable page, String cursor, Long userId, Long clubId) {
+
+        StringTemplate stringTemplate = getCustomStringTemplate();
+
+        List<FeedResponse> feedResult = queryFactory
+                .select(new QFeedResponse(
+                        feed.id,
+                        feed.club.id,
+                        feed.club.name,
+                        feed.user.id,
+                        feed.user.name,
+                        feed.content,
+                        feed.comments.size(),
+                        feed.created,
+                        feed.updated,
+                        StringExpressions.lpad(stringTemplate, 20, '0')
+                                .concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
+                ))
+                .from(feed)
+                .where(
+                        feed.delYn.eq('n'),
+                        feed.reportCount.lt(5),
+                        feed.access.eq(AccessModifier.valueOf("PUBLIC")),
+                        feed.club.id.eq(clubId),
+                        cursorCompare(page, cursor)
+                )
+                .orderBy(new OrderSpecifier(Order.DESC, feed.created))
+                .limit(page.getPageSize())
+                .fetch();
+
+
+        for(FeedResponse f : feedResult) {
+
+            //임시로 쓸 feed 가져오기
+            Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+
+            boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
+            int likesCount = tempFeed.getLikes().size();
+
+            //hashtag 가져오기
+            List<String> result = new ArrayList<>();
+            List<FeedHashtag> feedHashtags = tempFeed.getFeedHashtags();
+            for (FeedHashtag feedHashtag : feedHashtags) {
+                result.add(feedHashtag.getHashtag().getHashtag());
+            }
+            List<String> hashtags = result;
+
+            List<String> imageUrls = tempFeed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
+            f.setHashtags(hashtags);
+            f.setImageUrls(imageUrls);
+            f.setLikeYn(likeYn);
+            f.setLikesCount(likesCount);
+
+        }
+
+        long total = feedResult.size();
+        return new PageImpl<>(feedResult, page, total);
+    }
+
     private StringTemplate getCustomStringTemplate() {
 
         return Expressions.stringTemplate(

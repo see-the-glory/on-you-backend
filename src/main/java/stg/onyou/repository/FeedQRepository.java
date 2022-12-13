@@ -13,5 +13,6 @@ import java.util.List;
 public interface FeedQRepository {
 
     Page<FeedResponse> findFeedList(Pageable page, String customCursor, Long userId);
+    Page<FeedResponse> findFeedListByClub(Pageable page, String customCursor, Long userId, Long clubId);
 
 }
