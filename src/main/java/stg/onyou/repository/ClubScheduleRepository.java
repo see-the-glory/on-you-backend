@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ClubScheduleRepository extends JpaRepository<ClubSchedule, Long> {
-    List<ClubSchedule> findByClubId(Long clubId);
+    List<ClubSchedule> findByClubIdOrderByStartDate(Long clubId);
 }

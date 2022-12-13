@@ -743,7 +743,7 @@ public class ClubService {
 
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long clubId) {
 
-        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubId(clubId);
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdOrderByStartDate(clubId);
         List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
 
         for (ClubSchedule clubSchedule : clubScheduleList) {
