@@ -741,13 +741,9 @@ public class ClubService {
     }
 
 
-    public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long id) {
+    public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long clubId) {
 
-        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findAll()
-                .stream()
-                .filter(cs -> cs.getClub().getId() == id)
-                .collect(Collectors.toList());
-
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubId(clubId);
         List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
 
         for (ClubSchedule clubSchedule : clubScheduleList) {
