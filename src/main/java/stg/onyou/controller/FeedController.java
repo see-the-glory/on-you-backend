@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
@@ -45,13 +46,25 @@ public class FeedController {
     private final HashtagService hashtagService;
 
     @GetMapping("/api/feeds")
-    public FeedPageResponse selectFeeds(
+    public FeedPageResponse selectFeedList(
             @RequestParam(required = false) String cursor,
             @PageableDefault(sort="created", size = 10) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
         return feedService.selectFeedList(pageable, cursor, userId);
+
+    }
+
+    @GetMapping("/api/clubs/{clubId}/feeds")
+    public FeedPageResponse selectFeedListByClub(
+            @PathVariable Long clubId,
+            @RequestParam(required = false) String cursor,
+            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            HttpServletRequest httpServletRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        return feedService.selectFeedListByClub(pageable, cursor, userId, clubId);
 
     }
 
@@ -107,44 +120,6 @@ public class FeedController {
                 .build();
 
         return Header.OK(feedResponse);
-    }
-
-    @GetMapping("/api/clubs/{clubId}/feeds")
-    public Header<List<FeedResponse>> selectFeedByClub(@PathVariable Long clubId,
-                                                       HttpServletRequest httpServletRequest) {
-        Long userId = userService.getUserId(httpServletRequest);
-        List<Feed> feeds = feedService.findAllByClub(clubId);
-        List<FeedResponse> resultList = new ArrayList<>();
-
-        for (Feed feed : feeds) {
-            Long feedId = feed.getId();
-            String clubName = feed.getClub().getName();
-            String userName = feed.getUser().getName();
-            String content = feed.getContent();
-            List<String> hashtags = feedService.getHashtags(feed);
-            List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
-            boolean likeYn = likesService.isLikes(userId, feed.getId());
-            int likesCount = feed.getLikes().size();
-            int commentCount = feed.getComments().size();
-            FeedResponse feedResponse = FeedResponse.builder()
-                    .userId(feed.getUser().getId())
-                    .id(feedId)
-                    .clubId(clubId)
-                    .clubName(clubName)
-                    .userName(userName)
-                    .content(content)
-//                    .imageUrls(imageUrls)
-//                    .likeYn(likeYn)
-//                    .likesCount(likesCount)
-                    .commentCount(commentCount)
-//                    .hashtags(hashtags)
-                    .created(feed.getCreated())
-                    .updated(feed.getUpdated())
-                    .build();
-            resultList.add(feedResponse);
-        }
-
-        return Header.OK(resultList);
     }
 
     @PutMapping("/api/feeds/{id}")

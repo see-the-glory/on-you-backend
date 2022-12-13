@@ -74,6 +74,18 @@ public class FeedService {
         return response;
     }
 
+    public FeedPageResponse selectFeedListByClub(Pageable page, String cursor, Long userId, Long clubId) {
+
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByClub(page, cursor, userId, clubId);
+
+        FeedPageResponse response = FeedPageResponse.builder()
+                .hasNext(hasNextElement(findFeedList, page, userId))
+                .responses(findFeedList)
+                .build();
+
+        return response;
+    }
+
     private boolean hasNextElement(Page<FeedResponse> findFeedList, Pageable page, Long userId) {
 
         List<FeedResponse> feedResponseList = findFeedList.toList();
