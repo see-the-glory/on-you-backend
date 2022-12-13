@@ -18,6 +18,7 @@ public class UserNotificationResponse {
     private Long actioneeId;
     private String actioneeName;
     private Long actionClubId;
+    private String actionClubName;
     private ActionType actionType;
     private String applyMessage;
 
