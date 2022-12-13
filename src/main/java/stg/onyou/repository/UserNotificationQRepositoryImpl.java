@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static stg.onyou.model.entity.QUser.user;
+import static stg.onyou.model.entity.QClub.club;
 import static stg.onyou.model.entity.QUserNotification.userNotification;
 import static stg.onyou.model.entity.QAction.action;
 
@@ -54,11 +55,15 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
                         .fetchOne();
             }
 
-            notification.setActioneeName(actioneeName);
-
             String actionerName = queryFactory.select(user.name).from(user).where(user.id.eq(notification.getActionerId()))
                     .fetchOne();
+
+            String actionClubName = queryFactory.select(club.name).from(club).where(club.id.eq(notification.getActionClubId())).fetchOne();
+
+
+            notification.setActioneeName(actioneeName);
             notification.setActionerName(actionerName);
+            notification.setActionClubName(actionClubName);
         }
 
         return notificationResponseList;
