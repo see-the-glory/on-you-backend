@@ -57,7 +57,8 @@ public class FeedController {
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
-            int commentCount = feed.getComments().size();
+            int commentCount = (int) feed.getComments().stream()
+                    .filter(comment -> comment.getDelYn() != 'y').count();
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(feed.getUser().getId())
                     .userName(userName)
@@ -95,7 +96,8 @@ public class FeedController {
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
-            int commentCount = feed.getComments().size();
+            int commentCount = (int) feed.getComments().stream()
+                    .filter(comment -> comment.getDelYn() != 'y').count();
             List<String> hashtags = feedService.getHashtags(feed);
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(userId)
@@ -152,7 +154,8 @@ public class FeedController {
         List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
         boolean likeYn = likesService.isLikes(userId, feed.getId());
         int likesCount = feed.getLikes().size();
-        int commentCount = feed.getComments().size();
+        int commentCount = (int) feed.getComments().stream()
+                .filter(comment -> comment.getDelYn() != 'y').count();
         FeedResponse feedResponse = FeedResponse.builder()
                 .userId(feed.getUser().getId())
                 .id(feedId)
@@ -188,7 +191,8 @@ public class FeedController {
             List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             boolean likeYn = likesService.isLikes(userId, feed.getId());
             int likesCount = feed.getLikes().size();
-            int commentCount = feed.getComments().size();
+            int commentCount = (int) feed.getComments().stream()
+                    .filter(comment -> comment.getDelYn() != 'y').count();
             FeedResponse feedResponse = FeedResponse.builder()
                     .userId(feed.getUser().getId())
                     .id(feedId)
