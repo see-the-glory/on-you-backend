@@ -15,7 +15,6 @@ import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.repository.UserRepository;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
