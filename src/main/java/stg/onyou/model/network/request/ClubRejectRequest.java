@@ -18,4 +18,7 @@ public class ClubRejectRequest {
     @NotNull
     @Positive
     private Long clubId;
+    @NotNull
+    @Positive
+    private Long actionId;
 }

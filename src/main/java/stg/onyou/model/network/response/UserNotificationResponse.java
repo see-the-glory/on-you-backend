@@ -13,6 +13,7 @@ import stg.onyou.model.ActionType;
 @Builder
 public class UserNotificationResponse {
 
+    private Long actionId;
     private Long actionerId;
     private String actionerName;
     private Long actioneeId;
@@ -21,13 +22,16 @@ public class UserNotificationResponse {
     private String actionClubName;
     private ActionType actionType;
     private String applyMessage;
+    private boolean isProcessDone;
 
     @QueryProjection
-    public UserNotificationResponse(Long actionerId, Long actioneeId, Long actionClubId, ActionType actionType, String applyMessage){
+    public UserNotificationResponse(Long actionId, Long actionerId, Long actioneeId, Long actionClubId, ActionType actionType, String applyMessage, boolean isProcessDone){
+        this.actionId = actionId;
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
         this.actionClubId = actionClubId;
         this.actionType = actionType;
         this.applyMessage = applyMessage;
+        this.isProcessDone = isProcessDone;
     }
 }
