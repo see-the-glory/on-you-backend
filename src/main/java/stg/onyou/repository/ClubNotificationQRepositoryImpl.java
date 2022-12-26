@@ -34,7 +34,8 @@ public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
                         action.actionee.id,
                         action.actionType,
                         action.applyMessage,
-                        action.isProcessDone
+                        action.isProcessDone,
+                        action.created
                 ))
                 .from(clubNotification)
                 .innerJoin(clubNotification.action, action)

@@ -761,7 +761,9 @@ public class ClubService {
 
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long clubId) {
 
-        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdOrderByStartDate(clubId);
+        LocalDateTime now = LocalDateTime.now(); // 현재시간
+
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdAndEndDateAfterOrderByStartDate(clubId, now);
         List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
 
         for (ClubSchedule clubSchedule : clubScheduleList) {
