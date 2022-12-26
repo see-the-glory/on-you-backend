@@ -44,6 +44,6 @@ public class Action {
     private Role changedRole;
     @Column(columnDefinition = "TINYINT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean isApplyProcessDone;
+    private boolean isProcessDone;
     private LocalDateTime created;
 }

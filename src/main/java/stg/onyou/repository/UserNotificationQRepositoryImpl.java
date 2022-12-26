@@ -35,11 +35,14 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
 
         List<UserNotificationResponse> notificationResponseList = queryFactory
                 .select(new QUserNotificationResponse(
+                    action.id,
                     action.actioner.id,
                     action.actionee.id,
                     action.actionClub.id,
                     action.actionType,
-                    action.applyMessage
+                    action.applyMessage,
+                    action.isProcessDone,
+                    action.created
                 ))
                 .from(userNotification)
                 .innerJoin(userNotification.action, action)

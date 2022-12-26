@@ -29,10 +29,13 @@ public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
 
         List<ClubNotificationResponse> notificationResponseList = queryFactory
                 .select(new QClubNotificationResponse(
+                        action.id,
                         action.actioner.id,
                         action.actionee.id,
                         action.actionType,
-                        action.applyMessage
+                        action.applyMessage,
+                        action.isProcessDone,
+                        action.created
                 ))
                 .from(clubNotification)
                 .innerJoin(clubNotification.action, action)

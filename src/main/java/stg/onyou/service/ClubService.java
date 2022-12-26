@@ -419,7 +419,7 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .applyMessage(clubApplyRequest.getMemo())
-                    .isApplyProcessDone(false)
+                    .isProcessDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -463,7 +463,7 @@ public class ClubService {
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
+    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId, Long actionId) {
 
         User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
@@ -486,6 +486,11 @@ public class ClubService {
         UserClub approverUserClub  = userClubRepository.findByUserAndClub(approver, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        Action processedAction  = actionRepository.findById(actionId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
                 );
 
         if( isClubFull(club) ){
@@ -513,6 +518,7 @@ public class ClubService {
         }
         clubRepository.save(club);
 
+        actionRepository.findById(actionId);
         Action action = Action.builder()
                 .actioner(approver)
                 .actionee(approvedUser)
@@ -522,6 +528,10 @@ public class ClubService {
                 .build();
 
         actionRepository.save(action);
+
+        // processDone 설정
+        processedAction.setProcessDone(true);
+        actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
                 .action(action)
@@ -533,7 +543,7 @@ public class ClubService {
 
     }
 
-    public void rejectAppliance(Long rejectorId, Long userId, Long clubId) {
+    public void rejectAppliance(Long rejectorId, Long userId, Long clubId, Long actionId) {
 
         User rejector  = userRepository.findById(rejectorId)
                 .orElseThrow(
@@ -560,6 +570,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        Action processedAction  = actionRepository.findById(actionId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
+                );
+
         if(rejectedUserClub.getApplyStatus() == null || rejectedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
         }
@@ -579,6 +594,9 @@ public class ClubService {
                 .build();
 
         actionRepository.save(action);
+
+        processedAction.setProcessDone(true);
+        actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
                 .action(action)
@@ -743,7 +761,9 @@ public class ClubService {
 
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long clubId) {
 
-        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdOrderByStartDate(clubId);
+        LocalDateTime now = LocalDateTime.now(); // 현재시간
+
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdAndEndDateAfterOrderByStartDate(clubId, now);
         List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
 
         for (ClubSchedule clubSchedule : clubScheduleList) {

@@ -136,7 +136,7 @@ public class ClubController {
     public Header<String> approveClub(@RequestBody ClubApproveRequest clubApproveRequest, HttpServletRequest httpServletRequest){
 
         Long approverId = userService.getUserId(httpServletRequest);
-        clubService.approveClub(approverId, clubApproveRequest.getUserId(), clubApproveRequest.getClubId());
+        clubService.approveClub(approverId, clubApproveRequest.getUserId(), clubApproveRequest.getClubId(), clubApproveRequest.getActionId());
 
         return Header.OK("승인 완료");
     }
@@ -145,7 +145,7 @@ public class ClubController {
     public Header<String> rejectAppliance(@RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
 
         Long rejectorId = userService.getUserId(httpServletRequest);
-        clubService.rejectAppliance(rejectorId, clubRejectRequest.getUserId(), clubRejectRequest.getClubId());
+        clubService.rejectAppliance(rejectorId, clubRejectRequest.getUserId(), clubRejectRequest.getClubId(), clubRejectRequest.getActionId());
 
         return Header.OK("승인 완료");
     }

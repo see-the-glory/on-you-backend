@@ -38,8 +38,9 @@ public enum ErrorCode {
     CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "존재하지 않는 clubSchedule 입니다."),
     USER_CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "UserClubSchedule이 존재하지 않습니다"),
     CLUB_CATEGORY_NOT_FOUND(NOT_FOUND, "ClubCaegory가 존재하지 않습니다."),
-    ORGANIZATION_NOT_FOUND(NOT_FOUND, "orgnanization이 존재하지 않습니다"),
+    ORGANIZATION_NOT_FOUND(NOT_FOUND, "orgnanization이 존재하다지 않습니다"),
     COMMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 Comment입니다."),
+    ACTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 Action입니다 ."),
 
     // 503 : Internal server error
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "클럽 생성에 실패하였습니다"),
