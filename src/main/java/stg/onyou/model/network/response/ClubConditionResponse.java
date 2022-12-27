@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class ClubConditionResponse {
     private String thumbnail;
     private RecruitStatus recruitStatus;
     private String isApprovedRequired;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
     private List<UserResponse> members;
     private List<CategoryResponse> categories;

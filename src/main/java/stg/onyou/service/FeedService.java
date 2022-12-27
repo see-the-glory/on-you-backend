@@ -207,7 +207,7 @@ public class FeedService {
                      .stream()
                      .filter(comment -> comment.getDelYn() != 'y')
                      .sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
-                     comment.getUser().getId(), comment.getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated(), comment.getUpdated()
+                     comment.getUser().getId(), comment.getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated()
              )).collect(Collectors.toList());
         }
         return resultList;

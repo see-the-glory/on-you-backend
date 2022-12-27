@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class UserNotificationResponse {
     private ActionType actionType;
     private String applyMessage;
     private boolean isProcessDone;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 
     @QueryProjection
