@@ -21,6 +21,8 @@ import stg.onyou.repository.ClubNotificationRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -249,6 +251,7 @@ public class ClubService {
                                 () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                         )
                 )
+                .sortOrder(0)
                 .created(LocalDateTime.now())
                 .build();
 
@@ -262,6 +265,7 @@ public class ClubService {
                                     () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                             )
                     )
+                    .sortOrder(1)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -329,33 +333,63 @@ public class ClubService {
         // 2. ClubCategory UPDATE
         List<ClubCategory> clubCategoryList = clubCategoryRepository.findByClub(savedClub);
 
-        clubCategoryList.forEach(
-                cc -> {
-                    if(cc.getSortOrder()==0){
+        if( clubCategoryList.size() == 2 ) {
+            clubCategoryList.forEach(
+                    cc -> {
+                        if (cc.getSortOrder() == 0) {
+                            cc.setCategory(categoryRepository.findById(
+                                    Optional.ofNullable(clubUpdateRequest.getCategory1Id())
+                                            .orElse(cc.getCategory().getId())
+                                    )
+                                            .orElseThrow(
+                                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                            )
+                            );
+                        } else {
+                            cc.setCategory(categoryRepository.findById(
+                                    Optional.ofNullable(clubUpdateRequest.getCategory2Id())
+                                            .orElse(cc.getCategory().getId())
+                                    )
+                                            .orElseThrow(
+                                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                            )
+                            );
+                        }
+
+                        cc.setUpdated(LocalDateTime.now());
+                        clubCategoryRepository.save(cc);
+                    }
+
+            );
+        } else { // club의 category가 1개인 경우
+            clubCategoryList.forEach(
+                    cc -> {
                         cc.setCategory(categoryRepository.findById(
                                 Optional.ofNullable(clubUpdateRequest.getCategory1Id())
-                                    .orElse(cc.getCategory().getId())
-                                )
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                )
-                        );
-                    } else {
-                        cc.setCategory(categoryRepository.findById(
-                                Optional.ofNullable(clubUpdateRequest.getCategory2Id())
                                         .orElse(cc.getCategory().getId())
                                 )
                                         .orElseThrow(
                                                 () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                                         )
                         );
+                        cc.setUpdated(LocalDateTime.now());
+                        clubCategoryRepository.save(cc);
                     }
+            );
 
-                    cc.setUpdated(LocalDateTime.now());
-                    clubCategoryRepository.save(cc);
-                }
+            ClubCategory clubCategory = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory2Id())
+                                    .orElseThrow(
+                                            () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                    ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .sortOrder(1)
+                    .build();
 
-        );
+            clubCategoryRepository.save(clubCategory);
+        }
 
         return Header.OK(selectClubResponse(savedClub));
     }
@@ -665,6 +699,8 @@ public class ClubService {
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
+        LocalDateTime createdTime = LocalDateTime.now();
+
         // endDate 는 optional값이므로 null체크
         ClubSchedule clubSchedule = ClubSchedule.builder()
                 .club(clubRepository.findById(clubScheduleCreateRequest.getClubId()).get())
@@ -676,7 +712,7 @@ public class ClubService {
                         Optional.ofNullable(clubScheduleCreateRequest.getEndDate())
                         .orElse(null)
                 )
-                .created(LocalDateTime.now())
+                .created(createdTime)
                 .build();
 
         return clubScheduleRepository.save(clubSchedule);
