@@ -331,64 +331,50 @@ public class ClubService {
         Club savedClub = clubRepository.save(club);
 
         // 2. ClubCategory UPDATE
-        List<ClubCategory> clubCategoryList = clubCategoryRepository.findByClub(savedClub);
 
-        if( clubCategoryList.size() == 2 ) {
-            clubCategoryList.forEach(
-                    cc -> {
-                        if (cc.getSortOrder() == 0) {
-                            cc.setCategory(categoryRepository.findById(
-                                    Optional.ofNullable(clubUpdateRequest.getCategory1Id())
-                                            .orElse(cc.getCategory().getId())
-                                    )
-                                            .orElseThrow(
-                                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                            )
-                            );
-                        } else {
-                            cc.setCategory(categoryRepository.findById(
-                                    Optional.ofNullable(clubUpdateRequest.getCategory2Id())
-                                            .orElse(cc.getCategory().getId())
-                                    )
-                                            .orElseThrow(
-                                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                            )
-                            );
-                        }
+        clubCategoryRepository.deleteByClubId(club);
 
-                        cc.setUpdated(LocalDateTime.now());
-                        clubCategoryRepository.save(cc);
-                    }
+        if ( clubUpdateRequest.getCategory1Id() != null && clubUpdateRequest.getCategory2Id() != null ) {  // category1,2 둘다 있는 경우
 
-            );
-        } else { // club의 category가 1개인 경우
-            clubCategoryList.forEach(
-                    cc -> {
-                        cc.setCategory(categoryRepository.findById(
-                                Optional.ofNullable(clubUpdateRequest.getCategory1Id())
-                                        .orElse(cc.getCategory().getId())
-                                )
-                                        .orElseThrow(
-                                                () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                        )
-                        );
-                        cc.setUpdated(LocalDateTime.now());
-                        clubCategoryRepository.save(cc);
-                    }
-            );
-
-            ClubCategory clubCategory = ClubCategory.builder()
-                    .category(categoryRepository.findById(clubUpdateRequest.getCategory2Id())
+            ClubCategory clubCategory1 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory1Id())
                                     .orElseThrow(
                                             () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                                     ))
                     .club(club)
                     .created(LocalDateTime.now())
                     .updated(LocalDateTime.now())
+                    .sortOrder(0)
+                    .build();
+
+            ClubCategory clubCategory2 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory2Id())
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                            ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
                     .sortOrder(1)
                     .build();
 
-            clubCategoryRepository.save(clubCategory);
+            clubCategoryRepository.save(clubCategory1);
+            clubCategoryRepository.save(clubCategory2);
+
+        } else if ( clubUpdateRequest.getCategory1Id() != null && clubUpdateRequest.getCategory2Id() == null ){ // category1만 있는 경우
+
+            ClubCategory clubCategory1 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory1Id())
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                            ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .sortOrder(0)
+                    .build();
+
+            clubCategoryRepository.save(clubCategory1);
         }
 
         return Header.OK(selectClubResponse(savedClub));
