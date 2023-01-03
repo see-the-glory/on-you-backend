@@ -1009,7 +1009,7 @@ public class ClubService {
     }
 
     private Boolean isScheduleNotInClub(ClubSchedule clubSchedule, Long clubId){
-        return clubSchedule.getClub().getId() != clubId;
+        return !clubSchedule.getClub().getId().equals(clubId);
     }
 
     public Header<List<MyClubResponse>> selectMyClubs(Long userId) {
