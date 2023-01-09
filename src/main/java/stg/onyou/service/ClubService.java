@@ -976,6 +976,7 @@ public class ClubService {
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
+                .thumbnail(user.getThumbnail())
                 .name(user.getName())
                 .birthday(user.getBirthday())
                 .applyStatus(userClub.getApplyStatus()) //APPLIED, APPROVED
