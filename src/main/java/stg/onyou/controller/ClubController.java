@@ -13,10 +13,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
-import stg.onyou.model.network.response.ClubPageResponse;
-import stg.onyou.model.network.response.ClubResponse;
-import stg.onyou.model.network.response.ClubRoleResponse;
-import stg.onyou.model.network.response.ClubScheduleResponse;
+import stg.onyou.model.network.response.*;
 import stg.onyou.service.AwsS3Service;
 import stg.onyou.service.ClubService;
 import stg.onyou.service.UserService;
@@ -48,7 +45,7 @@ public class ClubController {
     }
 
     @GetMapping("/my")
-    public Header<List<ClubResponse>> selectMyClubs(HttpServletRequest httpServletRequest){
+    public Header<List<MyClubResponse>> selectMyClubs(HttpServletRequest httpServletRequest){
         Long userId = userService.getUserId(httpServletRequest);
         return clubService.selectMyClubs(userId);
     }

@@ -1,16 +1,21 @@
 package stg.onyou.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.AccessModifier;
 import stg.onyou.model.entity.*;
+import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;
-import stg.onyou.model.network.response.CommentResponse;
+import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
@@ -21,14 +26,24 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@ComponentScan(basePackages={"stg.onyou.repository"})
 public class FeedService {
 
+    @Autowired
     private final FeedRepository feedRepository;
+    @Autowired
+    private final FeedQRepositoryImpl feedQRepositoryImpl;
+    @Autowired
     private final ClubRepository clubRepository;
+    @Autowired
     private final FeedImageRepository feedImageRepository;
+    @Autowired
     private final UserRepository userRepository;
+    @Autowired
     private final CommentRepository commentRepository;
+    @Autowired
     private final FeedHashtagRepository feedHashtagRepository;
+    @Autowired
     private final HashtagRepository hashtagRepository;
 
     /**
@@ -44,6 +59,45 @@ public class FeedService {
      */
     public List<Feed> findFeeds() {
         return feedRepository.findAll();
+    }
+
+
+    public FeedPageResponse selectFeedList(Pageable page, String cursor, Long userId) {
+
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedList(page, cursor, userId);
+
+        FeedPageResponse response = FeedPageResponse.builder()
+                .hasNext(hasNextElement(findFeedList, page, userId))
+                .responses(findFeedList)
+                .build();
+
+        return response;
+    }
+
+    public FeedPageResponse selectFeedListByClub(Pageable page, String cursor, Long userId, Long clubId) {
+
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByClub(page, cursor, userId, clubId);
+
+        FeedPageResponse response = FeedPageResponse.builder()
+                .hasNext(hasNextElement(findFeedList, page, userId))
+                .responses(findFeedList)
+                .build();
+
+        return response;
+    }
+
+    private boolean hasNextElement(Page<FeedResponse> findFeedList, Pageable page, Long userId) {
+
+        List<FeedResponse> feedResponseList = findFeedList.toList();
+        if(feedResponseList.size()==0){
+            return false;
+        }
+
+        FeedResponse lastElement = feedResponseList.get(feedResponseList.size()-1);
+
+        Page<FeedResponse> hasNextList = feedQRepositoryImpl.findFeedList(page, lastElement.getCustomCursor(), userId);
+
+        return hasNextList.getTotalElements() == 0 ? false : true;
     }
 
 

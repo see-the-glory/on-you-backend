@@ -15,7 +15,6 @@ public class ClubConditionResponse {
     private Long id;
     private String name;
     private String clubShortDesc;
-    private String clubLongDesc;
     private String organizationName;
     private int maxNumber;
     private int recruitNumber;
@@ -31,14 +30,13 @@ public class ClubConditionResponse {
     private String customCursor;
 
     @QueryProjection
-    public ClubConditionResponse(Long id, String name, String clubShortDesc, String clubLongDesc, String organizationName,
+    public ClubConditionResponse(Long id, String name, String clubShortDesc, String organizationName,
                                  int maxNumber, int recruitNumber, int feedNumber, int clubLikesNumber, String thumbnail, RecruitStatus recruitStatus,
                                  String isApprovedRequired, LocalDateTime created, String contactPhone, String customCursor){
 
         this.id = id;
         this.name = name;
         this.clubShortDesc = clubShortDesc;
-        this.clubLongDesc = clubLongDesc;
         this.organizationName = organizationName;
         this.maxNumber = maxNumber;
         this.recruitNumber = recruitNumber;
