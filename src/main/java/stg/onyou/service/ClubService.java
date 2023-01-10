@@ -21,6 +21,8 @@ import stg.onyou.repository.ClubNotificationRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -249,6 +251,7 @@ public class ClubService {
                                 () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                         )
                 )
+                .sortOrder(0)
                 .created(LocalDateTime.now())
                 .build();
 
@@ -262,6 +265,7 @@ public class ClubService {
                                     () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
                             )
                     )
+                    .sortOrder(1)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -327,35 +331,51 @@ public class ClubService {
         Club savedClub = clubRepository.save(club);
 
         // 2. ClubCategory UPDATE
-        List<ClubCategory> clubCategoryList = clubCategoryRepository.findByClub(savedClub);
 
-        clubCategoryList.forEach(
-                cc -> {
-                    if(cc.getSortOrder()==0){
-                        cc.setCategory(categoryRepository.findById(
-                                Optional.ofNullable(clubUpdateRequest.getCategory1Id())
-                                    .orElse(cc.getCategory().getId())
-                                )
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                )
-                        );
-                    } else {
-                        cc.setCategory(categoryRepository.findById(
-                                Optional.ofNullable(clubUpdateRequest.getCategory2Id())
-                                        .orElse(cc.getCategory().getId())
-                                )
-                                        .orElseThrow(
-                                                () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
-                                        )
-                        );
-                    }
+        clubCategoryRepository.deleteByClubId(club);
 
-                    cc.setUpdated(LocalDateTime.now());
-                    clubCategoryRepository.save(cc);
-                }
+        if ( clubUpdateRequest.getCategory1Id() != null && clubUpdateRequest.getCategory2Id() != null ) {  // category1,2 둘다 있는 경우
 
-        );
+            ClubCategory clubCategory1 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory1Id())
+                                    .orElseThrow(
+                                            () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                                    ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .sortOrder(0)
+                    .build();
+
+            ClubCategory clubCategory2 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory2Id())
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                            ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .sortOrder(1)
+                    .build();
+
+            clubCategoryRepository.save(clubCategory1);
+            clubCategoryRepository.save(clubCategory2);
+
+        } else if ( clubUpdateRequest.getCategory1Id() != null && clubUpdateRequest.getCategory2Id() == null ){ // category1만 있는 경우
+
+            ClubCategory clubCategory1 = ClubCategory.builder()
+                    .category(categoryRepository.findById(clubUpdateRequest.getCategory1Id())
+                            .orElseThrow(
+                                    () -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND)
+                            ))
+                    .club(club)
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .sortOrder(0)
+                    .build();
+
+            clubCategoryRepository.save(clubCategory1);
+        }
 
         return Header.OK(selectClubResponse(savedClub));
     }
@@ -419,7 +439,7 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .applyMessage(clubApplyRequest.getMemo())
-                    .isApplyProcessDone(false)
+                    .isProcessDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -463,7 +483,7 @@ public class ClubService {
     /**
      * 클럽 가입 승인 : userId, clubId에 해당하는 user_club row를 찾아 APPROVED로 변경
      */
-    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId) {
+    public void approveClub(Long approverId, Long approvedUserId, Long approvedClubId, Long actionId) {
 
         User approvedUser = userRepository.findById(approvedUserId)
                 .orElseThrow(
@@ -486,6 +506,11 @@ public class ClubService {
         UserClub approverUserClub  = userClubRepository.findByUserAndClub(approver, club)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        Action processedAction  = actionRepository.findById(actionId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
                 );
 
         if( isClubFull(club) ){
@@ -513,6 +538,7 @@ public class ClubService {
         }
         clubRepository.save(club);
 
+        actionRepository.findById(actionId);
         Action action = Action.builder()
                 .actioner(approver)
                 .actionee(approvedUser)
@@ -522,6 +548,10 @@ public class ClubService {
                 .build();
 
         actionRepository.save(action);
+
+        // processDone 설정
+        processedAction.setProcessDone(true);
+        actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
                 .action(action)
@@ -533,7 +563,7 @@ public class ClubService {
 
     }
 
-    public void rejectAppliance(Long rejectorId, Long userId, Long clubId) {
+    public void rejectAppliance(Long rejectorId, Long userId, Long clubId, Long actionId) {
 
         User rejector  = userRepository.findById(rejectorId)
                 .orElseThrow(
@@ -560,6 +590,11 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
+        Action processedAction  = actionRepository.findById(actionId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
+                );
+
         if(rejectedUserClub.getApplyStatus() == null || rejectedUserClub.getApplyStatus()!=ApplyStatus.APPLIED){
             throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
         }
@@ -579,6 +614,9 @@ public class ClubService {
                 .build();
 
         actionRepository.save(action);
+
+        processedAction.setProcessDone(true);
+        actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
                 .action(action)
@@ -647,6 +685,8 @@ public class ClubService {
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
+        LocalDateTime createdTime = LocalDateTime.now();
+
         // endDate 는 optional값이므로 null체크
         ClubSchedule clubSchedule = ClubSchedule.builder()
                 .club(clubRepository.findById(clubScheduleCreateRequest.getClubId()).get())
@@ -658,7 +698,7 @@ public class ClubService {
                         Optional.ofNullable(clubScheduleCreateRequest.getEndDate())
                         .orElse(null)
                 )
-                .created(LocalDateTime.now())
+                .created(createdTime)
                 .build();
 
         return clubScheduleRepository.save(clubSchedule);
@@ -743,7 +783,9 @@ public class ClubService {
 
     public Header<List<ClubScheduleResponse>> selectClubScheduleList(Long clubId) {
 
-        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdOrderByStartDate(clubId);
+        LocalDateTime now = LocalDateTime.now(); // 현재시간
+
+        List<ClubSchedule> clubScheduleList = clubScheduleRepository.findByClubIdAndEndDateAfterOrderByStartDate(clubId, now);
         List<ClubScheduleResponse> clubScheduleResponseList = new ArrayList<>();
 
         for (ClubSchedule clubSchedule : clubScheduleList) {
@@ -934,6 +976,7 @@ public class ClubService {
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .organizationName(user.getOrganization().getName())
+                .thumbnail(user.getThumbnail())
                 .name(user.getName())
                 .birthday(user.getBirthday())
                 .applyStatus(userClub.getApplyStatus()) //APPLIED, APPROVED
@@ -953,7 +996,7 @@ public class ClubService {
     }
 
     private Boolean isScheduleNotInClub(ClubSchedule clubSchedule, Long clubId){
-        return clubSchedule.getClub().getId() != clubId;
+        return !clubSchedule.getClub().getId().equals(clubId);
     }
 
     public Header<List<MyClubResponse>> selectMyClubs(Long userId) {

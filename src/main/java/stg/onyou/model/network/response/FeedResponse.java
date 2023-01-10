@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 import stg.onyou.model.RecruitStatus;
@@ -24,7 +25,9 @@ public class FeedResponse {
     private boolean likeYn;
     private int likesCount;
     private int commentCount;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updated;
     private String customCursor;
 

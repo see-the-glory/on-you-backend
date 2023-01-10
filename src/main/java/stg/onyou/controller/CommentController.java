@@ -29,7 +29,7 @@ public class CommentController {
         Feed feed = feedService.findById(id);
         List<CommentResponse> resultList = feed.getComments().stream()
                 .filter(comment -> comment.getDelYn() != 'y')
-                .map(c -> new CommentResponse(c.getUser().getId(), c.getId(), c.getUser().getName(), c.getContent(), c.getCreated(), c.getUpdated())).collect(Collectors.toList());
+                .map(c -> new CommentResponse(c.getUser().getId(), c.getId(), c.getUser().getName(), c.getContent(), c.getCreated())).collect(Collectors.toList());
         return Header.OK(resultList);
     }
 

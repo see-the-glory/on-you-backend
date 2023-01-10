@@ -1,5 +1,6 @@
 package stg.onyou.model.network.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,7 @@ public class ClubResponse {
     private String isApprovedRequired; // "Y", "N"
     private String contactPhone;
     private String creatorName;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 
 }

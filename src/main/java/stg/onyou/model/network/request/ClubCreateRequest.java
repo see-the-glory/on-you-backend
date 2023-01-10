@@ -18,7 +18,7 @@ public class ClubCreateRequest {
     @Positive
     private Long category2Id;
     @NotEmpty
-    @Size(max = 20, message = "클럽 명을 20자 이내로 입력해주세요.")
+    @Size(max = 8, message = "클럽 명을 8자 이내로 입력해주세요.")
     private String clubName;
 
     @Pattern(regexp = "^[Y|N]{1}$", message ="Y 또는 N 값만 가능합니다.")
