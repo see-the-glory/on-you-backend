@@ -805,6 +805,7 @@ public class ClubService {
                         .name(userClubSchedule.getUser().getName())
                         .applyStatus(ApplyStatus.APPROVED)
                         .birthday(userClubSchedule.getUser().getBirthday())
+                        .thumbnail(userClubSchedule.getUser().getThumbnail())
                         .sex(userClubSchedule.getUser().getSex())
                         .email(userClubSchedule.getUser().getEmail())
                         .created(userClubSchedule.getUser().getCreated())
