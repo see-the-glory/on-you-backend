@@ -18,4 +18,5 @@ public class FeedUpdateRequest {
     String content;
     @NotNull
     AccessModifier access; // PUBLIC, PRIVATE
+    Long clubId;
 }

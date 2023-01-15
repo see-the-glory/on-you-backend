@@ -103,7 +103,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
+    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -186,5 +186,10 @@ public class UserService {
         String birthday = findPwRequest.getBirthday();
         User findUser = userRepository.findByEmailAndNameAndPhoneNumberAndBirthday(email, username, phoneNumber, birthday).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return findUser;
+    }
+
+    public void changeUserPassword(User user, String password) {
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
     }
 }

@@ -135,6 +135,8 @@ public class FeedService {
         feed.setContent(updateFeed.getContent());
         feed.setAccess(updateFeed.getAccess());
         feed.setUpdated(LocalDateTime.now());
+        Club club = clubRepository.findById(updateFeed.getClubId()).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        feed.setClub(club);
     }
 
     /**

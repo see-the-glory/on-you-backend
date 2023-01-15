@@ -56,10 +56,10 @@ public class UserController {
     @PutMapping("")
     public Header<Object> updateUserInfo(@RequestPart(value = "file") MultipartFile thumbnailFile,
                                          @RequestPart(value = "userUpdateRequest") UserUpdateRequest userUpdateRequest,
-                                         HttpServletRequest httpServletRequest) {
+                                         HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
         userService.updateUser(thumbnailFile, userUpdateRequest, userId);
-        return Header.OK();
+        return Header.OK("User 정보 변경 완료");
     }
 
     @PostMapping("/findId")
@@ -95,5 +95,14 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         result.put("token", jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/changePw")
+    public Header<Object> changePassword(HttpServletRequest httpServletRequest,
+                                         @RequestBody Map<String, String> password) {
+        String email = httpServletRequest.getUserPrincipal().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        userService.changeUserPassword(user, password.get("password"));
+        return Header.OK("비밀번호 변경 완료");
     }
 }

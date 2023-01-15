@@ -1,30 +1,29 @@
 package stg.onyou.service;
 
-import com.amazonaws.Response;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
-import lombok.RequiredArgsConstructor;
+import marvin.image.MarvinImage;
+import org.marvinproject.image.transform.scale.Scale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import stg.onyou.repository.FeedImageRepository;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class AwsS3Service {
@@ -34,25 +33,63 @@ public class AwsS3Service {
 
     @Autowired
     private AmazonS3Client amazonS3Client;
-    @Autowired
-    private FeedImageRepository feedImageRepository;
 
     public String uploadFile(MultipartFile file) {
         String fileName = createFileName(file.getOriginalFilename());
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(file.getSize());
-        objectMetadata.setContentType(file.getContentType());
+        String originFilename = Objects.requireNonNull(file.getOriginalFilename()).replaceAll(" ", "");
 
-        try (InputStream inputStream = file.getInputStream()) {
+        // 이미지 확장자 검사
+        String fileFormatName = originFilename.substring(originFilename.lastIndexOf(".") + 1).toLowerCase();
+        String[] supportFormat = {"bmp", "jpg", "jpeg", "png"};
+        if (!Arrays.asList(supportFormat).contains(fileFormatName)) {
+            throw new IllegalArgumentException("지원하지 않는 format 입니다.");
+        }
+
+        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(resizedFile.getSize());
+        objectMetadata.setContentType(resizedFile.getContentType());
+        try (InputStream inputStream = resizedFile.getInputStream()) {
             PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
-
-            System.out.println(result);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
         return amazonS3Client.getUrl(bucket, fileName).toString();
+    }
+
+    MultipartFile resizeImage(String fileName, String fileFormatName, MultipartFile originalImage, int targetWidth) {
+        try {
+            // MultipartFile -> BufferedImage Convert
+            BufferedImage image = ImageIO.read(originalImage.getInputStream());
+            // newWidth : newHeight = originWidth : originHeight
+            int originWidth = image.getWidth();
+            int originHeight = image.getHeight();
+
+            // origin 이미지가 resizing될 사이즈보다 작을 경우 resizing 작업 안 함
+            if(originWidth < targetWidth)
+                return originalImage;
+
+            MarvinImage imageMarvin = new MarvinImage(image);
+
+            Scale scale = new Scale();
+            scale.load();
+            scale.setAttribute("newWidth", targetWidth);
+            scale.setAttribute("newHeight", targetWidth * originHeight / originWidth);
+            scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
+
+            BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(imageNoAlpha, fileFormatName, baos);
+            baos.flush();
+
+            return new MockMultipartFile(fileName, baos.toByteArray());
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 리사이즈에 실패했습니다.");
+        }
     }
 
     public ResponseEntity<byte[]> downloadFile(String storedFileName) throws IOException {
