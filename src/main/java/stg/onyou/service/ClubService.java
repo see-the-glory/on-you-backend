@@ -773,7 +773,7 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
-        if(userClub.getRole().equals("MEMBER")){
+        if(userClub.getRole().equals(Role.MEMBER)){
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 

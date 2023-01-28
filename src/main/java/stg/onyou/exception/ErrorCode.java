@@ -17,7 +17,7 @@ public enum ErrorCode {
     // 401 UNAUTHORIZED : 인증되지 않은 사용자
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다."),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다."),
-    NO_PERMISSION(UNAUTHORIZED, "권한이 없습니다"),
+    NO_PERMISSION(FORBIDDEN, "권한이 없습니다"),
 
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
@@ -33,7 +33,7 @@ public enum ErrorCode {
     FEED_NOT_FOUND(NOT_FOUND, "존재하지 않는 FEED입니다."),
     HASHTAG_NOT_FOUND(NOT_FOUND, "존재하지 않는 해시태그입니다."),
     CATEGORY_NOT_FOUND(NOT_FOUND, "카테고리가 존재하지 않습니다."),
-    USER_CLUB_NOT_FOUND(NOT_FOUND, "UserClub이 존재하지 않습니다."),
+    USER_CLUB_NOT_FOUND(NOT_FOUND, "사용자와 모임의 관계가 없습니다."),
     USER_APPROVE_ERROR(NOT_FOUND, "가입신청 이력이 없거나 이미 가입된 사용자입니다."),
     CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "존재하지 않는 clubSchedule 입니다."),
     USER_CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "UserClubSchedule이 존재하지 않습니다"),

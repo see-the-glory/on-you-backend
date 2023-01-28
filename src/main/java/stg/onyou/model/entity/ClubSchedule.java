@@ -5,6 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,5 +29,8 @@ public class ClubSchedule {
     private LocalDateTime endDate;
     private LocalDateTime created;
     private LocalDateTime updated;
+
+    @OneToMany(mappedBy = "clubSchedule", orphanRemoval = true)
+    private List<UserClubSchedule> userClubSchedules = new ArrayList<>();
 
 }
