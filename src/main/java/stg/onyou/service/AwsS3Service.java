@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import stg.onyou.exception.CustomException;
 import stg.onyou.repository.FeedImageRepository;
 
 import javax.imageio.ImageIO;
@@ -24,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.*;
+
+import static stg.onyou.exception.ErrorCode.UNSUPPORTED_EXTENSION;
 
 @Service
 public class AwsS3Service {
@@ -40,9 +43,9 @@ public class AwsS3Service {
 
         // 이미지 확장자 검사
         String fileFormatName = originFilename.substring(originFilename.lastIndexOf(".") + 1).toLowerCase();
-        String[] supportFormat = {"bmp", "jpg", "jpeg", "png"};
+        String[] supportFormat = {"bmp", "jpg", "jpeg", "png", "heic"};
         if (!Arrays.asList(supportFormat).contains(fileFormatName)) {
-            throw new IllegalArgumentException("지원하지 않는 format 입니다.");
+            throw new CustomException(UNSUPPORTED_EXTENSION);
         }
 
         MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);

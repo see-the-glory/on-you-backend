@@ -22,5 +22,5 @@ public class UserCreateRequest {
     private String phoneNumber;
     private char sex;
     private String birthday;
-    private List<InterestCategory> interests;
+
 }

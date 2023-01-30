@@ -24,15 +24,6 @@ public class CommentController {
     private final FeedService feedService;
     private final CommentService commentService;
 
-    @GetMapping("/api/comments/{id}")
-    public Header<List<CommentResponse>> selectCommentListByFeed(@PathVariable Long id) {
-        Feed feed = feedService.findById(id);
-        List<CommentResponse> resultList = feed.getComments().stream()
-                .filter(comment -> comment.getDelYn() != 'y')
-                .map(c -> new CommentResponse(c.getUser().getId(), c.getId(), c.getUser().getThumbnail(), c.getUser().getName(), c.getContent(), c.getCreated())).collect(Collectors.toList());
-        return Header.OK(resultList);
-    }
-
 //    @PutMapping("/api/comments/{id}")
 //    public Header<Object> updateComment(@PathVariable Long id,
 //                                        @RequestBody CommentUpdateRequest request) {
