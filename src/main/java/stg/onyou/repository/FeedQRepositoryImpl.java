@@ -61,6 +61,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                         feed.user.name,
                         feed.content,
                         feed.comments.size(),
+                        feed.user.thumbnail,
                         feed.created,
                         feed.updated,
                         StringExpressions.lpad(stringTemplate, 20, '0')
