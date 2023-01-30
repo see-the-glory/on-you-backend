@@ -208,8 +208,8 @@ public class FeedService {
              resultList = feed.getComments()
                      .stream()
                      .filter(comment -> comment.getDelYn() != 'y')
-                     .sorted(Comparator.comparing(Comment::getCreated)).map(comment -> new CommentResponse(
-                     comment.getUser().getId(), comment.getId(), comment.getUser().getName(), comment.getContent(), comment.getCreated()
+                     .sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
+                     comment.getUser().getId(), comment.getId(), comment.getUser().getThumbnail(), comment.getUser().getName(), comment.getContent(), comment.getCreated()
              )).collect(Collectors.toList());
         }
         return resultList;
