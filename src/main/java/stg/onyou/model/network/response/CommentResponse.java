@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class CommentResponse {
     Long userId;
     Long commentId;
+    String thumbnail;
     String userName;
     String content;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
