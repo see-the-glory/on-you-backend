@@ -103,7 +103,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) throws Exception {
+    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -114,8 +114,7 @@ public class UserService {
         String url = awsS3Service.uploadFile(thumbnailFile);
         user.setThumbnail(url);
         user.setUpdated(LocalDateTime.now());
-
-        Header.OK(userRepository.save(user));
+        userRepository.save(user);
     }
 
     public User registerUserInfo(UserCreateRequest userCreateRequest) {
@@ -133,17 +132,18 @@ public class UserService {
         user.setThumbnail("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg");
         userRepository.save(user);
 
-        List<InterestCategory> interestCategories = userCreateRequest.getInterests();
-        List<Interest> interests = new ArrayList<>();
-        for (InterestCategory category : interestCategories) {
-            Interest interest = new Interest();
-            interest.setUser(user);
-            interest.setCategory(category);
-            interests.add(interest);
-            interestRepository.save(interest);
-        }
+        // 관심사 저장
+//        List<InterestCategory> interestCategories = userCreateRequest.getInterests();
+//        List<Interest> interests = new ArrayList<>();
+//        for (InterestCategory category : interestCategories) {
+//            Interest interest = new Interest();
+//            interest.setUser(user);
+//            interest.setCategory(category);
+//            interests.add(interest);
+//            interestRepository.save(interest);
+//        }
 
-        user.setInterests(interests);
+//        user.setInterests(interests);
         return user;
     }
 
