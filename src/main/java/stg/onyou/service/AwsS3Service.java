@@ -47,12 +47,11 @@ public class AwsS3Service {
             throw new CustomException(ErrorCode.UNSUPPORTED_EXTENSION);
         }
 
-        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);
-
+//        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(resizedFile.getSize());
-        objectMetadata.setContentType(resizedFile.getContentType());
-        try (InputStream inputStream = resizedFile.getInputStream()) {
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+        try (InputStream inputStream = file.getInputStream()) {
             PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
