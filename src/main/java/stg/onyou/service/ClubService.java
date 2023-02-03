@@ -100,62 +100,6 @@ public class ClubService {
         return hasNextList.getTotalElements() == 0 ? false : true;
     }
 
-//    private String generateCustomCursor(Pageable page, ClubSearchRequest clubSearchRequest, Long cursorId, LocalDateTime cursorCreated) {
-//        if (page.getSort() == null || cursorId == null) {
-//            return null;
-//        }
-////        cursorCreated = cursorCreated.minusHours(9);
-//
-//        String customCursorSortType = "";
-//        String customCursorId = "";
-//        String customCreatedCursor = "";
-//
-//        for(Sort.Order order : page.getSort() ){
-//            customCursorSortType = order.getProperty();
-//        }
-//
-//        customCursorId = String.format("%1$" + 10 + "s", cursorId)
-//                .replace(' ', '0');
-//
-//        if(customCursorSortType.equals("created")){
-//            customCreatedCursor = cursorCreated.toString()
-//                    .replaceAll("T", "")
-//                    .replaceAll("-", "")
-//                    .replaceAll(":", "") + "00";
-//
-//            customCreatedCursor = String.format("%1$" + 20 + "s", customCreatedCursor)
-//                    .replace(' ', '0');
-//
-//            return customCreatedCursor + customCursorId;
-//
-//        } else {
-//            String customValueCursor = String.format("%1$" + 20 + "s", clubSearchRequest.getCursorValue())
-//                    .replace(' ', '0');
-//            return customValueCursor + customCursorId;
-//        }
-//
-//
-//    }
-
-
-    /**
-     * 전체 클럽 select
-     */
-//    public CursorResult<ClubResponse> selectClubList(Long cursorId, Pageable page, Long category1Id, Long category2Id, String searchKeyword) {
-//
-//        List<ClubResponse> clubs = new ArrayList<>();
-//
-//        getClubList(cursorId, page, category1Id, category2Id)
-//            .forEach(club->{
-//                clubs.add(selectClubResponse(club));
-//            });
-//
-//        final Long lastIdOfList = clubs.isEmpty() ?
-//                null : clubs.get(clubs.size() - 1).getId();
-//
-//        return new CursorResult<>(clubs, hasNext(lastIdOfList));
-//    }
-
     public Header<ClubRoleResponse> selectClubRole(Long clubId, Long userId){
 
         User user = userRepository.findById(userId)
@@ -187,11 +131,6 @@ public class ClubService {
         return Header.OK(clubRoleResponse);
 
     }
-
-//    public Header<ClubMessagesResponse> selectClubMessages(Long clubId, Long userId){
-//
-//
-//    }
 
     /**
      * 클럽 create
@@ -378,6 +317,34 @@ public class ClubService {
         }
 
         return Header.OK(selectClubResponse(savedClub));
+    }
+
+    public void deleteClub(Long clubId, Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Club club  = clubRepository.findById(clubId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
+                );
+
+        UserClub userClub  = userClubRepository.findByUserAndClub(user, club)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
+                );
+
+        if ( !userClub.getRole().equals(Role.MASTER) ){
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        if ( club.getRecruitNumber() != 1 ){
+            throw new CustomException(ErrorCode.CLUB_DELETE_EXCEPTION);
+        }
+
+        clubRepository.deleteById(clubId);
     }
 
     /**
@@ -1038,6 +1005,10 @@ public class ClubService {
 
         if( userClub.getApplyStatus().equals(ApplyStatus.APPLIED)){
             throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
+        if( userClub.getRole().equals(Role.MASTER) ){
+            throw new CustomException(ErrorCode.MASTER_WITHDRAW_EXCEPTION);
         }
 
         userClubRepository.delete(userClub);

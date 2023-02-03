@@ -134,9 +134,9 @@ public class FeedController {
     }
 
     @DeleteMapping("/api/feeds/{id}")
-    public Header<Object> deleteFeedBy(@PathVariable Long id, HttpServletRequest httpServletRequest) {
-//        Long userId = userService.getUserId(httpServletRequest);
-        feedService.deleteById(id);
+    public Header<Object> deleteFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        feedService.deleteById(id, userId);
 //        Feed feed = feedService.findById(id);
 //        awsS3Service.deleteFile(feed.getFeedImages());
         return Header.OK("Feed 삭제 완료");

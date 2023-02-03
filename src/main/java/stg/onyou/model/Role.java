@@ -4,20 +4,18 @@ import lombok.Getter;
 
 @Getter
 public enum Role {
-    PENDING(false, false, false, false, false, false, false, false, false),
-    MEMBER(false, false, false, false, false, false, false, false, false),
-    MANAGER(false, false, false, false, true, true, true, true, true),
-    MASTER(true, true, true, true, true, true, true, true, true );
+    PENDING(false, false, false, false, false, false, false),
+    MEMBER(false, false, false, false, false, false, false),
+    MANAGER(false, false, true, true, true, true, true),
+    MASTER(true, true, true, true, true, true, true );
 
-    Role(boolean canAllocateRole, boolean canWithdrawManager, boolean canDeleteFeed, boolean canDeleteClub,
-         boolean canEditClub, boolean canWithdrawMember, boolean canManipulateClubSchedule, boolean canApproveApply, boolean canRejectApply){
+    Role(boolean canAllocateRole, boolean canDeleteClub, boolean canDeleteFeed,
+         boolean canEditClub,  boolean canManipulateClubSchedule, boolean canApproveApply, boolean canRejectApply){
 
         this.canAllocateRole = canAllocateRole;
-        this.canWithdrawManager = canWithdrawManager;
-        this.canDeleteFeed = canDeleteFeed;
         this.canDeleteClub = canDeleteClub;
+        this.canDeleteFeed = canDeleteFeed;
         this.canEditClub = canEditClub;
-        this.canWithdrawMember = canWithdrawMember;
         this.canManipulateClubSchedule = canManipulateClubSchedule;
         this.canApproveApply = canApproveApply;
         this.canRejectApply = canRejectApply;
@@ -25,14 +23,11 @@ public enum Role {
     }
 
     private final boolean canAllocateRole; // MASTER
-    private final boolean canWithdrawManager; // MASTER
-    private final boolean canDeleteFeed; // MASTER
     private final boolean canDeleteClub; // MASTER
-
+    private final boolean canDeleteFeed; // MANAGER
     private final boolean canEditClub; // MANAGER
-    private final boolean canWithdrawMember; // MANAGER
-    private final boolean canManipulateClubSchedule; // MANAGER. manipulate : Create, Update, Delete
+    private final boolean canManipulateClubSchedule; // MANAGER
     private final boolean canApproveApply; // MANAGER
-    private final boolean canRejectApply;
+    private final boolean canRejectApply; // MANAGER
 
     }
