@@ -9,18 +9,17 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import stg.onyou.model.network.FcmMessage;
 
 import java.io.IOException;
 import java.util.List;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class FirebaseCloudMessageService {
 
-    @Value("${fcm.api.url}")
-    private final String API_URL;
+    private static final String API_URL = "https://fcm.googleapis.com/v1/projects/onyou-d9114/messages:send";
     private final ObjectMapper objectMapper;
 
     public void sendMessageTo(String targetToken, String title, String body) throws IOException {
