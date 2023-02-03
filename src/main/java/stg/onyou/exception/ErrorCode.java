@@ -17,7 +17,6 @@ public enum ErrorCode {
     // 401 UNAUTHORIZED : 인증되지 않은 사용자
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다."),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다."),
-    NO_PERMISSION(FORBIDDEN, "권한이 없습니다"),
 
 //    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
 //    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
@@ -26,6 +25,10 @@ public enum ErrorCode {
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다."),
     CLUB_MEMBER_FULL(CONFLICT, "클럽의 정원이 마감되었습니다."),
 
+
+    // 403
+    NO_PERMISSION(FORBIDDEN, "권한이 없습니다"),
+    MASTER_WITHDRAW_EXCEPTION(FORBIDDEN, "리더는 탈퇴할 수 없습니다. 리더 위임 후 탈퇴하세요."),
 
     // 404 NOT_FOUND : Resource 를 찾을 수 없음
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),

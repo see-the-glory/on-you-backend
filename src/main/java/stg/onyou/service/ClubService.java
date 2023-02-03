@@ -1040,6 +1040,10 @@ public class ClubService {
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
+        if( userClub.getRole().equals(Role.MASTER) ){
+            throw new CustomException(ErrorCode.MASTER_WITHDRAW_EXCEPTION);
+        }
+
         userClubRepository.delete(userClub);
 
     }
