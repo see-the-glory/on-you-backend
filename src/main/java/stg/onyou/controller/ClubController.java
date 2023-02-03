@@ -122,6 +122,14 @@ public class ClubController {
         return Header.OK("user_id: "+userId+"club_id: "+clubId);
     }
 
+    @DeleteMapping("/{clubId}")
+    public Header<String> deleteClub(@PathVariable Long clubId, HttpServletRequest httpServletRequest){
+
+        Long userId = userService.getUserId(httpServletRequest);
+        clubService.deleteClub(clubId, userId);
+        return Header.OK("Deleted successfully");
+    }
+
 
     @PostMapping("/apply")
     public Header<String> applyClub(@RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
