@@ -42,16 +42,16 @@ public class AwsS3Service {
 
         // 이미지 확장자 검사
         String fileFormatName = originFilename.substring(originFilename.lastIndexOf(".") + 1).toLowerCase();
-        String[] supportFormat = {"bmp", "jpg", "jpeg", "png", "heic"};
+        String[] supportFormat = {"bmp", "jpg", "jpeg", "png"};
         if (!Arrays.asList(supportFormat).contains(fileFormatName)) {
             throw new CustomException(ErrorCode.UNSUPPORTED_EXTENSION);
         }
 
-//        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);
+        MultipartFile resizedFile = resizeImage(fileName, fileFormatName, file, 768);
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(file.getSize());
-        objectMetadata.setContentType(file.getContentType());
-        try (InputStream inputStream = file.getInputStream()) {
+        objectMetadata.setContentLength(resizedFile.getSize());
+        objectMetadata.setContentType(resizedFile.getContentType());
+        try (InputStream inputStream = resizedFile.getInputStream()) {
             PutObjectResult result = amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
@@ -74,7 +74,6 @@ public class AwsS3Service {
                 return originalImage;
 
             MarvinImage imageMarvin = new MarvinImage(image);
-
             Scale scale = new Scale();
             scale.load();
             scale.setAttribute("newWidth", targetWidth);

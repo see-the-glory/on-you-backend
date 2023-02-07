@@ -19,8 +19,12 @@ public enum ErrorCode {
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다."),
     CLUB_MEMBER_FULL(CONFLICT, "모의 정원이 마감되었습니다."),
 
+    // 401 Unauthorized
+    NO_AUTH_DELETE_COMMENT(UNAUTHORIZED, "댓글 삭제할 권한이 없습니다."),
+    NO_AUTH_UPDATE_FEED(UNAUTHORIZED, "Feed를 수정할 권한이 없습니다."),
+    NO_AUTH_DELETE_FEED(UNAUTHORIZED, "Feed를 삭제할 권한이 없습니다."),
 
-    // 403
+    // 403 Forbidden
     NO_PERMISSION(FORBIDDEN, "권한이 없습니다"),
     MASTER_WITHDRAW_EXCEPTION(FORBIDDEN, "리더는 탈퇴할 수 없습니다. 리더 위임 후 탈퇴하세요."),
     CLUB_DELETE_EXCEPTION(FORBIDDEN, "모임에 다른 멤버가 존재하여 삭제할 수 없습니다."),
@@ -44,7 +48,7 @@ public enum ErrorCode {
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "모임 생성에 실패하였습니다"),
     CLUB_REGISTER_ERROR(INTERNAL_SERVER_ERROR, "모임 등록에 실패하였습니다"),
     CLUB_SCHEDULE_MUTATION_ERROR(INTERNAL_SERVER_ERROR, "모임 일정 생성에 실패하였습니다"),
-    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "피 업데이트에 실패하였습니다.");
+    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "Feed 업데이트에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;

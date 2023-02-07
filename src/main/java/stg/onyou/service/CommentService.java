@@ -7,9 +7,9 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Comment;
 import stg.onyou.model.network.request.CommentUpdateRequest;
 import stg.onyou.repository.CommentRepository;
+import stg.onyou.repository.FeedRepository;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Service
@@ -28,5 +28,9 @@ public class CommentService {
     public void deleteById(Long id){
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setDelYn('y');
+    }
+
+    public Comment findById(Long id){
+        return commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 }
