@@ -5,22 +5,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.Reason;
 import stg.onyou.model.entity.*;
-import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
-import stg.onyou.model.network.response.ClubPageResponse;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedPageResponse;
 import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.repository.UserRepository;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -85,7 +81,7 @@ public class FeedController {
         feed.setFeedHashtags(feedHashtagList);
         feedService.upload(feed);
 
-        return Header.OK();
+        return Header.OK("Feed 생성 완료");
     }
 
     @GetMapping("/api/feeds/{id}")
@@ -124,22 +120,37 @@ public class FeedController {
 
     @PutMapping("/api/feeds/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
-                                     @RequestBody FeedUpdateRequest request) {
+                                     @RequestBody FeedUpdateRequest request,
+                                     HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        Feed feed = feedService.findById(id);
+
+        if (!feed.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.NO_AUTH_UPDATE_FEED);
+        }
+
         if (request.getAccess() == null || request.getContent() == null) {
             throw new CustomException(ErrorCode.FEED_UPDATE_ERROR);
         } else {
             feedService.updateFeed(id, request);
+            return Header.OK("Feed 수정 완료");
         }
-        return Header.OK();
+
     }
 
     @DeleteMapping("/api/feeds/{id}")
     public Header<Object> deleteFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
+        Feed feed = feedService.findById(id);
+
+        if (!feed.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
+        } else {
         feedService.deleteById(id, userId);
 //        Feed feed = feedService.findById(id);
 //        awsS3Service.deleteFile(feed.getFeedImages());
         return Header.OK("Feed 삭제 완료");
+        }
     }
 
     /**

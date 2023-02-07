@@ -12,7 +12,6 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.AccessModifier;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
-import stg.onyou.model.network.request.ClubCondition;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;
@@ -151,10 +150,10 @@ public class FeedService {
         Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if( feed.getUser().getId().equals(id) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자r거나 Club의 매니저이상인 경우만 삭제 가능
+        if( feed.getUser().getId().equals(id) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자거나 Club의 매니저이상인 경우만 삭제 가능
             feed.setDelYn('y');
         } else {
-            throw new CustomException(ErrorCode.NO_PERMISSION);
+            throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
         }
 
         feedRepository.save(feed);
@@ -260,6 +259,5 @@ public class FeedService {
         }
         return result;
     }
-
 
 }
