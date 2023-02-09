@@ -158,6 +158,10 @@ public class UserService {
         return user.getId();
     }
 
+    public void withdrawMember(Long userId){
+        userRepository.deleteById(userId);
+    }
+
     public String getMaskedEmail(String email) {
         String regex = "\\b(\\S+)+@(\\S+.\\S+)";
         Matcher matcher = Pattern.compile(regex).matcher(email);

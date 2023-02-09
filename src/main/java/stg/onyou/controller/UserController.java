@@ -97,6 +97,14 @@ public class UserController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    // 로그인
+    @PostMapping("/withdraw")
+    public Header<String> withdrawMember(HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        userService.withdrawMember(userId);
+        return Header.OK("회원 탈퇴 완료");
+    }
+
     @PostMapping("/changePw")
     public Header<Object> changePassword(HttpServletRequest httpServletRequest,
                                          @RequestBody Map<String, String> password) {

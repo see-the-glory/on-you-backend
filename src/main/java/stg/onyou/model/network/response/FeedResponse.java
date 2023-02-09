@@ -23,7 +23,7 @@ public class FeedResponse {
     private List<String> imageUrls;
     private List<String> hashtags;
     private boolean likeYn;
-    private int likesCount;
+    private Long likesCount;
     private int commentCount;
     private String thumbnail;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
