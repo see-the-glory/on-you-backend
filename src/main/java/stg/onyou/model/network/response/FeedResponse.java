@@ -24,7 +24,7 @@ public class FeedResponse {
     private List<String> hashtags;
     private boolean likeYn;
     private Long likesCount;
-    private int commentCount;
+    private Long commentCount;
     private String thumbnail;
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
@@ -34,7 +34,7 @@ public class FeedResponse {
 
     @QueryProjection
     public FeedResponse(Long id, Long clubId, String clubName, Long userId, String userName, String content,
-                        int commentCount,String thumbnail, LocalDateTime created, LocalDateTime updated, String customCursor)
+                        String thumbnail, LocalDateTime created, LocalDateTime updated, String customCursor)
     {
         this.id = id;
         this.clubId = clubId;
@@ -42,7 +42,6 @@ public class FeedResponse {
         this.userId = userId;
         this.userName = userName;
         this.content = content;
-        this.commentCount = commentCount;
         this.thumbnail = thumbnail;
         this.created = created;
         this.updated = updated;
