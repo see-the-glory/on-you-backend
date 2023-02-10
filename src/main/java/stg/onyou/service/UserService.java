@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.InterestCategory;
+import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
@@ -33,7 +34,13 @@ public class UserService {
     @Autowired
     private UserClubRepository userClubRepository;
     @Autowired
+    private UserClubScheduleRepository userClubScheduleRepository;
+    @Autowired
+    private UserClubQRepositoryImpl userClubQRepositoryImpl;
+    @Autowired
     private ClubRepository clubRepository;
+    @Autowired
+    private FeedRepository feedRepository;
     @Autowired
     private AwsS3Service awsS3Service;
 
@@ -158,7 +165,25 @@ public class UserService {
         return user.getId();
     }
 
-    public void withdrawMember(Long userId){
+    public void withdrawAccount(Long userId){
+
+        List<UserClub> userClubList = userClubRepository.findByUserId(userId);
+
+        userClubList.forEach(userClub -> {
+            if (userClub.getRole().equals(Role.MASTER)) {
+                UserClub newLeader = userClubQRepositoryImpl.findLatestManager(userClub.getClub().getId())
+                        .orElse(userClubQRepositoryImpl.findLatestMember(userClub.getClub().getId())
+                                .orElse(null));
+
+                if (newLeader != null) {
+                    newLeader.setRole(Role.MASTER);
+                    userClubRepository.save(newLeader);
+                }
+            }
+            userClubRepository.delete(userClub);
+        });
+
+        // user 삭제
         userRepository.deleteById(userId);
     }
 

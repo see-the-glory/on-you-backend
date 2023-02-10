@@ -97,11 +97,11 @@ public class UserController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    // 로그인
+    // 회원 탈퇴
     @PostMapping("/withdraw")
-    public Header<String> withdrawMember(HttpServletRequest httpServletRequest) {
+    public Header<String> withdrawAccount(HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        userService.withdrawMember(userId);
+        userService.withdrawAccount(userId);
         return Header.OK("회원 탈퇴 완료");
     }
 

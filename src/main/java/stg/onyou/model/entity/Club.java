@@ -42,6 +42,10 @@ public class Club {
     @JsonManagedReference
     private List<UserClub> userClubs;
 
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
+    private List<ClubCategory> clubCategories;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,6 +54,5 @@ public class Club {
 
     @OneToMany(mappedBy = "club")
     private List<Feed> feeds = new ArrayList<>();
-
 
 }
