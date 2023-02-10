@@ -42,19 +42,19 @@ public class Feed {
     @Column(columnDefinition = "integer default 0")
     private Integer reportCount;
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<FeedLikes> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<FeedHashtag> feedHashtags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<FeedImage> feedImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<Report> reports = new ArrayList<>();
 
 }

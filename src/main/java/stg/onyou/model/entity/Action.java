@@ -8,6 +8,8 @@ import stg.onyou.model.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -46,4 +48,8 @@ public class Action {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean isProcessDone;
     private LocalDateTime created;
+
+    @OneToMany(mappedBy = "action", cascade = CascadeType.REMOVE)
+    private List<UserNotification> userNotifications = new ArrayList<>();
+
 }

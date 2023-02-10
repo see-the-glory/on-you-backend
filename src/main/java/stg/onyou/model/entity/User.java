@@ -44,24 +44,40 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "creator")
     private List<Club> clubs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<UserClub> userClubs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private List<UserClubSchedule> userClubSchedule = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Feed> feeds = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<FeedLikes> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<ClubLikes> clubLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Report> reports = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Interest> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.REMOVE)
+    private List<UserNotification> userNotifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "actioner", cascade = CascadeType.REMOVE)
+    private List<Action> actioners = new ArrayList<>();
+
+    @OneToMany(mappedBy = "actionee", cascade = CascadeType.REMOVE)
+    private List<Action> actionees = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
