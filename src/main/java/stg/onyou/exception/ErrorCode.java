@@ -15,6 +15,7 @@ public enum ErrorCode {
     FILE_EMPTY(BAD_REQUEST, "업로드 한 파일이 존재하지 않습니다."),
     LOGIN_FAIL(BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다."),
     UNSUPPORTED_EXTENSION(BAD_REQUEST, "지원하지 않는 포맷입니다."),
+    ClUB_IMAGE_REQUIRED(BAD_REQUEST, "모임의 대표 이미지가 필요합니다"),
     // 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다."),
     CLUB_MEMBER_FULL(CONFLICT, "모의 정원이 마감되었습니다."),
