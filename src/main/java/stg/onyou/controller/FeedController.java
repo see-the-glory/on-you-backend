@@ -98,7 +98,7 @@ public class FeedController {
         List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
         boolean likeYn = likesService.isLikes(userId, feed.getId());
         int likesCount = feed.getLikes().size();
-        int commentCount = feed.getComments().size();
+        long commentCount = feed.getComments().size();
         FeedResponse feedResponse = FeedResponse.builder()
                 .userId(feed.getUser().getId())
                 .id(feedId)

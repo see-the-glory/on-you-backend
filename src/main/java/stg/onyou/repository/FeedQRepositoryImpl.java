@@ -60,7 +60,6 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                         feed.user.id,
                         feed.user.name,
                         feed.content,
-                        feed.comments.size(),
                         feed.user.thumbnail,
                         feed.created,
                         feed.updated,
@@ -103,6 +102,13 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setLikeYn(likeYn);
             f.setLikesCount(likesCount);
 
+            f.setCommentCount(
+                    tempFeed.getComments().stream()
+                            .filter(comments -> comments.getDelYn()=='y')
+                            .count()
+            );
+
+
         }
 
         long total = feedResult.size();
@@ -122,7 +128,6 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                         feed.user.id,
                         feed.user.name,
                         feed.content,
-                        feed.comments.size(),
                         feed.user.thumbnail,
                         feed.created,
                         feed.updated,
@@ -166,6 +171,11 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setImageUrls(imageUrls);
             f.setLikeYn(likeYn);
             f.setLikesCount(likesCount);
+            f.setCommentCount(
+                    tempFeed.getComments().stream()
+                            .filter(comments -> comments.getDelYn()=='y')
+                            .count()
+            );
 
         }
 
