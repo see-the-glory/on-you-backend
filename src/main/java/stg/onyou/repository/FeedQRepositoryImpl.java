@@ -47,46 +47,12 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
         this.likesService = likesService;
     }
 
-    @Override
-    public Page<FeedResponse> findFeedList(Pageable page, String cursor, Long userId) {
-
-        StringTemplate stringTemplate = getCustomStringTemplate();
-
-        List<FeedResponse> feedResult = queryFactory
-                .select(new QFeedResponse(
-                        feed.id,
-                        feed.club.id,
-                        feed.club.name,
-                        feed.user.id,
-                        feed.user.name,
-                        feed.content,
-                        feed.user.thumbnail,
-                        feed.created,
-                        feed.updated,
-                        StringExpressions.lpad(stringTemplate, 20, '0')
-                                .concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
-                ))
-                .from(feed)
-                .where(
-                        feed.delYn.eq('n'),
-                        feed.reportCount.lt(5),
-                        feed.access.eq(AccessModifier.valueOf("PUBLIC")),
-                        cursorCompare(page, cursor)
-                )
-                .orderBy(new OrderSpecifier(Order.DESC, feed.created))
-                .limit(page.getPageSize())
-                .fetch();
-
-
+    private void fillAdditionalData(List<FeedResponse> feedResult, Long userId) {
         for(FeedResponse f : feedResult) {
-
-            //임시로 쓸 feed 가져오기
             Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
 
             boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
-            Long likesCount = tempFeed.getLikes().stream()
-                    .filter(feedLikes -> feedLikes.isOnOff()==true)
-                    .count();
+            Long likesCount = tempFeed.getLikes().stream().filter(feedLikes -> feedLikes.isOnOff()==true).count();
 
             //hashtag 가져오기
             List<String> result = new ArrayList<>();
@@ -102,18 +68,44 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setLikeYn(likeYn);
             f.setLikesCount(likesCount);
 
-            f.setCommentCount(
-                    tempFeed.getComments().stream()
-                            .filter(comments -> comments.getDelYn()=='y')
-                            .count()
-            );
-
-
+            f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='y').count());
         }
+    }
+
+    @Override
+    public Page<FeedResponse> findFeedList(Pageable page, String cursor, Long userId) {
+        StringTemplate stringTemplate = getCustomStringTemplate();
+
+        List<FeedResponse> feedResult = queryFactory
+                .select(new QFeedResponse(
+                        feed.id,
+                        feed.club.id,
+                        feed.club.name,
+                        feed.user.id,
+                        feed.user.name,
+                        feed.content,
+                        feed.user.thumbnail,
+                        feed.created,
+                        feed.updated,
+                        StringExpressions.lpad(stringTemplate, 20, '0').concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
+                ))
+                .from(feed)
+                .where(
+                        feed.delYn.eq('n'),
+                        feed.reportCount.lt(5),
+                        feed.access.eq(AccessModifier.valueOf("PUBLIC")),
+                        cursorCompare(page, cursor)
+                )
+                .orderBy(new OrderSpecifier(Order.DESC, feed.created))
+                .limit(page.getPageSize())
+                .fetch();
+
+        fillAdditionalData(feedResult, userId);
 
         long total = feedResult.size();
         return new PageImpl<>(feedResult, page, total);
     }
+
 
     @Override
     public Page<FeedResponse> findFeedListByClub(Pageable page, String cursor, Long userId, Long clubId) {
@@ -146,38 +138,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                 .limit(page.getPageSize())
                 .fetch();
 
-
-        for(FeedResponse f : feedResult) {
-
-            //임시로 쓸 feed 가져오기
-            Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-
-            boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
-            Long likesCount = tempFeed.getLikes()
-                    .stream()
-                    .filter(fl -> fl.isOnOff()==true)
-                    .count();
-
-            //hashtag 가져오기
-            List<String> result = new ArrayList<>();
-            List<FeedHashtag> feedHashtags = tempFeed.getFeedHashtags();
-            for (FeedHashtag feedHashtag : feedHashtags) {
-                result.add(feedHashtag.getHashtag().getHashtag());
-            }
-            List<String> hashtags = result;
-
-            List<String> imageUrls = tempFeed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
-            f.setHashtags(hashtags);
-            f.setImageUrls(imageUrls);
-            f.setLikeYn(likeYn);
-            f.setLikesCount(likesCount);
-            f.setCommentCount(
-                    tempFeed.getComments().stream()
-                            .filter(comments -> comments.getDelYn()=='y')
-                            .count()
-            );
-
-        }
+        fillAdditionalData(feedResult, userId);
 
         long total = feedResult.size();
         return new PageImpl<>(feedResult, page, total);

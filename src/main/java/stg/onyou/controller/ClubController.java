@@ -91,10 +91,12 @@ public class ClubController {
 
         Long userId = userService.getUserId(httpServletRequest);
 
-        if(!thumbnail.isEmpty()){
-            String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
-            clubCreateRequest.setThumbnailUrl(thumbnailUrl);
+        if(thumbnail.isEmpty()){
+            throw new CustomException(ErrorCode.ClUB_IMAGE_REQUIRED);
         }
+
+        String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
+        clubCreateRequest.setThumbnailUrl(thumbnailUrl);
 
         return clubService.createClub(clubCreateRequest, userId);
     }
