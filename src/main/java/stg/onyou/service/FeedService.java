@@ -214,7 +214,9 @@ public class FeedService {
                 .content(content)
                 .created(LocalDateTime.now())
                 .updated(LocalDateTime.now())
+                .delYn('n')
                 .build();
+
         commentRepository.save(comment);
     }
 
