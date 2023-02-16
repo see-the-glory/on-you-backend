@@ -68,7 +68,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setLikeYn(likeYn);
             f.setLikesCount(likesCount);
 
-            f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='y').count());
+            f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count());
         }
     }
 
