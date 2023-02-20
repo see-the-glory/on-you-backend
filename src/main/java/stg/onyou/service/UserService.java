@@ -14,6 +14,7 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
+import stg.onyou.model.network.response.DuplicateCheckResponse;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -273,5 +274,12 @@ public class UserService {
 
         userRepository.save(user);
 
+    }
+
+    public Header<DuplicateCheckResponse> duplicateCheck(String clubName) {
+        Optional<Club> club = clubRepository.findByName(clubName);
+
+        return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
+                .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
     }
 }
