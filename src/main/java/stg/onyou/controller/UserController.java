@@ -13,6 +13,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.request.BlockUserRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.request.UserFindIdRequest;
 import stg.onyou.model.network.response.UserClubResponse;
@@ -112,5 +113,16 @@ public class UserController {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         userService.changeUserPassword(user, password.get("password"));
         return Header.OK("비밀번호 변경 완료");
+    }
+
+    @PostMapping("/block")
+    public Header<Object> blockUser(HttpServletRequest httpServletRequest,
+                                         @RequestBody BlockUserRequest blockUserRequest) {
+
+        Long blockerId = userService.getUserId(httpServletRequest);
+        Long blockeeId = blockUserRequest.getUserId();
+
+        userService.blockUser(blockerId, blockeeId);
+        return Header.OK("해당 사용자가 차단되었습다.");
     }
 }

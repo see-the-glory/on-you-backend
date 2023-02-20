@@ -42,6 +42,8 @@ public class UserService {
     @Autowired
     private FeedRepository feedRepository;
     @Autowired
+    private UserBlockRepository userBlockRepository;
+    @Autowired
     private AwsS3Service awsS3Service;
 
     @Autowired
@@ -221,4 +223,24 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
     }
+
+    public void blockUser(Long blockerId, Long blockeeId) {
+
+        UserBlock userBlock = UserBlock.builder()
+                .blocker(
+                        userRepository.findById(blockerId)
+                                .orElseThrow(
+                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                                )
+                )
+                .blockee(
+                        userRepository.findById(blockeeId)
+                                .orElseThrow(
+                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                                )
+                )
+                .build();
+
+        userBlockRepository.save(userBlock);
+   }
 }
