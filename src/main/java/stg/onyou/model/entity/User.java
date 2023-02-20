@@ -40,9 +40,9 @@ public class User implements UserDetails {
     private LocalDateTime updated;
     private String phoneNumber;
     private String password;
-
-    @OneToMany(mappedBy = "creator")
-    private List<Club> clubs = new ArrayList<>();
+    private String targetToken;
+    private char homePushAlarm;
+    private char clubPushAlarm;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore

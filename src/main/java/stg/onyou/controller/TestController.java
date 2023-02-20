@@ -28,7 +28,8 @@ public class TestController {
         firebaseCloudMessageService.sendMessageTo(
                 requestDTO.getTargetToken(),
                 requestDTO.getTitle(),
-                requestDTO.getBody());
+                requestDTO.getBody(),
+                100L);
 
         return ResponseEntity.ok().build();
     }

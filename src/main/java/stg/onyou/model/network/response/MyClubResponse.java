@@ -25,7 +25,6 @@ public class MyClubResponse {
     private List<CategoryResponse> categories;
     private String thumbnail;
     private ApplyStatus applyStatus; // APPLIED, APPROVED
-    private String creatorName;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 

@@ -20,6 +20,7 @@ import stg.onyou.repository.*;
 import stg.onyou.repository.ClubNotificationRepository;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class ClubService {
 
+    @Autowired
+    private FirebaseCloudMessageService firebaseCloudMessageService;
     @Autowired
     private ClubRepository clubRepository;
     @Autowired
@@ -158,11 +161,6 @@ public class ClubService {
                 .created(LocalDateTime.now())
                 .thumbnail(clubCreateRequest.getThumbnailUrl())
                 .organization(organizationRepository.findById(1L).get())
-                .creator(userRepository.findById(userId)
-                    .orElseThrow(
-                            () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                    )
-                )
                 .build();
 
         Club savedClub = clubRepository.save(club);
@@ -422,6 +420,17 @@ public class ClubService {
                                 .build();
 
                         userNotificationRepository.save(userNotification);
+
+
+                        try {
+                            firebaseCloudMessageService.sendMessageTo(
+                                    admin.getTargetToken(),
+                                    "가입 요청",
+                                    user.getName()+"님의 가입신청서가 도착했습니다.",
+                                    club.getId());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
             );
 
@@ -506,6 +515,7 @@ public class ClubService {
         clubRepository.save(club);
 
         actionRepository.findById(actionId);
+
         Action action = Action.builder()
                 .actioner(approver)
                 .actionee(approvedUser)
@@ -527,6 +537,16 @@ public class ClubService {
                 .build();
 
         userNotificationRepository.save(userNotification);
+
+        try {
+            firebaseCloudMessageService.sendMessageTo(
+                    approvedUser.getTargetToken(),
+                    "가입 완료!",
+                    club.getName()+"에 가입이 완료되었습니다.",
+                    approvedClubId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -592,6 +612,17 @@ public class ClubService {
                 .build();
 
         userNotificationRepository.save(userNotification);
+
+        try {
+            firebaseCloudMessageService.sendMessageTo(
+                    rejectedUser.getTargetToken(),
+                    "가입 거절",
+                    club.getName()+"에 가입이 거절되었습니다.",
+                    null
+                    );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -968,7 +999,7 @@ public class ClubService {
 
         List<MyClubResponse> myClubsResponse = userClubRepository.findAll()
                 .stream()
-                .filter(uc -> uc.getUser().getId() == userId)
+                .filter(uc -> uc.getUser().getId() == userId && uc.getApplyStatus().equals(ApplyStatus.APPROVED))
                 .map(uc -> uc.getClub())
                 .distinct()
                 .map(club -> selectMyClubResponse(club, user))

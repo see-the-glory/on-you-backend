@@ -13,8 +13,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.request.UserCreateRequest;
-import stg.onyou.model.network.request.UserFindIdRequest;
+import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -86,10 +85,10 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
-        User member = userRepository.findByEmail(user.get("email"))
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
+        User member = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
-        if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
         Map<String, Object> result = new HashMap<>();
@@ -105,12 +104,43 @@ public class UserController {
         return Header.OK("회원 탈퇴 완료");
     }
 
-    @PostMapping("/changePw")
+    @PostMapping("/changePassword")
     public Header<Object> changePassword(HttpServletRequest httpServletRequest,
                                          @RequestBody Map<String, String> password) {
         String email = httpServletRequest.getUserPrincipal().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         userService.changeUserPassword(user, password.get("password"));
         return Header.OK("비밀번호 변경 완료");
+    }
+
+    @PostMapping("/block")
+    public Header<Object> blockUser(HttpServletRequest httpServletRequest,
+                                         @RequestBody BlockUserRequest blockUserRequest) {
+
+        Long blockerId = userService.getUserId(httpServletRequest);
+        Long blockeeId = blockUserRequest.getUserId();
+
+        userService.blockUser(blockerId, blockeeId);
+        return Header.OK("해당 사용자가 차단되었습다.");
+    }
+
+    @PostMapping("/saveTargetToken")
+    public Header<Object> saveTargetToken(HttpServletRequest httpServletRequest,
+                                    @RequestBody TargetTokenRequest targetTokenRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        String targetToken = targetTokenRequest.getTargetToken();
+
+        userService.saveTargetToken(userId, targetToken);
+        return Header.OK("targetToken이 전송되었습니다.");
+    }
+
+    @PutMapping("/pushAlarm")
+    public Header<Object> setPushAlarm(HttpServletRequest httpServletRequest,
+                                          @RequestBody PushAlarmUpdateRequest pushAlarmUpdateRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        userService.setPushAlarm(userId, pushAlarmUpdateRequest);
+        return Header.OK("푸시알람 설정이 변경되었습니다.");
     }
 }
