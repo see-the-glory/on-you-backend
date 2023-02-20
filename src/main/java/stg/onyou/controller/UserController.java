@@ -14,6 +14,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.BlockUserRequest;
+import stg.onyou.model.network.request.LoginRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.request.UserFindIdRequest;
 import stg.onyou.model.network.response.UserClubResponse;
@@ -87,10 +88,10 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody Map<String, String> user) {
-        User member = userRepository.findByEmail(user.get("email"))
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
+        User member = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
-        if (!passwordEncoder.matches(user.get("password"), member.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
         Map<String, Object> result = new HashMap<>();
@@ -106,7 +107,7 @@ public class UserController {
         return Header.OK("회원 탈퇴 완료");
     }
 
-    @PostMapping("/changePw")
+    @PostMapping("/changePassword")
     public Header<Object> changePassword(HttpServletRequest httpServletRequest,
                                          @RequestBody Map<String, String> password) {
         String email = httpServletRequest.getUserPrincipal().getName();

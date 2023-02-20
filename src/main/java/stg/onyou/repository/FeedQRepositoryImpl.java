@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static stg.onyou.model.entity.QFeed.feed;
+import static stg.onyou.model.entity.QUserBlock.userBlock;
 
 @Repository
 public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements FeedQRepository{
@@ -90,7 +91,11 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                         StringExpressions.lpad(stringTemplate, 20, '0').concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
                 ))
                 .from(feed)
+                .leftJoin(userBlock)
+                .on(feed.user.id.eq(userBlock.blockee.id)
+                        .and(userBlock.blocker.id.eq(userId)))
                 .where(
+                        userBlock.blockee.id.isNull(),
                         feed.delYn.eq('n'),
                         feed.reportCount.lt(5),
                         feed.access.eq(AccessModifier.valueOf("PUBLIC")),
@@ -127,7 +132,11 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                                 .concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
                 ))
                 .from(feed)
+                .leftJoin(userBlock)
+                .on(feed.user.id.eq(userBlock.blockee.id)
+                        .and(userBlock.blocker.id.eq(userId)))
                 .where(
+                        userBlock.blockee.id.isNull(),
                         feed.delYn.eq('n'),
                         feed.reportCount.lt(5),
                         feed.access.eq(AccessModifier.valueOf("PUBLIC")),
