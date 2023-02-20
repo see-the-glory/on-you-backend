@@ -142,6 +142,8 @@ public class UserService {
         user.setCreated(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
         user.setThumbnail("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg");
+        user.setClubPushAlarm('Y');
+        user.setHomePushAlarm('Y');
         userRepository.save(user);
 
         // 관심사 저장
