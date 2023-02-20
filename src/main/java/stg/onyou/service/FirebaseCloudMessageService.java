@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +23,8 @@ public class FirebaseCloudMessageService {
     private static final String API_URL = "https://fcm.googleapis.com/v1/projects/onyou-d9114/messages:send";
     private final ObjectMapper objectMapper;
 
-    public void sendMessageTo(String targetToken, String title, String body) throws IOException {
-        String message = makeMessage(targetToken, title, body);
+    public void sendMessageTo(String targetToken, String title, String body, Long clubId) throws IOException {
+        String message = makeMessage(targetToken, title, body, clubId);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message,
@@ -40,19 +41,33 @@ public class FirebaseCloudMessageService {
         System.out.println(response.body().string());
     }
 
-    private String makeMessage(String targetToken, String title, String body) throws JsonParseException, JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body, Long clubId) throws JsonParseException, JsonProcessingException {
+
+        FcmMessage.Data data = FcmMessage.Data.builder()
+                .clubId(clubId)
+                .build();
+
+        FcmMessage.Notification notification = FcmMessage.Notification.builder()
+                .title(title)
+                .body(body)
+                .image(null)
+                .build();
+
+        FcmMessage.Message message = FcmMessage.Message.builder()
+                .token(targetToken)
+                .notification(notification)
+                .data(data)
+                .build();
+
         FcmMessage fcmMessage = FcmMessage.builder()
-                .message(FcmMessage.Message.builder()
-                        .token(targetToken)
-                        .notification(FcmMessage.Notification.builder()
-                                .title(title)
-                                .body(body)
-                                .image(null)
-                                .build()
-                        ).build()).validateOnly(false).build();
+                .message(message)
+                .validateOnly(false)
+                .build();
 
         return objectMapper.writeValueAsString(fcmMessage);
     }
+
+
 
     private String getAccessToken() throws IOException {
         String firebaseConfigPath = "firebase/firebase_service_key.json";
