@@ -41,9 +41,6 @@ public class User implements UserDetails {
     private String phoneNumber;
     private String password;
 
-    @OneToMany(mappedBy = "creator")
-    private List<Club> clubs = new ArrayList<>();
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<UserClub> userClubs = new ArrayList<>();

@@ -37,20 +37,26 @@ public class Club {
     private String isApproveRequired;
     private String contactPhone;
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
     @JsonIgnore
     @JsonManagedReference
     private List<UserClub> userClubs;
 
-
     @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
     private List<ClubCategory> clubCategories;
 
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
+    private List<ClubNotification> clubNotifications;
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
+    private List<ClubSchedule> clubSchedules;
+
+    @OneToMany(mappedBy = "actionClub", cascade = CascadeType.REMOVE)
+    private List<Action> actions;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private User creator;
 
     @OneToMany(mappedBy = "club")
     private List<Feed> feeds = new ArrayList<>();

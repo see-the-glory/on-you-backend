@@ -29,7 +29,7 @@ public class Action {
 
     @ManyToOne
     @JoinColumn(name="action_feed_id")
-    private Club actionFeed;
+    private Feed actionFeed;
 
     @ManyToOne
     @JoinColumn(name="actioner_id")

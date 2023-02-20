@@ -158,11 +158,6 @@ public class ClubService {
                 .created(LocalDateTime.now())
                 .thumbnail(clubCreateRequest.getThumbnailUrl())
                 .organization(organizationRepository.findById(1L).get())
-                .creator(userRepository.findById(userId)
-                    .orElseThrow(
-                            () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                    )
-                )
                 .build();
 
         Club savedClub = clubRepository.save(club);
@@ -968,7 +963,7 @@ public class ClubService {
 
         List<MyClubResponse> myClubsResponse = userClubRepository.findAll()
                 .stream()
-                .filter(uc -> uc.getUser().getId() == userId)
+                .filter(uc -> uc.getUser().getId() == userId && uc.getApplyStatus().equals(ApplyStatus.APPROVED))
                 .map(uc -> uc.getClub())
                 .distinct()
                 .map(club -> selectMyClubResponse(club, user))
