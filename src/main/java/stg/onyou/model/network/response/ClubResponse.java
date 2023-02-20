@@ -32,7 +32,6 @@ public class ClubResponse {
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String isApprovedRequired; // "Y", "N"
     private String contactPhone;
-    private String creatorName;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 

@@ -861,10 +861,6 @@ public class ClubService {
                 .thumbnail(club.getThumbnail())
                 .categories(categoryResponseList)
                 .applyStatus(userClub.getApplyStatus())
-                .creatorName(Optional.ofNullable(club.getCreator())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
                 .created(club.getCreated())
                 .build();
 
@@ -912,10 +908,6 @@ public class ClubService {
                 .isApprovedRequired(club.getIsApproveRequired())
                 .categories(categoryResponseList)
                 .contactPhone(club.getContactPhone())
-                .creatorName(Optional.ofNullable(club.getCreator())
-                        .map(r -> r.getName())
-                        .orElse(null)
-                )
                 .created(club.getCreated())
                 .build();
 
