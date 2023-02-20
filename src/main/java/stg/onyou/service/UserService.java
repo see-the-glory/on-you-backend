@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.AlarmType;
 import stg.onyou.model.InterestCategory;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
+import stg.onyou.model.network.request.PushAlarmUpdateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
@@ -243,4 +245,33 @@ public class UserService {
 
         userBlockRepository.save(userBlock);
    }
+
+    public void saveTargetToken(Long userId, String targetToken) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        user.setTargetToken(targetToken);
+        userRepository.save(user);
+
+    }
+
+    public void setPushAlarm(Long userId, PushAlarmUpdateRequest pushAlarmUpdateRequest) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        if(pushAlarmUpdateRequest.getAlarmType().equals(AlarmType.HOME)) {
+            user.setHomePushAlarm(pushAlarmUpdateRequest.getIsOnOff());
+        } else {
+            user.setClubPushAlarm(pushAlarmUpdateRequest.getIsOnOff());
+        }
+
+        userRepository.save(user);
+
+    }
 }

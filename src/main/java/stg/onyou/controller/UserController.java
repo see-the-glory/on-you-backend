@@ -13,10 +13,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
-import stg.onyou.model.network.request.BlockUserRequest;
-import stg.onyou.model.network.request.LoginRequest;
-import stg.onyou.model.network.request.UserCreateRequest;
-import stg.onyou.model.network.request.UserFindIdRequest;
+import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -125,5 +122,25 @@ public class UserController {
 
         userService.blockUser(blockerId, blockeeId);
         return Header.OK("해당 사용자가 차단되었습다.");
+    }
+
+    @PostMapping("/saveTargetToken")
+    public Header<Object> saveTargetToken(HttpServletRequest httpServletRequest,
+                                    @RequestBody TargetTokenRequest targetTokenRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        String targetToken = targetTokenRequest.getTargetToken();
+
+        userService.saveTargetToken(userId, targetToken);
+        return Header.OK("targetToken이 전송되었습니다.");
+    }
+
+    @PutMapping("/pushAlarm")
+    public Header<Object> setPushAlarm(HttpServletRequest httpServletRequest,
+                                          @RequestBody PushAlarmUpdateRequest pushAlarmUpdateRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        userService.setPushAlarm(userId, pushAlarmUpdateRequest);
+        return Header.OK("푸시알람 설정이 변경되었습니다.");
     }
 }
