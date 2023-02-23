@@ -35,6 +35,7 @@ public class User implements UserDetails {
     private String birthday;
     private String thumbnail;
     private char sex;
+    @Column(unique=true)
     private String email;
     private LocalDateTime created;
     private LocalDateTime updated;

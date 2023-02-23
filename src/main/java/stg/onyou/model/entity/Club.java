@@ -46,7 +46,7 @@ public class Club {
     private List<ClubCategory> clubCategories;
 
 
-    @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "club")
     private List<ClubNotification> clubNotifications;
 
     @OneToMany(mappedBy = "club", cascade = CascadeType.REMOVE)

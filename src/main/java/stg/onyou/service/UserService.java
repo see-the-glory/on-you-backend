@@ -1,6 +1,7 @@
 package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Block;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,10 +15,7 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
-import stg.onyou.model.network.response.DuplicateCheckResponse;
-import stg.onyou.model.network.response.UserClubResponse;
-import stg.onyou.model.network.response.UserResponse;
-import stg.onyou.model.network.response.UserUpdateRequest;
+import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +44,8 @@ public class UserService {
     private FeedRepository feedRepository;
     @Autowired
     private UserBlockRepository userBlockRepository;
+    @Autowired
+    private SuggestionRepository suggestionRepository;
     @Autowired
     private AwsS3Service awsS3Service;
 
@@ -231,22 +231,26 @@ public class UserService {
 
     public void blockUser(Long blockerId, Long blockeeId) {
 
+        User blocker =  userRepository.findById(blockerId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+        User blockee =  userRepository.findById(blockerId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+
         UserBlock userBlock = UserBlock.builder()
-                .blocker(
-                        userRepository.findById(blockerId)
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                                )
-                )
-                .blockee(
-                        userRepository.findById(blockeeId)
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                                )
-                )
+                .blocker(blocker)
+                .blockee(blockee)
                 .build();
 
-        userBlockRepository.save(userBlock);
+        userBlockRepository.findByBlockerAndBlockee(blocker, blockee)
+                .ifPresentOrElse(
+                        existingUserBlock -> userBlockRepository.delete(existingUserBlock),
+                        () -> userBlockRepository.save(userBlock)
+                );
    }
 
     public void saveTargetToken(Long userId, String targetToken) {
@@ -283,5 +287,47 @@ public class UserService {
 
         return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
                 .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
+    }
+
+    public Header<List<BlockedUserResponse>> selectBlockUserList(Long userId) {
+
+        User blocker = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        List<BlockedUserResponse> blockedUsers = userBlockRepository.findByBlocker(blocker)
+                .stream()
+                .map(UserBlock::getBlockee)
+                .map(user -> new BlockedUserResponse(user.getId(), user.getName(), user.getThumbnail(), user.getOrganization().getName()))
+                .collect(Collectors.toList());
+
+        return Header.OK(blockedUsers);
+    }
+
+    public void saveSuggestion(Long userId, String content) {
+
+        Suggestion suggestion = Suggestion.builder()
+                .user(
+                        userRepository.findById(userId)
+                        .orElseThrow(
+                                ()-> new CustomException(ErrorCode.USER_NOT_FOUND)
+                        )
+                )
+                .content(content)
+                .created(LocalDateTime.now())
+                .build();
+
+        suggestionRepository.save(suggestion);
+
+    }
+
+    public Header<DuplicateCheckResponse> duplicateEmailCheck(String email) {
+
+        DuplicateCheckResponse duplicateCheckResponse = DuplicateCheckResponse.builder()
+                .isDuplicated(userRepository.existsUserByEmail(email)==true?'Y':'N')
+                .build();
+
+        return Header.OK(duplicateCheckResponse);
     }
 }

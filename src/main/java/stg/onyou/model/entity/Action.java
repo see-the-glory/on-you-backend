@@ -49,7 +49,9 @@ public class Action {
     private boolean isProcessDone;
     private LocalDateTime created;
 
-    @OneToMany(mappedBy = "action", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "action",  cascade = CascadeType.REMOVE)
     private List<UserNotification> userNotifications = new ArrayList<>();
+    @OneToMany(mappedBy = "action",  cascade = CascadeType.REMOVE)
+    private List<ClubNotification> clubNotifications = new ArrayList<>();
 
 }
