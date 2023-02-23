@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String phoneNumber;
     private String password;
     private String targetToken;
-    private char homePushAlarm;
+    private char userPushAlarm;
     private char clubPushAlarm;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
