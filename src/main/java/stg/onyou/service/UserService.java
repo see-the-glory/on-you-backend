@@ -45,6 +45,8 @@ public class UserService {
     @Autowired
     private UserBlockRepository userBlockRepository;
     @Autowired
+    private SuggestionRepository suggestionRepository;
+    @Autowired
     private AwsS3Service awsS3Service;
 
     @Autowired
@@ -301,5 +303,31 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return Header.OK(blockedUsers);
+    }
+
+    public void saveSuggestion(Long userId, String content) {
+
+        Suggestion suggestion = Suggestion.builder()
+                .user(
+                        userRepository.findById(userId)
+                        .orElseThrow(
+                                ()-> new CustomException(ErrorCode.USER_NOT_FOUND)
+                        )
+                )
+                .content(content)
+                .created(LocalDateTime.now())
+                .build();
+
+        suggestionRepository.save(suggestion);
+
+    }
+
+    public Header<DuplicateCheckResponse> duplicateEmailCheck(String email) {
+
+        DuplicateCheckResponse duplicateCheckResponse = DuplicateCheckResponse.builder()
+                .isDuplicated(userRepository.existsUserByEmail(email)==true?'Y':'N')
+                .build();
+
+        return Header.OK(duplicateCheckResponse);
     }
 }

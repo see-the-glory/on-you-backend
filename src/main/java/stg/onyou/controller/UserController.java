@@ -14,10 +14,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
-import stg.onyou.model.network.response.BlockedUserResponse;
-import stg.onyou.model.network.response.UserClubResponse;
-import stg.onyou.model.network.response.UserResponse;
-import stg.onyou.model.network.response.UserUpdateRequest;
+import stg.onyou.model.network.response.*;
 import stg.onyou.repository.UserRepository;
 import stg.onyou.service.UserService;
 
@@ -152,5 +149,21 @@ public class UserController {
         Long userId = userService.getUserId(httpServletRequest);
         userService.setPushAlarm(userId, pushAlarmUpdateRequest);
         return Header.OK("푸시알람 설정이 변경되었습니다.");
+    }
+
+    @PostMapping("/suggestion")
+    public Header<String> setPushAlarm(HttpServletRequest httpServletRequest,
+                                       @RequestBody SuggestionRequest suggestionRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        userService.saveSuggestion(userId, suggestionRequest.getContent());
+        return Header.OK("건의사항이 등록되었습니다.");
+    }
+
+    @PostMapping("/duplicateEmailCheck")
+    public Header<DuplicateCheckResponse> duplicateEmailCheck(HttpServletRequest httpServletRequest,
+                                                              @RequestBody DuplicateEmailCheckRequest duplicateEmailCheck) {
+
+        return userService.duplicateEmailCheck(duplicateEmailCheck.getEmail());
     }
 }
