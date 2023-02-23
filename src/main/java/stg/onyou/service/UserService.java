@@ -1,6 +1,7 @@
 package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Block;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,10 +15,7 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
-import stg.onyou.model.network.response.DuplicateCheckResponse;
-import stg.onyou.model.network.response.UserClubResponse;
-import stg.onyou.model.network.response.UserResponse;
-import stg.onyou.model.network.response.UserUpdateRequest;
+import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -287,5 +285,21 @@ public class UserService {
 
         return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
                 .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
+    }
+
+    public Header<List<BlockedUserResponse>> selectBlockUserList(Long userId) {
+
+        User blocker = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        List<BlockedUserResponse> blockedUsers = userBlockRepository.findByBlocker(blocker)
+                .stream()
+                .map(UserBlock::getBlockee)
+                .map(user -> new BlockedUserResponse(user.getId(), user.getName(), user.getThumbnail(), user.getOrganization().getName()))
+                .collect(Collectors.toList());
+
+        return Header.OK(blockedUsers);
     }
 }

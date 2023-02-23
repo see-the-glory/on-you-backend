@@ -14,6 +14,7 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
+import stg.onyou.model.network.response.BlockedUserResponse;
 import stg.onyou.model.network.response.UserClubResponse;
 import stg.onyou.model.network.response.UserResponse;
 import stg.onyou.model.network.response.UserUpdateRequest;
@@ -122,6 +123,15 @@ public class UserController {
 
         userService.blockUser(blockerId, blockeeId);
         return Header.OK("해당 사용자가 차단되었습다.");
+    }
+
+    @GetMapping("/blockUserList")
+    public Header<List<BlockedUserResponse>> selectBlockUserList(HttpServletRequest httpServletRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+
+        return userService.selectBlockUserList(userId);
+
     }
 
     @PostMapping("/saveTargetToken")
