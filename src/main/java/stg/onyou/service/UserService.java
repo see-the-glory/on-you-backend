@@ -231,22 +231,26 @@ public class UserService {
 
     public void blockUser(Long blockerId, Long blockeeId) {
 
+        User blocker =  userRepository.findById(blockerId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+        User blockee =  userRepository.findById(blockerId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+
         UserBlock userBlock = UserBlock.builder()
-                .blocker(
-                        userRepository.findById(blockerId)
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                                )
-                )
-                .blockee(
-                        userRepository.findById(blockeeId)
-                                .orElseThrow(
-                                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-                                )
-                )
+                .blocker(blocker)
+                .blockee(blockee)
                 .build();
 
-        userBlockRepository.save(userBlock);
+        userBlockRepository.findByBlockerAndBlockee(blocker, blockee)
+                .ifPresentOrElse(
+                        existingUserBlock -> userBlockRepository.delete(existingUserBlock),
+                        () -> userBlockRepository.save(userBlock)
+                );
    }
 
     public void saveTargetToken(Long userId, String targetToken) {
