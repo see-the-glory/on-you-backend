@@ -45,8 +45,13 @@ public class UserController {
     }
 
     @GetMapping("")
-    public Header<UserResponse> getUserInfo(HttpServletRequest httpServletRequest) {
+    public Header<UserResponse> getMyInfo(HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
+        return userService.selectUser(userId);
+    }
+
+    @GetMapping("/{userId}")
+    public Header<UserResponse> getUserInfo(@PathVariable Long userId,  HttpServletRequest httpServletRequest) {
         return userService.selectUser(userId);
     }
 
