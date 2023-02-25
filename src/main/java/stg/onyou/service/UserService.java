@@ -19,6 +19,7 @@ import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -48,6 +49,8 @@ public class UserService {
     private SuggestionRepository suggestionRepository;
     @Autowired
     private AwsS3Service awsS3Service;
+    @Autowired
+    private FirebaseCloudMessageService firebaseCloudMessageService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -253,7 +256,7 @@ public class UserService {
                 );
    }
 
-    public void saveTargetToken(Long userId, String targetToken) {
+    public void updateTargetToken(Long userId, String targetToken) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(

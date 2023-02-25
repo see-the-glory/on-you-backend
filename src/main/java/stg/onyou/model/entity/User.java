@@ -80,6 +80,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "actionee", cascade = CascadeType.REMOVE)
     private List<Action> actionees = new ArrayList<>();
 
+    @OneToMany(mappedBy = "blocker", cascade = CascadeType.REMOVE)
+    private List<UserBlock> blockers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "blockee", cascade = CascadeType.REMOVE)
+    private List<UserBlock> blockees = new ArrayList<>();
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> role = new ArrayList<>();
