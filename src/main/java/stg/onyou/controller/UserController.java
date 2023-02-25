@@ -19,6 +19,7 @@ import stg.onyou.repository.UserRepository;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.*;
 
 @Api(tags = {"User API Controller"})
@@ -88,7 +89,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
         User member = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
         if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
@@ -118,7 +119,7 @@ public class UserController {
 
     @PostMapping("/block")
     public Header<Object> blockUser(HttpServletRequest httpServletRequest,
-                                         @RequestBody BlockUserRequest blockUserRequest) {
+                                         @Valid @RequestBody BlockUserRequest blockUserRequest) {
 
         Long blockerId = userService.getUserId(httpServletRequest);
         Long blockeeId = blockUserRequest.getUserId();
@@ -136,20 +137,20 @@ public class UserController {
 
     }
 
-    @PostMapping("/saveTargetToken")
-    public Header<Object> saveTargetToken(HttpServletRequest httpServletRequest,
-                                    @RequestBody TargetTokenRequest targetTokenRequest) {
+    @PostMapping("/updateTargetToken")
+    public Header<Object> updateTargetToken(HttpServletRequest httpServletRequest,
+                                    @Valid @RequestBody TargetTokenRequest targetTokenRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
         String targetToken = targetTokenRequest.getTargetToken();
 
-        userService.saveTargetToken(userId, targetToken);
+        userService.updateTargetToken(userId, targetToken);
         return Header.OK("targetToken이 전송되었습니다.");
     }
 
     @PutMapping("/pushAlarm")
     public Header<Object> setPushAlarm(HttpServletRequest httpServletRequest,
-                                          @RequestBody PushAlarmUpdateRequest pushAlarmUpdateRequest) {
+                                       @RequestBody PushAlarmUpdateRequest pushAlarmUpdateRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
         userService.setPushAlarm(userId, pushAlarmUpdateRequest);
@@ -157,8 +158,8 @@ public class UserController {
     }
 
     @PostMapping("/suggestion")
-    public Header<String> setPushAlarm(HttpServletRequest httpServletRequest,
-                                       @RequestBody SuggestionRequest suggestionRequest) {
+    public Header<String> saveSuggetsion(HttpServletRequest httpServletRequest,
+                                       @Valid @RequestBody SuggestionRequest suggestionRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
         userService.saveSuggestion(userId, suggestionRequest.getContent());

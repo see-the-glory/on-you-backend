@@ -21,14 +21,15 @@ public enum ErrorCode {
     CLUB_MEMBER_FULL(CONFLICT, "모의 정원이 마감되었습니다."),
 
     // 401 Unauthorized
-    NO_AUTH_DELETE_COMMENT(UNAUTHORIZED, "댓글 삭제할 권한이 없습니다."),
-    NO_AUTH_UPDATE_FEED(UNAUTHORIZED, "Feed를 수정할 권한이 없습니다."),
-    NO_AUTH_DELETE_FEED(UNAUTHORIZED, "Feed를 삭제할 권한이 없습니다."),
+    INVALID_JWT(UNAUTHORIZED, "JWT가 유효하지 않습니다."),
 
     // 403 Forbidden
     NO_PERMISSION(FORBIDDEN, "권한이 없습니다"),
     MASTER_WITHDRAW_EXCEPTION(FORBIDDEN, "리더는 탈퇴할 수 없습니다. 리더 위임 후 탈퇴하세요."),
     CLUB_DELETE_EXCEPTION(FORBIDDEN, "모임에 다른 멤버가 존재하여 삭제할 수 없습니다."),
+    NO_AUTH_DELETE_COMMENT(FORBIDDEN, "댓글 삭제할 권한이 없습니다."),
+    NO_AUTH_UPDATE_FEED(FORBIDDEN, "Feed를 수정할 권한이 없습니다."),
+    NO_AUTH_DELETE_FEED(FORBIDDEN,  "Feed를 삭제할 권한이 없습니다."),
 
     // 404 NOT_FOUND : Resource 를 찾을 수 없음
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),
