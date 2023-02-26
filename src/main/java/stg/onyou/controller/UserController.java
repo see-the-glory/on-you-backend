@@ -3,6 +3,7 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +38,9 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+    private final String REDIS_PREFIX = "jwt:";
 
     @GetMapping("/{clubId}")
     public Header<UserClubResponse> selectUserClubResponse(@PathVariable Long clubId, HttpServletRequest httpServletRequest) {
@@ -96,7 +100,12 @@ public class UserController {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
         Map<String, Object> result = new HashMap<>();
-        result.put("token", jwtTokenProvider.createToken(member.getUsername(), member.getRole()));
+
+        String jwtToken = jwtTokenProvider.createToken(member.getUsername(), member.getRole());
+        String redisKey = REDIS_PREFIX + member.getEmail();
+        redisTemplate.opsForValue().set(redisKey, jwtToken);
+
+        result.put("token", jwtToken);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
