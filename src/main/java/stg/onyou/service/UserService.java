@@ -126,6 +126,7 @@ public class UserService {
 
         user.setName(userUpdateRequest.getName());
         user.setBirthday(userUpdateRequest.getBirthday());
+        user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
         String url = awsS3Service.uploadFile(thumbnailFile);
         user.setThumbnail(url);
         user.setUpdated(LocalDateTime.now());
