@@ -390,6 +390,18 @@ public class ClubService {
             }
             clubRepository.save(club);
 
+            // 바로 가입되는 가입요청의 경우 Action의 isProcessDone을 바로 true로 리
+            Action action = Action.builder()
+                    .actioner(user)
+                    .actionClub(club)
+                    .actionType(ActionType.APPLY)
+                    .applyMessage(clubApplyRequest.getMemo())
+                    .isProcessDone(true)
+                    .created(LocalDateTime.now())
+                    .build();
+
+            actionRepository.save(action);
+
         } else { // 관리자의 승인이 필요한 가입이라면 APPLIED 상태로 저장
             userClub = UserClub.builder()
                     .club(club)
