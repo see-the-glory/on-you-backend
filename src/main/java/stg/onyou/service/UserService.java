@@ -242,7 +242,7 @@ public class UserService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
-        User blockee =  userRepository.findById(blockerId)
+        User blockee =  userRepository.findById(blockeeId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );

@@ -134,7 +134,7 @@ public class UserController {
         Long blockeeId = blockUserRequest.getUserId();
 
         userService.blockUser(blockerId, blockeeId);
-        return Header.OK("해당 사용자가 차단되었습다.");
+        return Header.OK("차단/차단해제 완료");
     }
 
     @GetMapping("/blockUserList")
