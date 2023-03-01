@@ -822,7 +822,7 @@ public class ClubService {
 
                 UserResponse userResponse = UserResponse.builder()
                         .id(userClubSchedule.getUser().getId())
-                        .organizationName(userClubSchedule.getUser().getOrganization().getName())
+                        .organizationName(userClubSchedule.getUser().getOrganization() != null ? userClubSchedule.getUser().getOrganization().getName() : null)
                         .name(userClubSchedule.getUser().getName())
                         .applyStatus(ApplyStatus.APPROVED)
                         .birthday(userClubSchedule.getUser().getBirthday())
@@ -910,7 +910,7 @@ public class ClubService {
                 .clubShortDesc(club.getShortDesc())
                 .clubLongDesc(club.getLongDesc())
                 .organizationName(Optional.ofNullable(club.getOrganization())
-                        .map(r->r.getName())
+                        .map(r-> r.getName())
                         .orElse(null))
                 .thumbnail(club.getThumbnail())
                 .categories(categoryResponseList)
@@ -989,7 +989,9 @@ public class ClubService {
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
-                .organizationName(user.getOrganization().getName())
+                .organizationName(Optional.ofNullable(user.getOrganization())
+                        .map(Organization::getName)
+                        .orElse(null))
                 .thumbnail(user.getThumbnail())
                 .name(user.getName())
                 .birthday(user.getBirthday())
