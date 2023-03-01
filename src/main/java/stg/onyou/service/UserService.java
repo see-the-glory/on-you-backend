@@ -71,7 +71,10 @@ public class UserService {
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
-                .organizationName(user.getOrganization().getName())
+                .organizationName(Optional.ofNullable(user.getOrganization())
+                        .map(Organization::getName)
+                        .orElse(null)
+                )
                 .birthday(user.getBirthday())
                 .sex(user.getSex())
                 .email(user.getEmail())
@@ -284,13 +287,6 @@ public class UserService {
 
         userRepository.save(user);
 
-    }
-
-    public Header<DuplicateCheckResponse> duplicateCheck(String clubName) {
-        Optional<Club> club = clubRepository.findByName(clubName);
-
-        return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
-                .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
     }
 
     public Header<List<BlockedUserResponse>> selectBlockUserList(Long userId) {

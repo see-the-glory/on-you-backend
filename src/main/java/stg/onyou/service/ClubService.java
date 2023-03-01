@@ -144,6 +144,10 @@ public class ClubService {
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+        Optional<Club> duplicateCheckClub = clubRepository.findByName(clubCreateRequest.getClubName());
+        if(duplicateCheckClub!=null){
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
 
         // 1. club 저장 : clubLongDesc는 optional값이므로 null체크
         Club club = Club.builder()
@@ -822,7 +826,7 @@ public class ClubService {
 
                 UserResponse userResponse = UserResponse.builder()
                         .id(userClubSchedule.getUser().getId())
-                        .organizationName(userClubSchedule.getUser().getOrganization().getName())
+                        .organizationName(userClubSchedule.getUser().getOrganization() != null ? userClubSchedule.getUser().getOrganization().getName() : null)
                         .name(userClubSchedule.getUser().getName())
                         .applyStatus(ApplyStatus.APPROVED)
                         .birthday(userClubSchedule.getUser().getBirthday())
@@ -910,7 +914,7 @@ public class ClubService {
                 .clubShortDesc(club.getShortDesc())
                 .clubLongDesc(club.getLongDesc())
                 .organizationName(Optional.ofNullable(club.getOrganization())
-                        .map(r->r.getName())
+                        .map(r-> r.getName())
                         .orElse(null))
                 .thumbnail(club.getThumbnail())
                 .categories(categoryResponseList)
@@ -989,7 +993,9 @@ public class ClubService {
 
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
-                .organizationName(user.getOrganization().getName())
+                .organizationName(Optional.ofNullable(user.getOrganization())
+                        .map(Organization::getName)
+                        .orElse(null))
                 .thumbnail(user.getThumbnail())
                 .name(user.getName())
                 .birthday(user.getBirthday())
@@ -1105,6 +1111,13 @@ public class ClubService {
             userClub.setRole(role);
             userClubRepository.save(userClub);
         }
+    }
+
+    public Header<DuplicateCheckResponse> duplicateCheck(String clubName) {
+        Optional<Club> club = clubRepository.findByName(clubName);
+
+        return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
+                .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
     }
 
 }

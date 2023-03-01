@@ -236,7 +236,7 @@ public class ClubController {
     @PostMapping("/duplicateCheck")
     public Header<DuplicateCheckResponse> duplicateCheck(@RequestBody DuplicateCheckRequest duplicateCheckRequest){
 
-        return userService.duplicateCheck(duplicateCheckRequest.getClubName());
+        return clubService.duplicateCheck(duplicateCheckRequest.getClubName());
 
     }
 
