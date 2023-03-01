@@ -289,13 +289,6 @@ public class UserService {
 
     }
 
-    public Header<DuplicateCheckResponse> duplicateCheck(String clubName) {
-        Optional<Club> club = clubRepository.findByName(clubName);
-
-        return club.map(c -> Header.OK(DuplicateCheckResponse.builder().isDuplicated('Y').build()))
-                .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
-    }
-
     public Header<List<BlockedUserResponse>> selectBlockUserList(Long userId) {
 
         User blocker = userRepository.findById(userId)
