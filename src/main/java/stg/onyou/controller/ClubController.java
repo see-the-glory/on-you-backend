@@ -93,6 +93,9 @@ public class ClubController {
         log.debug("controller 진입");
         Long userId = userService.getUserId(httpServletRequest);
 
+
+        log.debug("Request thumbnail: {}", thumbnail);
+
         if(thumbnail.isEmpty()){
             throw new CustomException(ErrorCode.ClUB_IMAGE_REQUIRED);
         }
