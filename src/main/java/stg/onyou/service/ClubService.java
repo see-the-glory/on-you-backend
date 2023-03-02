@@ -144,8 +144,9 @@ public class ClubService {
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+
         Optional<Club> duplicateCheckClub = clubRepository.findByName(clubCreateRequest.getClubName());
-        if(duplicateCheckClub!=null){
+        if(duplicateCheckClub.isPresent()){
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
 
