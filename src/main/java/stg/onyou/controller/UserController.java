@@ -86,7 +86,7 @@ public class UserController {
             throw new CustomException(ErrorCode.USER_APPROVE_ERROR);
         }
 
-        result.put("token", jwtTokenProvider.createToken(user.getUsername(), user.getRole()));
+        result.put("token", jwtTokenProvider.createToken(user.getUsername()));
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
@@ -101,7 +101,7 @@ public class UserController {
         }
         Map<String, Object> result = new HashMap<>();
 
-        String jwtToken = jwtTokenProvider.createToken(member.getUsername(), member.getRole());
+        String jwtToken = jwtTokenProvider.createToken(member.getUsername());
         String redisKey = REDIS_PREFIX + member.getEmail();
         redisTemplate.opsForValue().set(redisKey, jwtToken);
 

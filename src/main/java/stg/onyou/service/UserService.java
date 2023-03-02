@@ -145,7 +145,6 @@ public class UserService {
         User user = new User(userCreateRequest);
         Organization organization = organizationRepository.findByName(userCreateRequest.getOrganizationName());
         user.setOrganization(organization);
-        user.setRole(Collections.singletonList("ROLE_USER"));
         user.setCreated(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(userCreateRequest.getPassword()));
         user.setThumbnail("http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg");
