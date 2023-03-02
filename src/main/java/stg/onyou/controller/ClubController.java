@@ -84,11 +84,13 @@ public class ClubController {
     }
 
     @PostMapping("")
-    public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
+    public Header<String> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubCreateRequest")
                                              ClubCreateRequest clubCreateRequest,
                                      HttpServletRequest httpServletRequest){
 
+
+        log.debug("controller 진입");
         Long userId = userService.getUserId(httpServletRequest);
 
         if(thumbnail.isEmpty()){
@@ -98,7 +100,10 @@ public class ClubController {
         String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
         clubCreateRequest.setThumbnailUrl(thumbnailUrl);
 
-        return clubService.createClub(clubCreateRequest, userId);
+        log.debug("aws S3 url 생성: {}", thumbnailUrl);
+        clubService.createClub(clubCreateRequest, userId);
+
+        return Header.OK("클럽이 성공적으로 생성되었습니다.");
     }
 
     @PutMapping("/{id}")

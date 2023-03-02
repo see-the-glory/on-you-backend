@@ -138,17 +138,24 @@ public class ClubService {
     /**
      * 클럽 create
      */
-    public Header<ClubResponse> createClub(ClubCreateRequest clubCreateRequest, Long userId){
+    public void createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
+        log.debug("createClub Service 진입");
         // category1과 category2가 같은 것을 선택하는 것 방지
         if(clubCreateRequest.getCategory2Id()==clubCreateRequest.getCategory1Id()){
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
 
+
+        log.debug("category 같은 것 방지 통과!");
+
         Optional<Club> duplicateCheckClub = clubRepository.findByName(clubCreateRequest.getClubName());
         if(duplicateCheckClub.isPresent()){
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+
+
+        log.debug("409 에러 통과!");
 
         // 1. club 저장 : clubLongDesc는 optional값이므로 null체크
         Club club = Club.builder()
@@ -170,6 +177,9 @@ public class ClubService {
 
         Club savedClub = clubRepository.save(club);
 
+
+        log.debug("club 저장");
+
         // 2. user_club 저장
         UserClub userClub = UserClub.builder()      // creator도 club의 멤버(마스터)니깐 UserClub에 저장
                 .user(userRepository.findById(userId)
@@ -185,6 +195,9 @@ public class ClubService {
 
         userClubRepository.save(userClub);
 
+
+        log.debug("userClub 저장");
+
         // 3. club_category 저장
         ClubCategory clubCategory1 = ClubCategory.builder()
                 .club(savedClub)
@@ -198,6 +211,9 @@ public class ClubService {
                 .build();
 
         clubCategoryRepository.save(clubCategory1);
+
+
+        log.debug("category1 저장");
 
         if(clubCreateRequest.getCategory2Id() != null){
             ClubCategory clubCategory2 = ClubCategory.builder()
@@ -214,10 +230,11 @@ public class ClubService {
             clubCategoryRepository.save(clubCategory2);
         }
 
-        // 4. 저장 성공한 club의 reponse 생성하여 return
-        ClubResponse clubResponse = selectClubResponse(savedClub);
 
-        return Header.OK(clubResponse);
+        log.debug("category2 저장");
+        // 4. 저장 성공한 club의 reponse 생성하여 return
+        //ClubResponse clubResponse = selectClubResponse(savedClub);
+
 
     }
 
