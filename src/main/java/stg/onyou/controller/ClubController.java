@@ -90,6 +90,7 @@ public class ClubController {
                                      HttpServletRequest httpServletRequest){
 
 
+        System.out.println("controller sysout");
         log.debug("controller 진입");
         Long userId = userService.getUserId(httpServletRequest);
 
