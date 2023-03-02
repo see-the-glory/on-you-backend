@@ -86,10 +86,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "blockee", cascade = CascadeType.REMOVE)
     private List<UserBlock> blockees = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> role = new ArrayList<>();
-
     public User(UserCreateRequest userCreateRequest) {
         birthday = userCreateRequest.getBirthday();
         sex = userCreateRequest.getSex();
@@ -101,10 +97,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.role.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
     }
+
 
     @Override
     public String getPassword() {
