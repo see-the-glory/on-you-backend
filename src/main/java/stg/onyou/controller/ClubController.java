@@ -41,6 +41,8 @@ public class ClubController {
 
     @GetMapping("/{id}")
     public Header<ClubResponse> selectClub(@PathVariable Long id){
+        System.out.println("sysout check");
+        log.debug("log debuber check");
         return clubService.selectClub(id);
     }
 
