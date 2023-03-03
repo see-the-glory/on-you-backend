@@ -86,7 +86,7 @@ public class ClubController {
     }
 
     @PostMapping("")
-    public Header<String> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
+    public Header<ClubResponse> createClub(@RequestPart(value = "file", required = false) MultipartFile thumbnail,
                                      @Valid @RequestPart(value = "clubCreateRequest")
                                              ClubCreateRequest clubCreateRequest,
                                      HttpServletRequest httpServletRequest){
@@ -107,9 +107,8 @@ public class ClubController {
         clubCreateRequest.setThumbnailUrl(thumbnailUrl);
 
         log.debug("aws S3 url 생성: {}", thumbnailUrl);
-        clubService.createClub(clubCreateRequest, userId);
 
-        return Header.OK("클럽이 성공적으로 생성되었습니다.");
+        return clubService.createClub(clubCreateRequest, userId);
     }
 
     @PutMapping("/{id}")

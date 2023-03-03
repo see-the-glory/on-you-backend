@@ -138,7 +138,7 @@ public class ClubService {
     /**
      * 클럽 create
      */
-    public void createClub(ClubCreateRequest clubCreateRequest, Long userId){
+    public Header<ClubResponse> createClub(ClubCreateRequest clubCreateRequest, Long userId){
 
         log.debug("createClub Service 진입");
         // category1과 category2가 같은 것을 선택하는 것 방지
@@ -233,7 +233,8 @@ public class ClubService {
 
         log.debug("category2 저장");
         // 4. 저장 성공한 club의 reponse 생성하여 return
-        //ClubResponse clubResponse = selectClubResponse(savedClub);
+        ClubResponse clubResponse = selectClubResponse(savedClub);
+        return Header.OK(clubResponse);
 
 
     }
