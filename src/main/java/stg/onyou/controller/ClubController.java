@@ -100,13 +100,11 @@ public class ClubController {
         log.debug("Request thumbnail: {}", thumbnail);
 
         if(thumbnail.isEmpty()){
-            throw new CustomException(ErrorCode.ClUB_IMAGE_REQUIRED);
+            clubCreateRequest.setThumbnailUrl("https://onyou-bucket.s3.ap-northeast-2.amazonaws.com/9cb764f7-7506-49a2-9ef8-f174bfeac09e.jpeg_football.jpeg");
+        } else {
+            String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
+            clubCreateRequest.setThumbnailUrl(thumbnailUrl);
         }
-
-        String thumbnailUrl = awsS3Service.uploadFile(thumbnail); //s3에 저장하고 저장한 image url 리턴
-        clubCreateRequest.setThumbnailUrl(thumbnailUrl);
-
-        log.debug("aws S3 url 생성: {}", thumbnailUrl);
 
         return clubService.createClub(clubCreateRequest, userId);
     }
