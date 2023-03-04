@@ -287,6 +287,7 @@ public class ClubService {
                             () -> new CustomException(ErrorCode.ORGANIZATION_NOT_FOUND)
                          )
         );
+        club.setUpdated(LocalDateTime.now());
 
         Club savedClub = clubRepository.save(club);
 
