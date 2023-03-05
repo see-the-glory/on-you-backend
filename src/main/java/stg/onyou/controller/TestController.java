@@ -33,7 +33,10 @@ public class TestController {
         Message fcmMessage = firebaseCloudMessageService.makeMessage(
                 requestDTO.getTargetToken(),
                 requestDTO.getTitle(),
-                requestDTO.getBody());
+                requestDTO.getBody(),
+        null,
+        null
+        );
 
         String id = fcm.send(fcmMessage);
 
