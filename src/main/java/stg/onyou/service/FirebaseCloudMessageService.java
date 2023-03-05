@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -17,18 +18,20 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FirebaseCloudMessageService {
 
-    private static final String API_URL = "https://fcm.googleapis.com/v1/projects/onyou-d9114/messages:send";
+    private static final String API_URL = "https://fcm.googleapis.com/v1/projects/onyou-7e97f/messages:send";
     private final ObjectMapper objectMapper;
 
     public void sendMessageTo(String targetToken, String title, String body, Long clubId) throws IOException {
-        String message = makeMessage(targetToken, title, body, clubId);
-
+//        String message = makeMessage(targetToken, title, body, clubId);
+        String message = makeMessage(targetToken, title, body);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message,
                 MediaType.get("application/json; charset=utf-8"));
+
         Request request = new Request.Builder()
                 .url(API_URL)
                 .post(requestBody)
@@ -38,14 +41,19 @@ public class FirebaseCloudMessageService {
 
         Response response = client.newCall(request).execute();
 
-        System.out.println(response.body().string());
+        if (!response.isSuccessful()) {
+            throw new IOException("Unexpected HTTP code " + response.code() + " " + response.message());
+        }
+
+        response.close();
+
     }
 
-    private String makeMessage(String targetToken, String title, String body, Long clubId) throws JsonParseException, JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body) throws JsonParseException, JsonProcessingException {
 
-        FcmMessage.Data data = FcmMessage.Data.builder()
-                .clubId(clubId)
-                .build();
+//        FcmMessage.Data data = FcmMessage.Data.builder()
+//                .clubId(clubId.intValue())
+//                .build();
 
         FcmMessage.Notification notification = FcmMessage.Notification.builder()
                 .title(title)
@@ -56,7 +64,7 @@ public class FirebaseCloudMessageService {
         FcmMessage.Message message = FcmMessage.Message.builder()
                 .token(targetToken)
                 .notification(notification)
-                .data(data)
+//                .data(data)
                 .build();
 
         FcmMessage fcmMessage = FcmMessage.builder()
