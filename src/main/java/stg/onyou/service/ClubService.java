@@ -1,5 +1,8 @@
 package stg.onyou.service;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +25,6 @@ import stg.onyou.repository.ClubNotificationRepository;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +65,11 @@ public class ClubService {
     private UserNotificationRepository userNotificationRepository;
     @Autowired
     private ClubNotificationRepository clubNotificationRepository;
+    private final FirebaseMessaging fcm;
+
+    public ClubService(FirebaseMessaging fcm) {
+        this.fcm = fcm;
+    }
 
     /**
      * 특정 클럽 select
@@ -459,18 +465,20 @@ public class ClubService {
 
 
                         try {
-                            if (admin.getClubPushAlarm() == 'Y'){
+                            if( admin.getUserPushAlarm()=='Y'){
 
-                                firebaseCloudMessageService.sendMessageTo(
+                                Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
                                         "가입 요청",
-                                        user.getName()+"님의 가입신청서가 도착했습니다.",
-                                        club.getId());
+                                        user.getName()+"님의 가입신청서가 도착했습니다."
+                                );
 
+                                fcm.send(fcmMessage);
                             }
-                        } catch (IOException e) {
+                        } catch (FirebaseMessagingException e) {
                             e.printStackTrace();
                         }
+
                     }
             );
 
@@ -579,16 +587,16 @@ public class ClubService {
         userNotificationRepository.save(userNotification);
 
         try {
-            if(approvedUser.getUserPushAlarm() == 'Y'){
+            if( approvedUser.getUserPushAlarm()=='Y'){
 
-                firebaseCloudMessageService.sendMessageTo(
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
                         "가입 완료!",
-                        club.getName()+"에 가입이 완료되었습니다.",
-                        approvedClubId);
+                        club.getName()+"에 가입이 완료 되었습니다.");
 
+                fcm.send(fcmMessage);
             }
-        } catch (IOException e) {
+        } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
 
@@ -660,14 +668,14 @@ public class ClubService {
         try {
             if( rejectedUser.getUserPushAlarm()=='Y'){
 
-                firebaseCloudMessageService.sendMessageTo(
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         rejectedUser.getTargetToken(),
                         "가입 거절",
-                        club.getName()+"에 가입이 거절되었습니다.",
-                        null
-                );
+                        club.getName()+"에 가입이 거절되었습니다.");
+
+                fcm.send(fcmMessage);
             }
-        } catch (IOException e) {
+        } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
 
