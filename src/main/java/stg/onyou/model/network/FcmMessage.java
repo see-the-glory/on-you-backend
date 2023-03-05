@@ -34,7 +34,7 @@ public class FcmMessage {
     @AllArgsConstructor
     @Getter
     public static class Data {
-        private Long clubId;
+        private Integer clubId;
     }
 
 }
