@@ -1,37 +1,45 @@
 package stg.onyou.controller;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import io.swagger.annotations.Api;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import stg.onyou.model.network.FcmMessage;
 import stg.onyou.service.FirebaseCloudMessageService;
+import com.google.firebase.messaging.Message;
 
 import java.io.IOException;
 
 @Api(tags = {"Test API Controller"})
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 public class TestController {
 
+    private final FirebaseMessaging fcm;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
+    public TestController(FirebaseMessaging fcm, FirebaseCloudMessageService firebaseCloudMessageService) {
+        this.fcm = fcm;
+        this.firebaseCloudMessageService = firebaseCloudMessageService;
+    }
     @PostMapping("/api/test/fcm")
-    public ResponseEntity pushMessage(@RequestBody TestDTO requestDTO) throws IOException {
+    public ResponseEntity pushMessage(@RequestBody TestDTO requestDTO) throws IOException, FirebaseMessagingException {
 
-        System.out.println(requestDTO.getTargetToken() + " "
-                +requestDTO.getTitle() + " " + requestDTO.getBody());
-
-        firebaseCloudMessageService.sendMessageTo(
+        Message fcmMessage = firebaseCloudMessageService.makeMessage(
                 requestDTO.getTargetToken(),
                 requestDTO.getTitle(),
-                requestDTO.getBody(),
-                100L);
+                requestDTO.getBody());
 
-        return ResponseEntity.ok().build();
+        String id = fcm.send(fcmMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(id);
     }
 
     @PostMapping("/test")
