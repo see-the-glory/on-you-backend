@@ -16,13 +16,14 @@ import stg.onyou.model.network.FcmMessage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FirebaseCloudMessageService {
 
-    public Message makeMessage(String targetToken, String title, String body) {
+    public Message makeMessage(String targetToken, String title, String body, Long clubId, Long actionId) {
 
         Message msg = Message.builder()
                 .setToken(targetToken)
@@ -32,7 +33,8 @@ public class FirebaseCloudMessageService {
                         .setImage(null)
                         .build()
                 )
-                .putData("clubId", "test")
+                .putData("clubId", Optional.ofNullable(String.valueOf(clubId)).orElse(null))
+                .putData("actionId", Optional.ofNullable(String.valueOf(actionId)).orElse(null))
                 .build();
 
         return msg;

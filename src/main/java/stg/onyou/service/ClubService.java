@@ -450,7 +450,7 @@ public class ClubService {
                     .created(LocalDateTime.now())
                     .build();
 
-            actionRepository.save(action);
+            Action savedAction = actionRepository.save(action);
 
             List<User> adminList = getAdminList(club);
             adminList.forEach(
@@ -470,7 +470,9 @@ public class ClubService {
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
                                         "가입 요청",
-                                        user.getName()+"님의 가입신청서가 도착했습니다."
+                                        user.getName()+"님의 가입신청서가 도착했습니다.",
+                                        club.getId(),
+                                        savedAction.getId()
                                 );
 
                                 fcm.send(fcmMessage);
@@ -592,7 +594,9 @@ public class ClubService {
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
                         "가입 완료!",
-                        club.getName()+"에 가입이 완료 되었습니다.");
+                        club.getName()+"에 가입이 완료 되었습니다.",
+                        club.getId(),
+                        null);
 
                 fcm.send(fcmMessage);
             }
@@ -671,7 +675,9 @@ public class ClubService {
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         rejectedUser.getTargetToken(),
                         "가입 거절",
-                        club.getName()+"에 가입이 거절되었습니다.");
+                        club.getName()+"에 가입이 거절되었습니다.",
+                        null,
+                        null);
 
                 fcm.send(fcmMessage);
             }
