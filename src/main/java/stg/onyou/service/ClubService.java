@@ -465,7 +465,7 @@ public class ClubService {
 
 
                         try {
-                            if( admin.getUserPushAlarm()=='Y'){
+                            if( admin.getUserPushAlarm()=='Y' && admin.getTargetToken()!=null){
 
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
@@ -587,7 +587,7 @@ public class ClubService {
         userNotificationRepository.save(userNotification);
 
         try {
-            if( approvedUser.getUserPushAlarm()=='Y'){
+            if( approvedUser.getUserPushAlarm()=='Y' && approvedUser.getTargetToken()!=null){
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
@@ -666,7 +666,7 @@ public class ClubService {
         userNotificationRepository.save(userNotification);
 
         try {
-            if( rejectedUser.getUserPushAlarm()=='Y'){
+            if( rejectedUser.getUserPushAlarm()=='Y' && rejectedUser.getTargetToken()!=null){
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         rejectedUser.getTargetToken(),
