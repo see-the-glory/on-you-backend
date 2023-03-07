@@ -470,7 +470,7 @@ public class ClubService {
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
                                         "가입 요청",
-                                        user.getName()+"님의 가입신청서가 도착했습니다.",
+                                        user.getName()+"님의"+club.getName()+"가입신청서가 도착했습니다.",
                                         club.getId(),
                                         savedAction.getId()
                                 );
@@ -500,7 +500,7 @@ public class ClubService {
     private List<User> getAdminList(Club club) {
         List<UserClub> userClubList = userClubRepository.findAllByClubId(club.getId());
         return userClubList.stream()
-                .filter(userClub -> !userClub.getRole().equals(Role.MEMBER))
+                .filter(userClub -> !userClub.getRole().equals(Role.MEMBER) && !userClub.getRole().equals(Role.PENDING))
                 .map(userClub -> userClub.getUser())
                 .collect(Collectors.toList());
 
