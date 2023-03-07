@@ -12,6 +12,5 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class TargetTokenRequest {
 
-    @NotEmpty
     private String targetToken;
 }

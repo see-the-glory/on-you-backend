@@ -8,6 +8,7 @@ import stg.onyou.model.network.response.UserNotificationResponse;
 import stg.onyou.repository.ClubNotificationQRepositoryImpl;
 import stg.onyou.repository.UserNotificationQRepositoryImpl;
 import javax.transaction.Transactional;
+import java.security.Timestamp;
 import java.util.List;
 
 @Service
