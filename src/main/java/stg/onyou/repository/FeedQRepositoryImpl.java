@@ -97,7 +97,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                 .where(
                         userBlock.blockee.id.isNull(),
                         feed.delYn.eq('n'),
-                        feed.reportCount.lt(5),
+                        feed.reportCount.lt(3),
                         feed.access.eq(AccessModifier.valueOf("PUBLIC")),
                         cursorCompare(page, cursor)
                 )
