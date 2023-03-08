@@ -11,6 +11,7 @@ import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.QUserNotificationResponse;
 import stg.onyou.model.network.response.UserNotificationResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,10 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
                 ))
                 .from(userNotification)
                 .innerJoin(userNotification.action, action)
-                .where(userNotification.recipient.id.eq(userId))
+                .where(
+                        userNotification.recipient.id.eq(userId),
+                        action.created.goe(LocalDateTime.now().minusDays(7))
+                )
                 .fetch();
 
 
