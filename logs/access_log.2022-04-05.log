@@ -1,5 +1,0 @@
-2022-04-05 14:58:36 200 GET /login HTTP/1.1 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36 - 0:0:0:0:0:0:0:1 1406 63
-2022-04-05 14:58:36 302 GET /favicon.ico HTTP/1.1 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36 http://localhost:8080/login 0:0:0:0:0:0:0:1 - 13
-2022-04-05 14:58:36 200 GET /login HTTP/1.1 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36 http://localhost:8080/login 0:0:0:0:0:0:0:1 1406 1
-2022-04-05 15:04:14 404 GET /login HTTP/1.1 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36 - 0:0:0:0:0:0:0:1 275 82
-2022-04-05 15:04:14 404 GET /favicon.ico HTTP/1.1 Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36 http://localhost:8080/login 0:0:0:0:0:0:0:1 111 48
