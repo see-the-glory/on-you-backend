@@ -1,7 +1,6 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.Reason;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

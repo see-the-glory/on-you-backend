@@ -1,5 +1,8 @@
 package stg.onyou.service;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.AccessModifier;
+import stg.onyou.model.ActionType;
 import stg.onyou.model.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.request.FeedCreateRequest;
@@ -44,9 +48,18 @@ public class FeedService {
     @Autowired
     private final CommentRepository commentRepository;
     @Autowired
+    private final ActionRepository actionRepository;
+    @Autowired
+    private final ClubNotificationRepository clubNotificationRepository;
+    @Autowired
+    private final UserNotificationRepository userNotificationRepository;
+    @Autowired
+    private final FirebaseCloudMessageService firebaseCloudMessageService;
+    @Autowired
     private final FeedHashtagRepository feedHashtagRepository;
     @Autowired
     private final HashtagRepository hashtagRepository;
+    private final FirebaseMessaging fcm;
 
     /**
      * feed 등록
@@ -169,18 +182,46 @@ public class FeedService {
 
     @Transactional
     public Feed createFeed(FeedCreateRequest request, Long userId, List<FeedImage> feedImages) {
+
+         Club club = clubRepository.findById(request.getClubId()).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+         LocalDateTime now = LocalDateTime.now();
+
+         //Feed Builder
          Feed feed = Feed.builder()
                 .content(request.getContent())
                 .delYn('n')
                 .access(AccessModifier.PUBLIC)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .club(clubRepository.findById(request.getClubId()).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND)))
-                .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .created(now)
+                .updated(now)
+                .club(club)
+                .user(user)
                 .reportCount(0)
                 .feedImages(feedImages)
                 .build();
-         return feedRepository.save(feed);
+
+         //Action Builder : FEED_CREATE에 대한 Action 저장
+         Action action = Action.builder()
+                 .actionFeed(feed)
+                 .actionClub(club)
+                 .actionType(ActionType.FEED_CREATE)
+                 .actioner(user)
+                 .isProcessDone(false)
+                 .created(now)
+                 .build();
+
+         //Feed를 생성한 것에 대해서 해당 클럽의 알림함에 넣어줘야 함. (FCM은채 안함)
+        ClubNotification clubNotification = ClubNotification.builder()
+                .club(club)
+                .created(LocalDateTime.now())
+                .action(action)
+                .build();
+
+        feedRepository.save(feed);
+        actionRepository.save(action);
+        clubNotificationRepository.save(clubNotification);
+
+        return feed;
     }
 
     @Transactional
@@ -217,7 +258,40 @@ public class FeedService {
                 .delYn('n')
                 .build();
 
+        //Action Builder : FEED_CREATE에 대한 Action 저장
+        Action action = Action.builder()
+                .actionFeed(feed)
+                .actionType(ActionType.FEED_COMMENT)
+                .actioner(user)
+                .isProcessDone(false)
+                .created(LocalDateTime.now())
+                .build();
+
+        UserNotification userNotification = UserNotification.builder()
+                .action(action)
+                .recipient(feed.getUser())
+                .created(LocalDateTime.now())
+                .build();
+
+        try {
+            if( feed.getUser().getUserPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null){
+
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                        feed.getUser().getTargetToken(),
+                        "댓글",
+                        "피드에 댓글이 달렸습니다.",
+                        null,
+                        null);
+
+                fcm.send(fcmMessage);
+            }
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+
         commentRepository.save(comment);
+        actionRepository.save(action);
+        userNotificationRepository.save(userNotification);
     }
 
     public List<CommentResponse> getComments(Long id) {

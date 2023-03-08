@@ -420,7 +420,7 @@ public class ClubService {
             }
             clubRepository.save(club);
 
-            // 바로 가입되는 가입요청의 경우 Action의 isProcessDone을 바로 true로 리
+            // 바로 가입되는 가입요청의 경우 Action의 isProcessDone을 바로 true로 리턴
             Action action = Action.builder()
                     .actioner(user)
                     .actionClub(club)
@@ -469,8 +469,8 @@ public class ClubService {
 
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
-                                        "가입 요청",
-                                        user.getName()+"님의"+club.getName()+"가입신청서가 도착했습니다.",
+                                        "가입 희망",
+                                        user.getName()+"님이 "+club.getName()+" 가입을 희망합니다.",
                                         club.getId(),
                                         savedAction.getId()
                                 );
@@ -593,8 +593,8 @@ public class ClubService {
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
-                        "가입 완료!",
-                        club.getName()+"에 가입이 완료 되었습니다.",
+                        "가입 결과",
+                        club.getName()+"가입이 수락되었습니다.",
                         club.getId(),
                         null);
 
@@ -674,8 +674,8 @@ public class ClubService {
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         rejectedUser.getTargetToken(),
-                        "가입 거절",
-                        club.getName()+"에 가입이 거절되었습니다.",
+                        "가입 결과",
+                        club.getName()+"로부터 메시지가 도착했습니다.",
                         null,
                         null);
 
