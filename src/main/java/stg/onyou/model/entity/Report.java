@@ -1,7 +1,7 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.Reason;
+import stg.onyou.model.ReportReason;
 
 import javax.persistence.*;
 
@@ -26,5 +26,5 @@ public class Report {
     private Feed feed;
 
     @Enumerated(EnumType.STRING)
-    private Reason reason;
+    private ReportReason reason;
 }

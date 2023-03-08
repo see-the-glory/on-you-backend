@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.Reason;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FeedCreateRequest;
+import stg.onyou.model.network.request.FeedReportRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
 import stg.onyou.model.network.response.FeedPageResponse;
@@ -156,14 +156,13 @@ public class FeedController {
     /**
      * FEED 신고
      */
-    @PutMapping("/api/feeds/{id}/report")
-    public Header<String> reportFeed(@PathVariable Long id,
-                                     @RequestParam("reason") Reason reason, HttpServletRequest httpServletRequest) {
+    @PostMapping("/api/feeds/{id}/report")
+    public Header<String> reportFeed(@PathVariable Long id, FeedReportRequest feedReportRequest, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        String result = reportService.feedReport(userId, id, reason);
+
+        String result = reportService.feedReport(userId, id, feedReportRequest.getReason());
         return Header.OK(result);
     }
-
 
     /**
      * FEED 에 댓글 추가
