@@ -163,7 +163,7 @@ public class FeedService {
         Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if( feed.getUser().getId().equals(id) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자거나 Club의 매니저이상인 경우만 삭제 가능
+        if( feed.getUser().getId().equals(userId) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자거나 Club의 매니저이상인 경우만 삭제 가능
             feed.setDelYn('y');
         } else {
             throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
@@ -176,7 +176,7 @@ public class FeedService {
     private boolean isManagerOfClub(User user, Club club){
 
         UserClub userClub = userClubRepository.findByUserAndClub(user, club).orElseThrow(() -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND));
-        return !userClub.getRole().equals(Role.MEMBER);
+        return userClub.getRole().equals(Role.MANAGER) || userClub.getRole().equals(Role.MASTER) ;
 
     }
 

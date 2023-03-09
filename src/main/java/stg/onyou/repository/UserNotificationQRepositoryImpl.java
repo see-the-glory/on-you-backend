@@ -41,7 +41,7 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
                     action.actionee.id,
                     action.actionClub.id,
                     action.actionType,
-                    action.applyMessage,
+                    action.message,
                     action.isProcessDone,
                     action.created
                 ))

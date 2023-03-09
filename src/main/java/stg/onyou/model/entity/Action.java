@@ -40,7 +40,7 @@ public class Action {
 
     @Enumerated(EnumType.STRING)
     private ActionType actionType;
-    private String applyMessage;
+    private String message;
 
     @Enumerated(EnumType.STRING)
     private Role changedRole;

@@ -21,4 +21,5 @@ public class ClubRejectRequest {
     @NotNull
     @Positive
     private Long actionId;
+    private String message;
 }
