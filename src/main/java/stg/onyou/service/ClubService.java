@@ -247,6 +247,11 @@ public class ClubService {
 
     public Header<ClubResponse> updateClub(ClubUpdateRequest clubUpdateRequest, Long clubId) {
 
+        clubRepository.findByName(clubUpdateRequest.getClubName())
+                .ifPresent( club -> {
+                            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+                });
+
         // 1. Club UPDATE
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(
