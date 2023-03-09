@@ -430,7 +430,7 @@ public class ClubService {
                     .actioner(user)
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
-                    .applyMessage(clubApplyRequest.getMemo())
+                    .message(clubApplyRequest.getMemo())
                     .isProcessDone(true)
                     .created(LocalDateTime.now())
                     .build();
@@ -450,7 +450,7 @@ public class ClubService {
                     .actioner(user)
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
-                    .applyMessage(clubApplyRequest.getMemo())
+                    .message(clubApplyRequest.getMemo())
                     .isProcessDone(false)
                     .created(LocalDateTime.now())
                     .build();
@@ -611,19 +611,19 @@ public class ClubService {
 
     }
 
-    public void rejectAppliance(Long rejectorId, Long userId, Long clubId, Long actionId) {
+    public void rejectAppliance(Long rejectorId, ClubRejectRequest clubRejectRequest) {
 
         User rejector  = userRepository.findById(rejectorId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        User rejectedUser  = userRepository.findById(userId)
+        User rejectedUser  = userRepository.findById(clubRejectRequest.getUserId())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        Club club  = clubRepository.findById(clubId)
+        Club club  = clubRepository.findById(clubRejectRequest.getClubId())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
@@ -638,7 +638,7 @@ public class ClubService {
                         () -> new CustomException(ErrorCode.USER_CLUB_NOT_FOUND)
                 );
 
-        Action processedAction  = actionRepository.findById(actionId)
+        Action processedAction  = actionRepository.findById(clubRejectRequest.getActionId())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
                 );
@@ -658,6 +658,7 @@ public class ClubService {
                 .actionee(rejectedUser)
                 .actionClub(club)
                 .actionType(ActionType.REJECT)
+                .message(clubRejectRequest.getMessage())
                 .created(LocalDateTime.now())
                 .build();
 

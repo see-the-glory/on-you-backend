@@ -163,7 +163,7 @@ public class ClubController {
     public Header<String> rejectAppliance(@RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
 
         Long rejectorId = userService.getUserId(httpServletRequest);
-        clubService.rejectAppliance(rejectorId, clubRejectRequest.getUserId(), clubRejectRequest.getClubId(), clubRejectRequest.getActionId());
+        clubService.rejectAppliance(rejectorId, clubRejectRequest);
 
         return Header.OK("승인 완료");
     }

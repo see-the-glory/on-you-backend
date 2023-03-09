@@ -24,19 +24,19 @@ public class UserNotificationResponse {
     private Long actionClubId;
     private String actionClubName;
     private ActionType actionType;
-    private String applyMessage;
+    private String message;
     private boolean isProcessDone;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 
     @QueryProjection
-    public UserNotificationResponse(Long actionId, Long actionerId, Long actioneeId, Long actionClubId, ActionType actionType, String applyMessage, boolean isProcessDone, LocalDateTime created){
+    public UserNotificationResponse(Long actionId, Long actionerId, Long actioneeId, Long actionClubId, ActionType actionType, String message, boolean isProcessDone, LocalDateTime created){
         this.actionId = actionId;
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
         this.actionClubId = actionClubId;
         this.actionType = actionType;
-        this.applyMessage = applyMessage;
+        this.message = message;
         this.isProcessDone = isProcessDone;
         this.created = created;
     }

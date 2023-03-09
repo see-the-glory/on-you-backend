@@ -33,7 +33,7 @@ public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
                         action.actioner.id,
                         action.actionee.id,
                         action.actionType,
-                        action.applyMessage,
+                        action.message,
                         action.isProcessDone,
                         action.created
                 ))

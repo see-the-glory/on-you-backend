@@ -231,7 +231,12 @@ public class UserService {
     }
 
     public void changeUserPassword(User user, String password) {
-        user.setPassword(passwordEncoder.encode(password));
+
+        String encodedPassword = passwordEncoder.encode(password);
+        if(user.getPassword().equals(encodedPassword)){
+            throw new CustomException(ErrorCode.SAME_PASSWORD_AS_BEFORE);
+        }
+        user.setPassword(encodedPassword);
         userRepository.save(user);
     }
 

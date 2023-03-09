@@ -143,14 +143,10 @@ public class FeedController {
         Long userId = userService.getUserId(httpServletRequest);
         Feed feed = feedService.findById(id);
 
-        if (!feed.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
-        } else {
         feedService.deleteById(id, userId);
 //        Feed feed = feedService.findById(id);
 //        awsS3Service.deleteFile(feed.getFeedImages());
         return Header.OK("Feed 삭제 완료");
-        }
     }
 
     /**
