@@ -95,7 +95,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
         User member = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
         if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }

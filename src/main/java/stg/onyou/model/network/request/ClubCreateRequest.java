@@ -33,7 +33,7 @@ public class ClubCreateRequest {
     @Size(max = 20, message = "클럽의 간단한 소개를 입력해주세요.")
     private String clubShortDesc;
     @NotEmpty
-    @Size(max = 1000, message = "소개글은 1000자 이내여야 합니다.")
+    @Size(max = 3000, message = "소개글은 1000자 이내여야 합니다.")
     private String clubLongDesc;
 
     private String thumbnailUrl;
