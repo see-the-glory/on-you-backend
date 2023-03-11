@@ -57,4 +57,7 @@ public class Feed {
     @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<Report> reports = new ArrayList<>();
 
+    @OneToMany(mappedBy = "actionFeed", cascade = CascadeType.REMOVE)
+    private List<Action> actions = new ArrayList<>();
+
 }
