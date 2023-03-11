@@ -42,19 +42,27 @@ public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
                 .where(clubNotification.club.id.eq(clubId))
                 .fetch();
 
-        for(ClubNotificationResponse notification : notificationResponseList){
+        notificationResponseList.forEach(notification -> {
 
-            String actioneeName = "";
-            if(notification.getActioneeId()!=null){
-                actioneeName = queryFactory.select(user.name).from(user).where(user.id.eq(notification.getActioneeId()))
-                        .fetchOne();
-            }
+            String actioneeName = Optional.ofNullable(notification.getActioneeId())
+                    .map( id -> queryFactory
+                            .select(user.name)
+                            .from(user)
+                            .where(user.id.eq(id))
+                            .fetchOne())
+                    .orElse("");
+
+            String actionerName = Optional.ofNullable(notification.getActionerId())
+                    .map( id -> queryFactory
+                            .select(user.name)
+                            .from(user)
+                            .where(user.id.eq(id))
+                            .fetchOne())
+                    .orElse("");
+
             notification.setActioneeName(actioneeName);
-
-            String actionerName = queryFactory.select(user.name).from(user).where(user.id.eq(notification.getActionerId()))
-                    .fetchOne();
             notification.setActionerName(actionerName);
-        }
+        });
 
         return notificationResponseList;
     }

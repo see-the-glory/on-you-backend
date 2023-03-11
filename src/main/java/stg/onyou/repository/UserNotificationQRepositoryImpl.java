@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserNotification;
 import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.QUserNotificationResponse;
@@ -24,7 +25,6 @@ import static stg.onyou.model.entity.QAction.action;
 public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport implements UserNotificationQRepository{
 
     private final JPAQueryFactory queryFactory;
-
     @Autowired
     public UserNotificationQRepositoryImpl(JPAQueryFactory queryFactory) {
         super(UserNotification.class);
@@ -53,25 +53,33 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
                 )
                 .fetch();
 
+        notificationResponseList.forEach(notification -> {
+            String actioneeName = Optional.ofNullable(notification.getActioneeId())
+                    .map(id -> queryFactory.select(user.name)
+                            .from(user)
+                            .where(user.id.eq(id))
+                            .fetchOne())
+                    .orElse("");
 
-        for(UserNotificationResponse notification : notificationResponseList){
+            String actionerName = Optional.ofNullable(notification.getActionerId())
+                    .map(id -> queryFactory.select(user.name)
+                            .from(user)
+                            .where(user.id.eq(id))
+                            .fetchOne())
+                    .orElse("");
 
-            String actioneeName = "";
-            if(notification.getActioneeId()!=null){
-                actioneeName = queryFactory.select(user.name).from(user).where(user.id.eq(notification.getActioneeId()))
-                        .fetchOne();
-            }
-
-            String actionerName = queryFactory.select(user.name).from(user).where(user.id.eq(notification.getActionerId()))
-                    .fetchOne();
-
-            String actionClubName = queryFactory.select(club.name).from(club).where(club.id.eq(notification.getActionClubId())).fetchOne();
-
+            String actionClubName = Optional.ofNullable(notification.getActionClubId())
+                    .map(id -> queryFactory.select(club.name)
+                            .from(club)
+                            .where(club.id.eq(id))
+                            .fetchOne())
+                    .orElse("");
 
             notification.setActioneeName(actioneeName);
             notification.setActionerName(actionerName);
             notification.setActionClubName(actionClubName);
-        }
+        });
+
 
         return notificationResponseList;
     }
