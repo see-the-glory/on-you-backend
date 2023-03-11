@@ -13,7 +13,7 @@ public enum ErrorCode {
 
     // 400 Bad request
     FILE_EMPTY(BAD_REQUEST, "업로드 한 파일이 존재하지 않습니다."),
-    LOGIN_FAIL(BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다."),
+    LOGIN_FAIL(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     UNSUPPORTED_EXTENSION(BAD_REQUEST, "지원하지 않는 포맷입니다."),
     ClUB_IMAGE_REQUIRED(BAD_REQUEST, "모임의 대표 이미지가 필요합니다"),
     // 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재
@@ -44,8 +44,9 @@ public enum ErrorCode {
     USER_CLUB_SCHEDULE_NOT_FOUND(NOT_FOUND, "UserClubSchedule이 존재하지 않습니다"),
     CLUB_CATEGORY_NOT_FOUND(NOT_FOUND, "ClubCategory가 존재하지 않습니다."),
     ORGANIZATION_NOT_FOUND(NOT_FOUND, "해당 교회 존재하다지 않습니다"),
-    COMMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 댓글입니다.."),
-    ACTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 Action입니다 ."),
+    COMMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 댓글입니다."),
+    ACTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 Action입니다."),
+    ACCOUNT_NOT_FOUND(NOT_FOUND, "등록되지 않은 아이디입니다."),
 
     // 503 : Internal server error
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "모임 생성에 실패하였습니다"),

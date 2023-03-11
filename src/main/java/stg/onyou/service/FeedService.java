@@ -279,8 +279,9 @@ public class FeedService {
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         feed.getUser().getTargetToken(),
                         "댓글",
-                        "피드에 댓글이 달렸습니다.",
+                        "작성하신 피드에 댓글이 달렸습니다.",
                         null,
+                        
                         null);
 
                 fcm.send(fcmMessage);
