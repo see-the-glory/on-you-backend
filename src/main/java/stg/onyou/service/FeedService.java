@@ -165,6 +165,12 @@ public class FeedService {
 
         if( feed.getUser().getId().equals(userId) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자거나 Club의 매니저이상인 경우만 삭제 가능
             feed.setDelYn('y');
+            feed.getComments().forEach(
+                    comment -> {
+                        comment.setDelYn('y');
+                        commentRepository.save(comment);
+                    }
+            );
         } else {
             throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
         }
@@ -274,7 +280,8 @@ public class FeedService {
                 .build();
 
         try {
-            if( feed.getUser().getUserPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null){
+            if( feed.getUser().getUserPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null
+                && !feed.getUser().equals(user)){
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         feed.getUser().getTargetToken(),
