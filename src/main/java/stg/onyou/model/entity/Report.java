@@ -4,6 +4,7 @@ import lombok.*;
 import stg.onyou.model.ReportReason;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -27,4 +28,6 @@ public class Report {
 
     @Enumerated(EnumType.STRING)
     private ReportReason reason;
+
+    private LocalDateTime created;
 }

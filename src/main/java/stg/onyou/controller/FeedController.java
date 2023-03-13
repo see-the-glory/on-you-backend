@@ -20,6 +20,7 @@ import stg.onyou.model.network.response.FeedResponse;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -153,10 +154,10 @@ public class FeedController {
      * FEED 신고
      */
     @PostMapping("/api/feeds/{id}/report")
-    public Header<String> reportFeed(@PathVariable Long id, FeedReportRequest feedReportRequest, HttpServletRequest httpServletRequest) {
+    public Header<String> reportFeed(@PathVariable Long id, @Valid @RequestBody FeedReportRequest feedReportRequest, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
 
-        String result = reportService.feedReport(userId, id, feedReportRequest.getReason());
+        String result = reportService.reportFeed(userId, id, feedReportRequest.getReason());
         return Header.OK(result);
     }
 
