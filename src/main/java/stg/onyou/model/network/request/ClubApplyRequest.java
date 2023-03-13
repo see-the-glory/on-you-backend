@@ -13,7 +13,7 @@ public class ClubApplyRequest {
 
     @NotEmpty
     @Size(max = 100, message = "가입 신청 내용은 100자 이내로 입력해주세요.")
-    private String memo;
+    private String message;
     @NotNull
     @Positive
     private Long clubId;

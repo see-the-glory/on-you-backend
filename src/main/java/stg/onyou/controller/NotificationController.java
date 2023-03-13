@@ -39,7 +39,7 @@ public class NotificationController {
         return notificationService.selectClubNotification(clubId);
     }
 
-    @PostMapping("/{actionId}")
+    @PostMapping("/{actionId}/read")
     public Header<String> readAction(@PathVariable Long actionId){
         notificationService.readAction(actionId);
         return Header.OK("읽음 처리 완료");

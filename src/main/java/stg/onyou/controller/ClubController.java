@@ -142,7 +142,7 @@ public class ClubController {
 
 
     @PostMapping("/apply")
-    public Header<String> applyClub(@RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
+    public Header<String> applyClub(@Valid @RequestBody ClubApplyRequest clubApplyRequest, HttpServletRequest httpServletRequest){
 
         Long userId = userService.getUserId(httpServletRequest);
 

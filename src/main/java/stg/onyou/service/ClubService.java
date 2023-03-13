@@ -430,7 +430,7 @@ public class ClubService {
                     .actioner(user)
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
-                    .message(clubApplyRequest.getMemo())
+                    .message(clubApplyRequest.getMessage())
                     .isProcessDone(true)
                     .created(LocalDateTime.now())
                     .build();
@@ -450,7 +450,7 @@ public class ClubService {
                     .actioner(user)
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
-                    .message(clubApplyRequest.getMemo())
+                    .message(clubApplyRequest.getMessage())
                     .isProcessDone(false)
                     .created(LocalDateTime.now())
                     .build();
