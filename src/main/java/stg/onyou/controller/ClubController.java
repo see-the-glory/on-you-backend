@@ -160,7 +160,7 @@ public class ClubController {
     }
 
     @PostMapping("/reject")
-    public Header<String> rejectAppliance(@RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
+    public Header<String> rejectAppliance(@Valid @RequestBody ClubRejectRequest clubRejectRequest, HttpServletRequest httpServletRequest){
 
         Long rejectorId = userService.getUserId(httpServletRequest);
         clubService.rejectAppliance(rejectorId, clubRejectRequest);

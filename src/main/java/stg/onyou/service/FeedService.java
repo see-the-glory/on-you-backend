@@ -288,7 +288,6 @@ public class FeedService {
                         "댓글",
                         "작성하신 피드에 댓글이 달렸습니다.",
                         null,
-                        
                         null);
 
                 fcm.send(fcmMessage);
