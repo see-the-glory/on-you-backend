@@ -13,6 +13,8 @@ import stg.onyou.repository.FeedRepository;
 import stg.onyou.repository.ReportRepository;
 import stg.onyou.repository.UserRepository;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,7 +25,7 @@ public class ReportService {
     private final FeedRepository feedRepository;
 
     @Transactional
-    public String feedReport(Long userId, Long feedId, ReportReason reason) {
+    public String reportFeed(Long userId, Long feedId, ReportReason reason) {
 
         Report findReport = reportRepository.findReportByFeedIdAndUserId(feedId, userId);
         if (findReport == null) {
@@ -36,6 +38,7 @@ public class ReportService {
                     .feed(feed)
                     .user(user)
                     .reason(reason)
+                    .created(LocalDateTime.now())
                     .build();
 
             reportRepository.save(report);
