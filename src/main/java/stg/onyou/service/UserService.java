@@ -338,4 +338,8 @@ public class UserService {
 
         return Header.OK(duplicateCheckResponse);
     }
+
+    public void checkValidEmail(String email) {
+        emailService.sendValidCheckEmail(email);
+    }
 }

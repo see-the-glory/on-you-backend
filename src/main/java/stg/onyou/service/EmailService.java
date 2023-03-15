@@ -2,6 +2,7 @@ package stg.onyou.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,9 +20,12 @@ public class EmailService {
     private JavaMailSender emailSender;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
+    private static SimpleMailMessage message = new SimpleMailMessage();
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
 
     public void sendSimpleMessage(User user) {
-        SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("stg8onyou@gmail.com");
         message.setTo(user.getEmail());
         message.setSubject("[시광교회]Onyou - 임시 비밀번호 발급 안내");
@@ -51,5 +55,20 @@ public class EmailService {
         }
 
         return sb.toString();
+    }
+
+    public void sendValidCheckEmail(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("stg8onyou@gmail.com");
+        message.setTo(email);
+        message.setSubject("[시광교회]Onyou - 인증번호 발급 안내");
+        String checkString = getRandomPassword(6);
+        message.setText("인증번호는 " + checkString + "입니다. ");
+
+        emailSender.send(message);
+
+        // 메일로 보낸 checkString을 value로, email을 key로 해서 redis캐시에 저장.
+        String redisKey = "check:" + email;
+        redisTemplate.opsForValue().set(redisKey, checkString);
     }
 }
