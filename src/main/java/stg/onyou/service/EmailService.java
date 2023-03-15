@@ -22,7 +22,7 @@ public class EmailService {
 
     public void sendSimpleMessage(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("jaekwang-kim@naver.com");
+        message.setFrom("stg8onyou@gmail.com");
         message.setTo(user.getEmail());
         message.setSubject("[시광교회]Onyou - 임시 비밀번호 발급 안내");
         String tempPw = getRandomPassword(6);
