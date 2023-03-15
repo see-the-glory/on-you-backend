@@ -2,40 +2,60 @@ package stg.onyou.controller;
 
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.request.CheckEmailRequest;
+import stg.onyou.model.network.request.CheckStringRequest;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.service.EmailService;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Api(tags = {"Email API Controller"})
 @Slf4j
 @RestController
 public class EmailController {
 
-    private final EmailService emailService;
-    private final UserService userService;
-
-    public EmailController(EmailService emailService, UserService userService) {
-        this.emailService = emailService;
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @PostMapping("/api/mail/findPw")
-    public Header<String> sendMail(@RequestBody FindPwRequest findPwRequest) {
-        User findUser = userService.getUserByFindPwRequest(findPwRequest);
-        if (findUser == null) {
-            return Header.OK("일치하는 유저가 없습니다.");
-        }
-        else {
-            emailService.sendSimpleMessage(findUser);
+    public Header<String> findPassword(@Valid @RequestBody FindPwRequest findPwRequest) {
+
+        userService.getUserByFindPwRequest(findPwRequest);
             return Header.OK("임시 비밀번호 발급 완료");
+
+    }
+
+    @PostMapping("/api/mail/sendCheckEmail")
+    public Header<String> checkValidEmail(@Valid @RequestBody CheckEmailRequest checkEmailRequest) {
+
+        userService.checkValidEmail(checkEmailRequest.getEmail());
+        return Header.OK("인증번호가 해당 메일로 발송되었습니다.");
+
+    }
+
+    @PostMapping("/api/mail/validCheck")
+    public Header<String> validCheckString(@Valid @RequestBody CheckStringRequest checkStringRequest) {
+
+        String redisKey = "check:" + checkStringRequest.getEmail();
+        String savedCheckString = (String) redisTemplate.opsForValue().get(redisKey);
+
+        if( checkStringRequest.getCheckString() != savedCheckString ){
+            throw new CustomException(ErrorCode.CHECK_STRING_NOT_FOUND);
         }
+        return Header.OK("이메일 인증이 확인되었습니다.");
 
     }
 

@@ -51,6 +51,8 @@ public class UserService {
     private AwsS3Service awsS3Service;
     @Autowired
     private FirebaseCloudMessageService firebaseCloudMessageService;
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -221,13 +223,15 @@ public class UserService {
 
     }
 
-    public User getUserByFindPwRequest(FindPwRequest findPwRequest) {
+    public void getUserByFindPwRequest(FindPwRequest findPwRequest) {
         String email = findPwRequest.getEmail();
         String username = findPwRequest.getUsername();
         String phoneNumber = findPwRequest.getPhoneNumber();
         String birthday = findPwRequest.getBirthday();
+
         User findUser = userRepository.findByEmailAndNameAndPhoneNumberAndBirthday(email, username, phoneNumber, birthday).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return findUser;
+
+        emailService.sendSimpleMessage(findUser);
     }
 
     public void changeUserPassword(User user, String password) {
@@ -333,5 +337,9 @@ public class UserService {
                 .build();
 
         return Header.OK(duplicateCheckResponse);
+    }
+
+    public void checkValidEmail(String email) {
+        emailService.sendValidCheckEmail(email);
     }
 }

@@ -528,6 +528,7 @@ public class ClubService {
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.CLUB_NOT_FOUND)
                 );
+
         //user_id, club_id로 UserClub find
         UserClub approvedUserClub  = userClubRepository.findByUserAndClub(approvedUser, club)
                 .orElseThrow(

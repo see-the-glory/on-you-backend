@@ -21,6 +21,7 @@ import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Api(tags = {"User API Controller"})
@@ -104,6 +105,9 @@ public class UserController {
         String jwtToken = jwtTokenProvider.createToken(member.getUsername());
         String redisKey = REDIS_PREFIX + member.getEmail();
         redisTemplate.opsForValue().set(redisKey, jwtToken);
+
+        member.setLastLoginDate(LocalDateTime.now());
+        userRepository.save(member);
 
         result.put("token", jwtToken);
         return new ResponseEntity<>(result, HttpStatus.OK);
