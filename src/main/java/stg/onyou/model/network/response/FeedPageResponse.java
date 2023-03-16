@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 public class FeedPageResponse {
 
     private Boolean hasNext;
+    private Boolean hasData;
     private Page<FeedResponse> responses;
 
 }
