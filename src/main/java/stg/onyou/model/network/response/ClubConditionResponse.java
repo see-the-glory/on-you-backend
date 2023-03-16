@@ -26,7 +26,6 @@ public class ClubConditionResponse {
     private String isApprovedRequired;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
-    private List<UserResponse> members;
     private List<CategoryResponse> categories;
     private String contactPhone;
     private String customCursor;

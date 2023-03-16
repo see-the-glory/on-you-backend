@@ -87,9 +87,9 @@ public class ClubService {
 
         Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId);
 
+
         ClubPageResponse response = ClubPageResponse.builder()
-                .hasNext(findClubList.hasNext())
-//                .hasNext(hasNextElement(findClubList, page, clubCondition, userId))
+                .hasData(findClubList.getTotalElements()!=0?true:false)
                 .responses(findClubList)
                 .build();
 
