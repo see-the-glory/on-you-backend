@@ -65,10 +65,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, cursor, currentUser);
 
         clubResult.forEach(
-                r -> {
-                    r.setMembers(setMember(r));
-                    r.setCategories(setCategory(r));
-                }
+                club -> club.setCategories(setCategory(club))
         );
 
         long total = clubResult.size();
@@ -90,32 +87,13 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<UserResponse> setMember(ClubConditionResponse r) {
-        return queryFactory
-                .select(new QUserResponse(
-                        user.id,
-                        organization.name,
-                        user.thumbnail,
-                        user.name,
-                        user.birthday,
-                        userClub.applyStatus,
-                        user.sex,
-                        user.email,
-                        user.created,
-                        userClub.role,
-                        user.phoneNumber
-                ))
-                .from(userClub)
-                .leftJoin(userClub.user, user)
-                .leftJoin(user.organization, organization)
-                .where(userClub.club.id.eq(r.getId()))
-                .fetch();
-    }
-
     private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String cursor, User currentUser) {
 
         String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
+
+        StringExpression cursorForEachRow  = StringExpressions.lpad(stringTemplate, 20, '0')
+                .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'));
 
         return queryFactory
                 .select(new QClubConditionResponse(
@@ -132,8 +110,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         club.isApproveRequired,
                         club.created,
                         club.contactPhone,
-                        StringExpressions.lpad(stringTemplate, 20, '0')
-                                .concat(StringExpressions.lpad(club.id.stringValue(), 10, '0'))
+                        cursorForEachRow
                 ))
                 .from(club)
                 .leftJoin(club.organization, organization)
@@ -146,9 +123,8 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         showMemberBetween(clubCondition),
                         club.delYn.eq('N')
                 )
-//                .orderBy(club.created.asc(), club.id.asc())
                 .groupBy(club)
-                .orderBy(clubSort(page, clubCondition))
+                .orderBy(clubSort(page, clubCondition, cursorForEachRow))
                 .limit(page.getPageSize())
                 .fetch();
     }
@@ -249,7 +225,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
         return res;
     }
 
-    private OrderSpecifier<?> clubSort(Pageable page, ClubCondition clubCondition) {
+    private OrderSpecifier<?> clubSort(Pageable page, ClubCondition clubCondition, StringExpression cursorForEachRow) {
 
         //서비스에서 보내준 Pageable 객체에 정렬조건 값 체크
         if (!page.getSort().isEmpty()) {
@@ -257,18 +233,10 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
             for (Sort.Order order : page.getSort()) {
 
                 Order direction = getCustomDirection(clubCondition);
-
-                switch (order.getProperty()){
-                    case "created":
-                        return new OrderSpecifier(direction, club.created);
-                    case "recruitNum":
-                        return new OrderSpecifier(direction, club.recruitNumber);
-                    case "feedNum":
-                        return new OrderSpecifier(direction, club.feedNumber);
-                    case "likesNum":
-                        return new OrderSpecifier(direction, club.clubLikesNumber);
-                }
+                return new OrderSpecifier(direction, cursorForEachRow);
             }
+
+
         }
         return null;
     }

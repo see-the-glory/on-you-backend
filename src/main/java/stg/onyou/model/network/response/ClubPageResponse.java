@@ -18,6 +18,7 @@ import java.util.Set;
 @Builder
 public class ClubPageResponse {
 
+    private Boolean hasData;
     private Boolean hasNext;
     private Page<ClubConditionResponse> responses;
 
