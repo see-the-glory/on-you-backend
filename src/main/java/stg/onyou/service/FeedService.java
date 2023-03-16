@@ -82,6 +82,7 @@ public class FeedService {
         Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedList(page, cursor, userId);
 
         FeedPageResponse response = FeedPageResponse.builder()
+                .hasData(findFeedList.getTotalElements()!=0?true:false)
                 .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
@@ -94,6 +95,7 @@ public class FeedService {
         Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByClub(page, cursor, userId, clubId);
 
         FeedPageResponse response = FeedPageResponse.builder()
+                .hasData(findFeedList.getTotalElements()!=0?true:false)
                 .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
