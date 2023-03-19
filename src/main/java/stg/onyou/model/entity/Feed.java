@@ -41,6 +41,7 @@ public class Feed {
     private LocalDateTime updated;
     @Column(columnDefinition = "integer default 0")
     private Integer reportCount;
+    private double weight;
 
     @OneToMany(mappedBy = "feed", cascade = CascadeType.REMOVE)
     private List<FeedLikes> likes = new ArrayList<>();
