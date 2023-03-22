@@ -1,14 +1,21 @@
 package stg.onyou.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.PreferType;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedLikes;
+import stg.onyou.model.entity.User;
+import stg.onyou.model.entity.UserPreference;
 import stg.onyou.repository.FeedRepository;
 import stg.onyou.repository.LikesRepository;
+import stg.onyou.repository.UserPreferenceRepository;
 import stg.onyou.repository.UserRepository;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -17,29 +24,36 @@ public class LikesService {
     private final LikesRepository likesRepository;
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
+    @Autowired
+    private UserPreferenceRepository userPreferenceRepository;
 
     public void addLikes(Long userId, Long feedId) {
-        FeedLikes isLike = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
-        if (isLike == null) { // new Like
-            Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-            FeedLikes like = FeedLikes.builder()
-                    .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
-                    .feed(feed)
-                    .onOff(true)
-                    .build();
-            likesRepository.save(like);
-        } else { // 이미 '좋아요'를 했는데, 한번 더 누르면 '좋아요' 취소. update Like
-            isLike.setOnOff(!isLike.isOnOff());
-            likesRepository.save(isLike);
-        }
-    }
 
-    // '좋아요' 유무
-    public boolean isLikes(Long userId, Long feedId) {
-        FeedLikes like = likesRepository.findLikesByUserIdAndFeedId(userId, feedId);
-        if (like == null) {
-            return false;
-        }
-        return like.isOnOff();
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+
+        FeedLikes like = FeedLikes.builder()
+                .user(user)
+                .feed(feed)
+                .created(LocalDateTime.now())
+                .build();
+
+        likesRepository.findLikesByUserIdAndFeedId(userId, feedId)
+                .ifPresentOrElse(
+                        likes -> likesRepository.deleteById(likes.getId()),
+                        () -> {
+                            likesRepository.save(like);
+
+                            UserPreference userPreference = UserPreference.builder()
+                                    .user(user)
+                                    .preferType(PreferType.FEED_LIKE)
+                                    .preferUser(feed.getUser())
+                                    .preferClub(feed.getClub())
+                                    .created(LocalDateTime.now())
+                                    .build();
+
+                            userPreferenceRepository.save(userPreference);
+                        }
+                );
     }
 }

@@ -85,40 +85,6 @@ public class FeedController {
         return Header.OK("Feed 생성 완료");
     }
 
-    @GetMapping("/api/feeds/{id}")
-    public Header<FeedResponse> selectFeed(@PathVariable Long id,
-                                           HttpServletRequest httpServletRequest) {
-        Feed feed = feedService.findById(id);
-        Long userId = userService.getUserId(httpServletRequest);
-        String userName = feed.getUser().getName();
-        Long feedId = feed.getId();
-        Long clubId = feed.getClub().getId();
-        String clubName = feed.getClub().getName();
-        String content = feed.getContent();
-        List<String> hashtags = feedService.getHashtags(feed);
-        List<String> imageUrls = feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
-        boolean likeYn = likesService.isLikes(userId, feed.getId());
-        int likesCount = feed.getLikes().size();
-        long commentCount = feed.getComments().size();
-        FeedResponse feedResponse = FeedResponse.builder()
-                .userId(feed.getUser().getId())
-                .id(feedId)
-                .clubId(clubId)
-                .clubName(clubName)
-                .userName(userName)
-                .content(content)
-//                .imageUrls(imageUrls)
-//                .likeYn(likeYn)
-//                .likesCount(likesCount)
-                .commentCount(commentCount)
-//                .hashtags(hashtags)
-                .created(feed.getCreated())
-                .updated(feed.getUpdated())
-                .build();
-
-        return Header.OK(feedResponse);
-    }
-
     @PutMapping("/api/feeds/{id}")
     public Header<Object> updateFeed(@PathVariable Long id,
                                      @RequestBody FeedUpdateRequest request,
