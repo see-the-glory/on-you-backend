@@ -20,7 +20,7 @@ public class UserCreateRequest {
     private String email;
     private String password;
     private String phoneNumber;
-    private char sex;
+    private String sex;
     private String birthday;
 
 }
