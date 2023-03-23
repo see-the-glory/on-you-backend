@@ -55,7 +55,8 @@ public enum ErrorCode {
     CLUB_CREATION_ERROR(INTERNAL_SERVER_ERROR, "모임 생성에 실패하였습니다"),
     CLUB_REGISTER_ERROR(INTERNAL_SERVER_ERROR, "모임 등록에 실패하였습니다"),
     CLUB_SCHEDULE_MUTATION_ERROR(INTERNAL_SERVER_ERROR, "모임 일정 생성에 실패하였습니다"),
-    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "Feed 업데이트에 실패하였습니다.");
+    FEED_UPDATE_ERROR(INTERNAL_SERVER_ERROR, "Feed 업데이트에 실패하였습니다."),
+    MAIL_SEND_ERROR(INTERNAL_SERVER_ERROR, "메일 발송 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;
