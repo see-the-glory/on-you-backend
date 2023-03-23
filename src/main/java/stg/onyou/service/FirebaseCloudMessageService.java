@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.network.FcmMessage;
+import stg.onyou.model.network.MessageMetaData;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,14 +46,4 @@ public class FirebaseCloudMessageService {
 
         return msg;
     }
-}
-
-@Data
-@Builder
-class MessageMetaData {
-    private ActionType type;
-    private Long clubId;
-    private Long feedId;
-    private Long commentId;
-    private Long actionId;
 }

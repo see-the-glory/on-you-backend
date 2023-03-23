@@ -16,6 +16,7 @@ import stg.onyou.model.enums.AccessModifier;
 import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
+import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;

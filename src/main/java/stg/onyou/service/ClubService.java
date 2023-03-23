@@ -17,6 +17,7 @@ import stg.onyou.model.enums.RecruitStatus;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;

@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.network.FcmMessage;
+import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.service.FirebaseCloudMessageService;
 import com.google.firebase.messaging.Message;
 
@@ -30,12 +32,15 @@ public class TestController {
     @PostMapping("/api/test/fcm")
     public ResponseEntity pushMessage(@RequestBody TestDTO requestDTO) throws IOException, FirebaseMessagingException {
 
+        MessageMetaData data = MessageMetaData.builder()
+                .type(ActionType.APPLY)
+                .build();
+
         Message fcmMessage = firebaseCloudMessageService.makeMessage(
                 requestDTO.getTargetToken(),
                 requestDTO.getTitle(),
                 requestDTO.getBody(),
-        null,
-        null
+                data
         );
 
         String id = fcm.send(fcmMessage);
