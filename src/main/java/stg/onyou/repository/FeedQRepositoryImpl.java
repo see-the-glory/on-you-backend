@@ -100,7 +100,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                         feed.access.eq(AccessModifier.valueOf("PUBLIC")),
                         cursorCompare(page, cursor)
                 )
-                .orderBy(new OrderSpecifier(Order.DESC, feed.weight))
+                .orderBy(new OrderSpecifier(Order.DESC, feed.created))
                 .limit(page.getPageSize())
                 .fetch();
 
