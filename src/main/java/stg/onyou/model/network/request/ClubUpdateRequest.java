@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
-import stg.onyou.model.RecruitStatus;
+import stg.onyou.model.enums.RecruitStatus;
 
 import javax.validation.constraints.*;
-import java.util.List;
 
 @Data
 @NoArgsConstructor

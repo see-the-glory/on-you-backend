@@ -3,7 +3,7 @@ package stg.onyou.model.network.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.AccessModifier;
+import stg.onyou.model.enums.AccessModifier;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

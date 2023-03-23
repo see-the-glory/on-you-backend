@@ -161,6 +161,12 @@ public class UserController {
         return Header.OK("targetToken이 전송되었습니다.");
     }
 
+    @GetMapping("/pushAlarm")
+    public Header<PushAlarmResponse> getPushAlarm(HttpServletRequest httpServletRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        return Header.OK(userService.getPushAlarm(userId));
+    }
     @PutMapping("/pushAlarm")
     public Header<Object> setPushAlarm(HttpServletRequest httpServletRequest,
                                        @RequestBody PushAlarmUpdateRequest pushAlarmUpdateRequest) {

@@ -11,19 +11,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.ActionType;
-import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.RecruitStatus;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.ActionType;
+import stg.onyou.model.enums.ApplyStatus;
+import stg.onyou.model.enums.RecruitStatus;
+import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 import stg.onyou.repository.ClubNotificationRepository;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -474,12 +474,17 @@ public class ClubService {
                         try {
                             if( admin.getUserPushAlarm()=='Y' && admin.getTargetToken()!=null){
 
+                                MessageMetaData data = MessageMetaData.builder()
+                                        .type(ActionType.APPLY)
+                                        .actionId(action.getId())
+                                        .clubId(club.getId())
+                                        .build();
+
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                                         admin.getTargetToken(),
                                         "가입 희망",
                                         user.getName()+"님이 "+club.getName()+" 가입을 희망합니다.",
-                                        club.getId(),
-                                        savedAction.getId()
+                                        data
                                 );
 
                                 fcm.send(fcmMessage);
@@ -599,12 +604,17 @@ public class ClubService {
         try {
             if( approvedUser.getUserPushAlarm()=='Y' && approvedUser.getTargetToken()!=null){
 
+                MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.APPROVE)
+                        .actionId(action.getId())
+                        .clubId(club.getId())
+                        .build();
+
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
                         "가입 결과",
                         club.getName()+"가입이 수락되었습니다.",
-                        club.getId(),
-                        null);
+                        data);
 
                 fcm.send(fcmMessage);
             }
@@ -681,12 +691,16 @@ public class ClubService {
         try {
             if( rejectedUser.getUserPushAlarm()=='Y' && rejectedUser.getTargetToken()!=null){
 
+                MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.REJECT)
+                        .actionId(action.getId())
+                        .build();
+
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         rejectedUser.getTargetToken(),
                         "가입 결과",
                         club.getName()+"로부터 메시지가 도착했습니다.",
-                        null,
-                        null);
+                        data);
 
                 fcm.send(fcmMessage);
             }

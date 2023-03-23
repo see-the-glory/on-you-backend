@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.RecruitStatus;
+import stg.onyou.model.enums.RecruitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

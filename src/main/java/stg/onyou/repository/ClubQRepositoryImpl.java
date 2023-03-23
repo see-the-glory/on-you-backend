@@ -1,39 +1,28 @@
 package stg.onyou.repository;
 
-import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.data.repository.NoRepositoryBean;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.InterestCategory;
-import stg.onyou.model.RecruitStatus;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.RecruitStatus;
 import stg.onyou.model.entity.Category;
 import stg.onyou.model.entity.Club;
 //import stg.onyou.model.entity.QUser;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.network.request.ClubCondition;
-import stg.onyou.model.network.request.ClubSearchRequest;
 import stg.onyou.model.network.response.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static stg.onyou.model.entity.QClub.club;
-import static stg.onyou.model.entity.QUser.user;
 import static stg.onyou.model.entity.QUserClub.userClub;
 import static stg.onyou.model.entity.QOrganization.organization;
 import static stg.onyou.model.entity.QClubCategory.clubCategory;

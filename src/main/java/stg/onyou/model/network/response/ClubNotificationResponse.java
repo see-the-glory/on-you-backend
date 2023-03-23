@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.ActionType;
+import stg.onyou.model.enums.ActionType;
 
 import java.time.LocalDateTime;
 

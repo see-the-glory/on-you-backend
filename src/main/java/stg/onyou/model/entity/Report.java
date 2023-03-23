@@ -1,7 +1,7 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.ReportReason;
+import stg.onyou.model.enums.ReportReason;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

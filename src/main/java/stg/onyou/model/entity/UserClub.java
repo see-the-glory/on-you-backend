@@ -1,8 +1,8 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.ApplyStatus;
+import stg.onyou.model.enums.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

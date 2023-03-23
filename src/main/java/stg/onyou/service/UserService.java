@@ -1,15 +1,14 @@
 package stg.onyou.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Block;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.AlarmType;
-import stg.onyou.model.InterestCategory;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.AlarmType;
+import stg.onyou.model.enums.InterestCategory;
+import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
@@ -19,7 +18,6 @@ import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -341,5 +339,16 @@ public class UserService {
 
     public void checkValidEmail(String email) {
         emailService.sendValidCheckEmail(email);
+    }
+
+    public PushAlarmResponse getPushAlarm(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        PushAlarmResponse pushAlarmResponse = PushAlarmResponse.builder()
+                .userPushAlarm(user.getUserPushAlarm())
+                .clubPushAlarm(user.getClubPushAlarm())
+                .build();
+
+        return pushAlarmResponse;
     }
 }

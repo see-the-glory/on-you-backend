@@ -3,7 +3,7 @@ package stg.onyou.model.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
-import stg.onyou.model.RecruitStatus;
+import stg.onyou.model.enums.RecruitStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

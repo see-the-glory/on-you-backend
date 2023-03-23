@@ -1,6 +1,6 @@
 package stg.onyou.model.entity;
 import lombok.*;
-import stg.onyou.model.PreferType;
+import stg.onyou.model.enums.PreferType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
