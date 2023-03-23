@@ -340,4 +340,15 @@ public class UserService {
     public void checkValidEmail(String email) {
         emailService.sendValidCheckEmail(email);
     }
+
+    public PushAlarmResponse getPushAlarm(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        PushAlarmResponse pushAlarmResponse = PushAlarmResponse.builder()
+                .userPushAlarm(user.getUserPushAlarm())
+                .clubPushAlarm(user.getClubPushAlarm())
+                .build();
+
+        return pushAlarmResponse;
+    }
 }
