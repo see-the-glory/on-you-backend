@@ -229,6 +229,7 @@ public class FeedService {
             if( feed.getUser().getClubPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null){
 
                 MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.FEED_CREATE)
                         .actionId(action.getId())
                         .feedId(feed.getId())
                         .clubId(club.getId())
@@ -306,6 +307,7 @@ public class FeedService {
                 && !feed.getUser().equals(user)){
 
                 MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.FEED_COMMENT)
                         .actionId(action.getId())
                         .feedId(feed.getId())
                         .commentId(comment.getId())

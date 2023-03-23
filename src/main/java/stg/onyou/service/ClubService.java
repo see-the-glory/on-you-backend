@@ -474,6 +474,7 @@ public class ClubService {
                             if( admin.getUserPushAlarm()=='Y' && admin.getTargetToken()!=null){
 
                                 MessageMetaData data = MessageMetaData.builder()
+                                        .type(ActionType.APPLY)
                                         .actionId(action.getId())
                                         .clubId(club.getId())
                                         .build();
@@ -603,6 +604,7 @@ public class ClubService {
             if( approvedUser.getUserPushAlarm()=='Y' && approvedUser.getTargetToken()!=null){
 
                 MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.APPROVE)
                         .actionId(action.getId())
                         .clubId(club.getId())
                         .build();
@@ -689,6 +691,7 @@ public class ClubService {
             if( rejectedUser.getUserPushAlarm()=='Y' && rejectedUser.getTargetToken()!=null){
 
                 MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.REJECT)
                         .actionId(action.getId())
                         .build();
 

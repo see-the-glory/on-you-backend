@@ -14,6 +14,7 @@ import okhttp3.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.network.FcmMessage;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class FirebaseCloudMessageService {
                         .setImage(null)
                         .build()
                 )
+                .putData("type", String.valueOf(data.getType()))
                 .putData("clubId", Optional.ofNullable(String.valueOf(data.getClubId())).orElse(null))
                 .putData("actionId", Optional.ofNullable(String.valueOf(data.getActionId())).orElse(null))
                 .putData("feedId", Optional.ofNullable(String.valueOf(data.getFeedId())).orElse(null))
@@ -48,6 +50,7 @@ public class FirebaseCloudMessageService {
 @Data
 @Builder
 class MessageMetaData {
+    private ActionType type;
     private Long clubId;
     private Long feedId;
     private Long commentId;
