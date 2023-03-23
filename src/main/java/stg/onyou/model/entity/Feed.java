@@ -1,7 +1,7 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.AccessModifier;
+import stg.onyou.model.enums.AccessModifier;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

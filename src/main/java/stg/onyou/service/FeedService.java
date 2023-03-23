@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.AccessModifier;
-import stg.onyou.model.ActionType;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.AccessModifier;
+import stg.onyou.model.enums.ActionType;
+import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedSearch;
@@ -225,6 +225,26 @@ public class FeedService {
                 .action(action)
                 .build();
 
+        try {
+            if( feed.getUser().getClubPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null){
+
+                MessageMetaData data = MessageMetaData.builder()
+                        .actionId(action.getId())
+                        .feedId(feed.getId())
+                        .clubId(club.getId())
+                        .build();
+
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                        feed.getUser().getTargetToken(),
+                        "새로운 피드",
+                        club.getName()+"에 새로운 피드가 올라왔습니다. ",
+                        data);
+
+                fcm.send(fcmMessage);
+            }
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
         feedRepository.save(feed);
         actionRepository.save(action);
         clubNotificationRepository.save(clubNotification);
@@ -285,12 +305,17 @@ public class FeedService {
             if( feed.getUser().getUserPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null
                 && !feed.getUser().equals(user)){
 
+                MessageMetaData data = MessageMetaData.builder()
+                        .actionId(action.getId())
+                        .feedId(feed.getId())
+                        .commentId(comment.getId())
+                        .build();
+
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         feed.getUser().getTargetToken(),
-                        "댓글",
-                        "작성하신 피드에 댓글이 달렸습니다.",
-                        null,
-                        null);
+                        "새로운 댓글",
+                        user.getName()+"님의 댓글이 달렸습니다.",
+                        data);
 
                 fcm.send(fcmMessage);
             }

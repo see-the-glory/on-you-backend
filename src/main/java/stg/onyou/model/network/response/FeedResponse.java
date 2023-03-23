@@ -1,9 +1,7 @@
 package stg.onyou.model.network.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
-import stg.onyou.model.RecruitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

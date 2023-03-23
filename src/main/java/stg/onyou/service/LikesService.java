@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.PreferType;
+import stg.onyou.model.enums.PreferType;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedLikes;
 import stg.onyou.model.entity.User;

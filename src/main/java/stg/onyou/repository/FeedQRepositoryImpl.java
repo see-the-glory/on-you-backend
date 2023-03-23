@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.AccessModifier;
+import stg.onyou.model.enums.AccessModifier;
 import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.FeedHashtag;

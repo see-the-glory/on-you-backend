@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.ApplyStatus;
+import stg.onyou.model.enums.Role;
 
 @Data
 @NoArgsConstructor

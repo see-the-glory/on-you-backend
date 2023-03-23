@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.ReportReason;
+import stg.onyou.model.enums.ReportReason;
 import stg.onyou.model.entity.Feed;
 import stg.onyou.model.entity.Report;
 import stg.onyou.model.entity.User;

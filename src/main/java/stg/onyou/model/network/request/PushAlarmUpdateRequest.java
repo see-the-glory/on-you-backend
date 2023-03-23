@@ -4,7 +4,7 @@ package stg.onyou.model.network.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.AlarmType;
+import stg.onyou.model.enums.AlarmType;
 
 @Data
 @NoArgsConstructor

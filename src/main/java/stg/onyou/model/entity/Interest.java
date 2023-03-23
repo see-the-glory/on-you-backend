@@ -1,7 +1,7 @@
 package stg.onyou.model.entity;
 
 import lombok.*;
-import stg.onyou.model.InterestCategory;
+import stg.onyou.model.enums.InterestCategory;
 
 import javax.persistence.*;
 

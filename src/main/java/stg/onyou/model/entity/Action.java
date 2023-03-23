@@ -2,9 +2,8 @@ package stg.onyou.model.entity;
 
 import lombok.*;
 import org.hibernate.annotations.Type;
-import stg.onyou.model.ActionType;
-import stg.onyou.model.ApplyStatus;
-import stg.onyou.model.Role;
+import stg.onyou.model.enums.ActionType;
+import stg.onyou.model.enums.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

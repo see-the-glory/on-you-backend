@@ -1,4 +1,4 @@
-package stg.onyou.model;
+package stg.onyou.model.enums;
 
 public enum RecruitStatus {
 //    BEGIN, RECRUIT, CLOSED
