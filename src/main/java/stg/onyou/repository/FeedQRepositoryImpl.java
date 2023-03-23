@@ -52,8 +52,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
         for(FeedResponse f : feedResult) {
             Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
 
-            boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
-            Long likesCount = tempFeed.getLikes().stream().filter(feedLikes -> feedLikes.isOnOff()==true).count();
+            Long likesCount = tempFeed.getLikes().stream().count();
 
             //hashtag 가져오기
             List<String> result = new ArrayList<>();
@@ -66,12 +65,12 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             List<String> imageUrls = tempFeed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList());
             f.setHashtags(hashtags);
             f.setImageUrls(imageUrls);
-            f.setLikeYn(likeYn);
             f.setLikesCount(likesCount);
-
             f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count());
         }
     }
+
+
 
     @Override
     public Page<FeedResponse> findFeedList(Pageable page, String cursor, Long userId) {

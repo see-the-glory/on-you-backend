@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity
 @Builder
-@ToString(of={"id","name","birthday", "thumbnail", "sex", "email", "role"})
 public class User implements UserDetails {
 
     @Id
@@ -34,7 +33,7 @@ public class User implements UserDetails {
     private Organization organization;
     private String birthday;
     private String thumbnail;
-    private char sex;
+    private String sex;
     @Column(unique=true)
     private String email;
     private LocalDateTime created;

@@ -321,19 +321,7 @@ public class FeedService {
 
     public int getLikesCount(Long feedId) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        int count = 0;
-        if (feed == null) {
-            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
-
-        } else {
-            List<FeedLikes> feedLikes = feed.getLikes();
-            for (FeedLikes feedLike : feedLikes) {
-                if (feedLike.isOnOff()) {
-                    count += 1;
-                }
-            }
-            return count;
-        }
+        return feed.getLikes().size();
     }
 
     public List<String> getHashtags(Feed feed) {

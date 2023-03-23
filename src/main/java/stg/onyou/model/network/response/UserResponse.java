@@ -26,7 +26,7 @@ public class UserResponse {
     private String name;
     private String birthday;
     private ApplyStatus applyStatus;
-    private char sex;
+    private String sex;
     private String email;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
@@ -36,7 +36,7 @@ public class UserResponse {
 
     @QueryProjection
     public UserResponse(Long id, String organizationName, String thumbnail, String name, String birthday,
-                        ApplyStatus applyStatus, char sex, String email, LocalDateTime created, Role role, String phoneNumber){
+                        ApplyStatus applyStatus, String sex, String email, LocalDateTime created, Role role, String phoneNumber){
 
         this.id = id;
         this.organizationName = organizationName;

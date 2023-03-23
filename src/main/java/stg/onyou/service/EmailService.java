@@ -1,12 +1,15 @@
 package stg.onyou.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import stg.onyou.exception.CustomException;
+import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.User;
 import stg.onyou.repository.UserRepository;
 
@@ -15,6 +18,7 @@ import java.util.Date;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class EmailService {
 
     private JavaMailSender emailSender;
@@ -26,12 +30,17 @@ public class EmailService {
 
 
     public void sendSimpleMessage(User user) {
-        message.setFrom("stg8onyou@gmail.com");
+        message.setFrom("stg8onyou@naver.com");
         message.setTo(user.getEmail());
         message.setSubject("[시광교회]Onyou - 임시 비밀번호 발급 안내");
         String tempPw = getRandomPassword(6);
         message.setText("임시 비밀번호는 " + tempPw + "입니다. ");
-        emailSender.send(message);
+        try{
+            emailSender.send(message);
+        } catch(Exception e){
+            log.debug("Mail send Error: {}",e);
+            throw new CustomException(ErrorCode.MAIL_SEND_ERROR);
+        }
         user.setPassword(passwordEncoder.encode(tempPw));  // set password to encrypted tempPw
         userRepository.save(user);
     }

@@ -3,6 +3,7 @@ package stg.onyou.model.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -25,5 +26,6 @@ public class FeedLikes {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    private boolean onOff;
+    LocalDateTime created;
 }
+

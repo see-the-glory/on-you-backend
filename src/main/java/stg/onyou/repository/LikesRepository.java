@@ -3,6 +3,8 @@ package stg.onyou.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import stg.onyou.model.entity.FeedLikes;
 
+import java.util.Optional;
+
 public interface LikesRepository extends JpaRepository<FeedLikes, Long>{
-    FeedLikes findLikesByUserIdAndFeedId(Long userId, Long feedId);
+    Optional<FeedLikes> findLikesByUserIdAndFeedId(Long userId, Long feedId);
 }
