@@ -13,12 +13,10 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.enums.AccessModifier;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.FeedHashtag;
-import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.network.response.FeedResponse;
+import stg.onyou.model.network.response.LikeUserResponse;
 import stg.onyou.model.network.response.QFeedResponse;
 import stg.onyou.service.LikesService;
 
@@ -67,6 +65,14 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setImageUrls(imageUrls);
             f.setLikesCount(likesCount);
             f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count());
+
+            List<LikeUserResponse> likeUserResponseList =
+                    tempFeed.getLikes().stream()
+                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .collect(Collectors.toList());
+
+            f.setLikeUserList(likeUserResponseList);
+
         }
     }
 
