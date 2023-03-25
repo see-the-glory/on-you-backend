@@ -56,4 +56,13 @@ public class LikesService {
                         }
                 );
     }
+
+    // '좋아요' 유무
+    public boolean isLikes(Long userId, Long feedId) {
+        if(likesRepository.findLikesByUserIdAndFeedId(userId, feedId).isPresent()){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

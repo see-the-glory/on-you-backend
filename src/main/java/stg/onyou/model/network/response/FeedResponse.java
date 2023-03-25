@@ -29,6 +29,7 @@ public class FeedResponse {
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updated;
     private String customCursor;
+    private List<LikeUserResponse> likeUserList;
 
     @QueryProjection
     public FeedResponse(Long id, Long clubId, String clubName, Long userId, String userName, String content,

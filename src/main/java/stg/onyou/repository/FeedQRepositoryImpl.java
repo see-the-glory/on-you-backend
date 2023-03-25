@@ -13,12 +13,10 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.*;
 import stg.onyou.model.enums.AccessModifier;
-import stg.onyou.model.entity.Club;
-import stg.onyou.model.entity.Feed;
-import stg.onyou.model.entity.FeedHashtag;
-import stg.onyou.model.entity.FeedImage;
 import stg.onyou.model.network.response.FeedResponse;
+import stg.onyou.model.network.response.LikeUserResponse;
 import stg.onyou.model.network.response.QFeedResponse;
 import stg.onyou.service.LikesService;
 
@@ -53,6 +51,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
 
             Long likesCount = tempFeed.getLikes().stream().count();
+            boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
 
             //hashtag 가져오기
             List<String> result = new ArrayList<>();
@@ -66,7 +65,16 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setHashtags(hashtags);
             f.setImageUrls(imageUrls);
             f.setLikesCount(likesCount);
+            f.setLikeYn(likeYn);
             f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count());
+
+            List<LikeUserResponse> likeUserResponseList =
+                    tempFeed.getLikes().stream()
+                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .collect(Collectors.toList());
+
+            f.setLikeUserList(likeUserResponseList);
+
         }
     }
 
