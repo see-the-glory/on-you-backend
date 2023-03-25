@@ -51,6 +51,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
 
             Long likesCount = tempFeed.getLikes().stream().count();
+            boolean likeYn = likesService.isLikes(userId, tempFeed.getId());
 
             //hashtag 가져오기
             List<String> result = new ArrayList<>();
@@ -64,6 +65,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
             f.setHashtags(hashtags);
             f.setImageUrls(imageUrls);
             f.setLikesCount(likesCount);
+            f.setLikeYn(likeYn);
             f.setCommentCount(tempFeed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count());
 
             List<LikeUserResponse> likeUserResponseList =
