@@ -11,7 +11,7 @@ import stg.onyou.model.entity.FeedLikes;
 import stg.onyou.model.entity.User;
 import stg.onyou.model.entity.UserPreference;
 import stg.onyou.repository.FeedRepository;
-import stg.onyou.repository.LikesRepository;
+import stg.onyou.repository.FeedLikesRepository;
 import stg.onyou.repository.UserPreferenceRepository;
 import stg.onyou.repository.UserRepository;
 
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class LikesService {
 
-    private final LikesRepository likesRepository;
+    private final FeedLikesRepository feedLikesRepository;
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
     @Autowired
@@ -38,11 +38,11 @@ public class LikesService {
                 .created(LocalDateTime.now())
                 .build();
 
-        likesRepository.findLikesByUserIdAndFeedId(userId, feedId)
+        feedLikesRepository.findLikesByUserIdAndFeedId(userId, feedId)
                 .ifPresentOrElse(
-                        likes -> likesRepository.deleteById(likes.getId()),
+                        likes -> feedLikesRepository.deleteById(likes.getId()),
                         () -> {
-                            likesRepository.save(like);
+                            feedLikesRepository.save(like);
 
                             UserPreference userPreference = UserPreference.builder()
                                     .user(user)
@@ -59,7 +59,7 @@ public class LikesService {
 
     // '좋아요' 유무
     public boolean isLikes(Long userId, Long feedId) {
-        if(likesRepository.findLikesByUserIdAndFeedId(userId, feedId).isPresent()){
+        if(feedLikesRepository.findLikesByUserIdAndFeedId(userId, feedId).isPresent()){
             return true;
         } else {
             return false;

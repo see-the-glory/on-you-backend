@@ -11,6 +11,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
+import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedReportRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
@@ -130,13 +131,12 @@ public class FeedController {
     /**
      * FEED 에 댓글 추가
      */
-    @PostMapping("/api/feeds/{id}/comment")
-    public Header<String> commentFeed(@PathVariable Long id,
-                                      @RequestBody Map<String, String> comment,
+    @PostMapping("/api/feeds/{feedId}/comment")
+    public Header<String> commentFeed(@PathVariable Long feedId,
+                                      @Valid @RequestBody CommentCreateRequest commentCreateRequest,
                                       HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        String content = comment.get("content");
-        feedService.commentFeed(userId, id, content);
+        feedService.commentFeed(userId, feedId, commentCreateRequest);
         return Header.OK("댓글 등록 완료");
     }
 

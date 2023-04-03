@@ -5,6 +5,6 @@ import stg.onyou.model.entity.FeedLikes;
 
 import java.util.Optional;
 
-public interface LikesRepository extends JpaRepository<FeedLikes, Long>{
+public interface FeedLikesRepository extends JpaRepository<FeedLikes, Long>{
     Optional<FeedLikes> findLikesByUserIdAndFeedId(Long userId, Long feedId);
 }

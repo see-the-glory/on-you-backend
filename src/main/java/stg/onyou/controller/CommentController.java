@@ -20,6 +20,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/comments")
 public class CommentController {
     private final FeedService feedService;
     private final CommentService commentService;
@@ -33,7 +34,7 @@ public class CommentController {
 //        return Header.OK();
 //    }
 
-    @DeleteMapping("/api/comments/{id}")
+    @DeleteMapping("/{id}")
     public Header<Object> deleteComment(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
         Comment comment = commentService.findById(id);
@@ -43,5 +44,12 @@ public class CommentController {
         } else {
             throw new CustomException(ErrorCode.NO_AUTH_DELETE_COMMENT);
         }
+    }
+
+    @PostMapping("/{id}/likes")
+    public Header<Object> likeComment(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        commentService.likeComment(id, userId);
+        return Header.OK("댓글 좋아요 완료");
     }
 }
