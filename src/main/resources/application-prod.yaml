@@ -1,0 +1,93 @@
+spring:
+  mail:
+    username: knzO+OhAyH5l7Y++yqNqnfVFNey7f7NbgFbt9T7VhXQ=
+    port: '587'
+    properties:
+      mail:
+        smtp:
+          auth: 'true'
+          ssl:
+            enable: 'true'
+    host: smtp.gmail.com
+    password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
+  redis:
+    host: 172.17.0.1
+    port: '6379'
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: 'false'
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    database: mysql
+    show-sql: 'false'
+  cache:
+    type: redis
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  datasource:
+    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
+    username: onyou
+    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+
+cloud:
+  aws:
+    s3:
+      bucket: onyou-bucket
+    region:
+      static: ap-northeast-2
+    credentials:
+      accessKey: 8v22OTiuX692t1W1M9B/04Kjakw7hG/JLf2XFxWGpq8=
+      secretKey: jTl1PTKMpu9gTcZGc4maMqtAe1XfRlaQQTH6SllnVGDPK20SS6DNIbq401JJwyCNLnPPoqNYQzY=
+    stack:
+      auto: 'false'
+
+gcp:
+  firebase:
+    service-account: classpath:firebase-service-account.json
+
+jasypt:
+  encryptor:
+    bean: stgOnyouEncryptor
+
+logging:
+  level:
+    com:
+      stg:
+        onyou: INFO
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: INFO
+        SQL: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n'
+
+mail:
+  transport:
+    protocol: smtp
+
+#server:
+#  port: 8443
+#  ssl:
+#    key-store: classpath:onyou-keystore.p12
+#    key-store-password: onyou0815
+#    key-store-type: PKCS12
+#    key-alias: kanu-keystore
+#  http:
+#    port: 8080
+#    ssl:
+#      enabled: true
+#      key-store: classpath:onyou-keystore.p12
+#      key-store-password: onyou0815
+#      key-store-type: PKCS12
+#      key-alias: kanu-keystore
