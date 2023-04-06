@@ -6,6 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -31,12 +33,15 @@ public class Comment {
     private Feed feed;
 
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+    private List<CommentLikes> likes = new ArrayList<>();
+
     private LocalDateTime created;
     private LocalDateTime updated;
     private char delYn;
-
-    // 대댓글 x
-//    @ManyToOne(fetch = LAZY)
-//    @JoinColumn(name = "parent_id")
-//    private Comment parent;
 }
