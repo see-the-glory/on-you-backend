@@ -7,11 +7,10 @@ import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Comment;
 import stg.onyou.model.entity.CommentLikes;
 import stg.onyou.model.entity.User;
+import stg.onyou.model.entity.UserPreference;
+import stg.onyou.model.enums.PreferType;
 import stg.onyou.model.network.request.CommentUpdateRequest;
-import stg.onyou.repository.CommentLikesRepository;
-import stg.onyou.repository.CommentRepository;
-import stg.onyou.repository.FeedRepository;
-import stg.onyou.repository.UserRepository;
+import stg.onyou.repository.*;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -23,6 +22,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentLikesRepository commentLikesRepository;
     private final UserRepository userRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
 
     public void updateComment(Long id, CommentUpdateRequest updateComment) {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -40,7 +40,22 @@ public class CommentService {
                 .created(LocalDateTime.now())
                 .build();
 
-        commentLikesRepository.save(commentLikes);
+        commentLikesRepository.findLikesByUserIdAndCommentId(userId, comment.getId())
+                .ifPresentOrElse(
+                        likes -> commentLikesRepository.deleteById(likes.getId()),
+                        () -> {
+                            commentLikesRepository.save(commentLikes);
+
+                            UserPreference userPreference = UserPreference.builder()
+                                    .user(user)
+                                    .preferType(PreferType.COMMENT_LIKE)
+                                    .preferUser(comment.getUser())
+                                    .created(LocalDateTime.now())
+                                    .build();
+
+                            userPreferenceRepository.save(userPreference);
+                        }
+                );
     }
 
     public void deleteById(Long id){

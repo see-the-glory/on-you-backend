@@ -7,5 +7,5 @@ import stg.onyou.model.entity.FeedLikes;
 import java.util.Optional;
 
 public interface CommentLikesRepository extends JpaRepository<CommentLikes, Long>{
-    Optional<FeedLikes> findLikesByUserIdAndCommentId(Long userId, Long commentId);
+    Optional<CommentLikes> findLikesByUserIdAndCommentId(Long userId, Long commentId);
 }

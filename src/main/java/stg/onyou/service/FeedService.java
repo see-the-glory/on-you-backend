@@ -15,6 +15,7 @@ import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.enums.AccessModifier;
 import stg.onyou.model.enums.ActionType;
+import stg.onyou.model.enums.PreferType;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.MessageMetaData;
@@ -59,6 +60,8 @@ public class FeedService {
     private final UserNotificationRepository userNotificationRepository;
     @Autowired
     private final FirebaseCloudMessageService firebaseCloudMessageService;
+    @Autowired
+    private final UserPreferenceRepository userPreferenceRepository;
     @Autowired
     private final FeedHashtagRepository feedHashtagRepository;
     @Autowired
@@ -299,6 +302,18 @@ public class FeedService {
                     .parent(Optional.ofNullable(parentComment).orElse(null))
                     .build();
 
+        // parent가 있을 경우 Parent comment를 작성한 사람에 대해서 prefer이 있는 것으로 간주
+        if(parentComment != null){
+            UserPreference userPreference = UserPreference.builder()
+                    .user(user)
+                    .preferType(PreferType.COMMENT_REPLY)
+                    .preferUser(parentComment.getUser())
+                    .created(LocalDateTime.now())
+                    .build();
+
+            userPreferenceRepository.save(userPreference);
+        }
+
         //Action Builder : FEED_CREATE에 대한 Action 저장
         Action action = Action.builder()
                 .actionFeed(feed)
@@ -354,6 +369,9 @@ public class FeedService {
             commentResponse.setUserName(comment.getUser().getName());
             commentResponse.setContent(comment.getContent());
             commentResponse.setCreated(comment.getCreated());
+            commentResponse.setLikeCount(
+                    comment.getLikes().size()
+            );
 
             List<CommentResponse> replyResponses = new ArrayList<>();
 
@@ -370,6 +388,7 @@ public class FeedService {
                         .thumbnail(reply.getUser().getThumbnail())
                         .userName(reply.getUser().getName())
                         .content(reply.getContent())
+                        .likeCount(reply.getLikes().size())
                         .created(reply.getCreated())
                         .build();
 
