@@ -90,7 +90,6 @@ public class FeedService {
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)
-                .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
 
