@@ -1,5 +1,6 @@
 package stg.onyou.service;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -17,6 +18,7 @@ import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.MessageMetaData;
+import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -275,18 +278,26 @@ public class FeedService {
 //    }
 
     @Transactional
-    public void commentFeed(Long userId, Long feedId, String content) {
+    public void commentFeed(Long userId, Long feedId, CommentCreateRequest commentCreateRequest) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        Comment parentComment = Optional.ofNullable(commentCreateRequest.getParentId())
+                .flatMap( parentId -> commentRepository.findById(parentId))
+                .orElseGet(() -> null);
+
+//        Comment parentComment = commentRepository.findById(commentCreateRequest.getParentId())
+//                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
         Comment comment = Comment.builder()
-                .feed(feed)
-                .user(user)
-                .content(content)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .delYn('n')
-                .build();
+                    .feed(feed)
+                    .user(user)
+                    .content(commentCreateRequest.getContent())
+                    .created(LocalDateTime.now())
+                    .updated(LocalDateTime.now())
+                    .delYn('n')
+                    .parent(Optional.ofNullable(parentComment).orElse(null))
+                    .build();
 
         //Action Builder : FEED_CREATE에 대한 Action 저장
         Action action = Action.builder()
@@ -331,20 +342,43 @@ public class FeedService {
         userNotificationRepository.save(userNotification);
     }
 
-    public List<CommentResponse> getComments(Long id) {
-        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-        List<CommentResponse> resultList;
-        if (feed == null) {
-            throw new CustomException(ErrorCode.FEED_NOT_FOUND);
-        } else {
-             resultList = feed.getComments()
-                     .stream()
-                     .filter(comment -> comment.getDelYn() != 'y')
-                     .sorted(Comparator.comparing(Comment::getCreated).reversed()).map(comment -> new CommentResponse(
-                     comment.getUser().getId(), comment.getId(), comment.getUser().getThumbnail(), comment.getUser().getName(), comment.getContent(), comment.getCreated()
-             )).collect(Collectors.toList());
+    public List<CommentResponse> getComments(Long feedId) {
+        List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedId(feedId);
+        List<CommentResponse> commentResponses = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            CommentResponse commentResponse =  new CommentResponse();
+            commentResponse.setUserId(comment.getUser().getId());
+            commentResponse.setCommentId(comment.getId());
+            commentResponse.setThumbnail(comment.getUser().getThumbnail());
+            commentResponse.setUserName(comment.getUser().getName());
+            commentResponse.setContent(comment.getContent());
+            commentResponse.setCreated(comment.getCreated());
+
+            List<CommentResponse> replyResponses = new ArrayList<>();
+
+            List<Comment> replies = new ArrayList<>();
+            if(comment.getParent()==null){
+                replies = commentRepository.findByParentId(comment.getId());
+            }
+
+            for (Comment reply : replies) {
+
+                CommentResponse replyResponse = CommentResponse.builder()
+                        .userId(reply.getUser().getId())
+                        .commentId(reply.getId())
+                        .thumbnail(reply.getUser().getThumbnail())
+                        .userName(reply.getUser().getName())
+                        .content(reply.getContent())
+                        .created(reply.getCreated())
+                        .build();
+
+                replyResponses.add(replyResponse);
+            }
+            commentResponse.setReplies(replyResponses);
+            commentResponses.add(commentResponse);
         }
-        return resultList;
+        return commentResponses;
     }
 
     public int getLikesCount(Long feedId) {

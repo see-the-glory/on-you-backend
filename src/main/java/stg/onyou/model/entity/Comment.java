@@ -31,12 +31,11 @@ public class Comment {
     private Feed feed;
 
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
     private LocalDateTime created;
     private LocalDateTime updated;
     private char delYn;
-
-    // 대댓글 x
-//    @ManyToOne(fetch = LAZY)
-//    @JoinColumn(name = "parent_id")
-//    private Comment parent;
 }

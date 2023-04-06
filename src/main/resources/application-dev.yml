@@ -19,9 +19,9 @@ spring:
     properties:
       hibernate:
         format_sql: 'true'
+        show-sql: 'true'
     database-platform: org.hibernate.dialect.MySQL5Dialect
     database: mysql
-    show-sql: 'true'
   cache:
     type: redis
   servlet:
@@ -31,7 +31,7 @@ spring:
   datasource:
     password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
     username: onyou
-    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -67,7 +67,7 @@ logging:
         type:
           descriptor:
             sql:
-              BasicBinder: DEBUG
+              BasicBinder: TRACE
         SQL: DEBUG
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n'
