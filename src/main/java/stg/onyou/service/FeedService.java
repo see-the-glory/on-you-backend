@@ -90,7 +90,6 @@ public class FeedService {
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)
-                .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
 
@@ -358,7 +357,10 @@ public class FeedService {
     }
 
     public List<CommentResponse> getComments(Long feedId) {
-        List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedId(feedId);
+        List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedId(feedId).stream()
+                .filter(comment -> comment.getDelYn() == 'n')
+                .collect(Collectors.toList());
+
         List<CommentResponse> commentResponses = new ArrayList<>();
 
         for (Comment comment : comments) {
