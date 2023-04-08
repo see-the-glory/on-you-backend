@@ -42,6 +42,8 @@ public class UserController {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
     private final String REDIS_PREFIX = "jwt:";
+    private final String LATEST_APP_VERSION = "1.1.1";
+    private final String MIN_APP_VERSION = "1.1.0";
 
     @GetMapping("/{clubId}")
     public Header<UserClubResponse> selectUserClubResponse(@PathVariable Long clubId, HttpServletRequest httpServletRequest) {
@@ -187,8 +189,44 @@ public class UserController {
 
     @PostMapping("/duplicateEmailCheck")
     public Header<DuplicateCheckResponse> duplicateEmailCheck(HttpServletRequest httpServletRequest,
-                                                              @RequestBody DuplicateEmailCheckRequest duplicateEmailCheck) {
+                                                              @Valid @RequestBody DuplicateEmailCheckRequest duplicateEmailCheck) {
 
         return userService.duplicateEmailCheck(duplicateEmailCheck.getEmail());
     }
+
+    @PostMapping("/versionRequest")
+    public Header<VersionCheckResponse> versionRequest(HttpServletRequest httpServletRequest, @Valid @RequestBody VersionCheckRequest versionCheckRequest){
+        Long userId = userService.getUserId(httpServletRequest);
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.setAppVersion(versionCheckRequest.getCurrentVersion());
+
+        VersionCheckResponse versionCheckResponse= new VersionCheckResponse();
+        if( isAppVersionLessThanLatest(versionCheckRequest.getCurrentVersion(), LATEST_APP_VERSION) ){
+            versionCheckResponse.setUpdateRequired('Y');
+        } else {
+            versionCheckResponse.setUpdateRequired('N');
+        }
+        versionCheckResponse.setLatestVersion(LATEST_APP_VERSION);
+
+        userRepository.save(user);
+        return Header.OK(versionCheckResponse);
+    }
+
+    public boolean isAppVersionLessThanLatest(String appVersion, String latestAppVersion) {
+        String[] appSegments = appVersion.split("\\.");
+        String[] latestSegments = latestAppVersion.split("\\.");
+
+        for (int i = 0; i < Math.min(appSegments.length, latestSegments.length); i++) {
+            int appSegment = Integer.parseInt(appSegments[i]);
+            int latestSegment = Integer.parseInt(latestSegments[i]);
+            if (appSegment < latestSegment) {
+                return true;
+            } else if (appSegment > latestSegment) {
+                return false;
+            }
+        }
+
+        return appSegments.length < latestSegments.length;
+    }
+
 }
