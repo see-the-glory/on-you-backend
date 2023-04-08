@@ -832,6 +832,14 @@ public class ClubService {
 
                 );
 
+        ClubNotification clubNotification = ClubNotification.builder()
+                .club(club)
+                .created(LocalDateTime.now())
+                .action(action)
+                .build();
+
+        clubNotificationRepository.save(clubNotification);
+
         clubScheduleRepository.save(clubSchedule);
         actionRepository.save(action);
     }
