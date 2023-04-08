@@ -193,17 +193,12 @@ public class ClubController {
     }
 
     @PostMapping("/schedules")
-    public Header<String> createClubSchedule(@Valid @RequestBody ClubScheduleCreateRequest clubScheduleCreateRequest, HttpServletRequest httpServletRequest){
+    public Header<String> createClubSchedule(@Valid @RequestBody ClubScheduleCreateRequest clubScheduleCreateRequest, HttpServletRequest httpServletRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
+        clubService.createClubSchedule(clubScheduleCreateRequest, userId);
 
-        ClubSchedule clubSchedule = clubService.createClubSchedule(clubScheduleCreateRequest, userId);
-        if(clubSchedule == null){
-            throw new CustomException(ErrorCode.CLUB_SCHEDULE_MUTATION_ERROR);
-        }
-
-        return Header.OK("club_schedule_id: "+ clubSchedule.getId());
-
+        return Header.OK("스케줄 생성 성공");
     }
 
     @PutMapping("/{clubId}/schedules/{scheduleId}")

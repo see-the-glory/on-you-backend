@@ -745,7 +745,7 @@ public class ClubService {
 
     }
 
-    public ClubSchedule createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
+    public void createClubSchedule(ClubScheduleCreateRequest clubScheduleCreateRequest, Long userId) {
 
 
         User user = userRepository.findById(userId)
@@ -783,7 +783,57 @@ public class ClubService {
                 .created(createdTime)
                 .build();
 
-        return clubScheduleRepository.save(clubSchedule);
+
+        //Action Builder : SCHEDULE_CREATE 대한 Action 저장
+        Action action = Action.builder()
+                .actionClub(club)
+                .actionType(ActionType.SCHEDULE_CREATE)
+                .actioner(user)
+                .isProcessDone(false)
+                .created(LocalDateTime.now())
+                .build();
+
+        userClubRepository.findAllByClubId(club.getId())
+                .forEach(
+                        uc -> {
+
+                            User recipient = uc.getUser();
+                            UserNotification userNotification = UserNotification.builder()
+                                    .action(action)
+                                    .recipient(recipient)
+                                    .created(LocalDateTime.now())
+                                    .build();
+
+                            userNotificationRepository.save(userNotification);
+
+                            try {
+                                if( recipient.getUserPushAlarm()=='Y' && recipient.getTargetToken()!=null
+                                        && !recipient.equals(user)){
+
+                                    MessageMetaData data = MessageMetaData.builder()
+                                            .type(ActionType.SCHEDULE_CREATE)
+                                            .actionId(action.getId())
+                                            .clubId(club.getId())
+                                            .build();
+
+
+                                    Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                                            recipient.getTargetToken(),
+                                            "새로운 스케줄",
+                                            club.getName()+"에 새로운 일정이 있습니다.",
+                                            data);
+
+                                    fcm.send(fcmMessage);
+                                }
+                            } catch (FirebaseMessagingException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                );
+
+        clubScheduleRepository.save(clubSchedule);
+        actionRepository.save(action);
     }
 
 
