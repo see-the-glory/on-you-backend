@@ -17,6 +17,7 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.*;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.UserRepository;
+import stg.onyou.repository.VersionRepository;
 import stg.onyou.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,12 +39,12 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private VersionRepository versionRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
     private final String REDIS_PREFIX = "jwt:";
-    private final String LATEST_APP_VERSION = "1.1.1";
-    private final String MIN_APP_VERSION = "1.1.0";
 
     @GetMapping("/{clubId}")
     public Header<UserClubResponse> selectUserClubResponse(@PathVariable Long clubId, HttpServletRequest httpServletRequest) {
@@ -200,13 +201,15 @@ public class UserController {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setAppVersion(versionCheckRequest.getCurrentVersion());
 
+        String latestVersion = versionRepository.findById(1L).get().getLatestVersion();
+
         VersionCheckResponse versionCheckResponse= new VersionCheckResponse();
-        if( isAppVersionLessThanLatest(versionCheckRequest.getCurrentVersion(), LATEST_APP_VERSION) ){
+        if( isAppVersionLessThanLatest(versionCheckRequest.getCurrentVersion(), latestVersion) ){
             versionCheckResponse.setUpdateRequired('Y');
         } else {
             versionCheckResponse.setUpdateRequired('N');
         }
-        versionCheckResponse.setLatestVersion(LATEST_APP_VERSION);
+        versionCheckResponse.setLatestVersion(latestVersion);
 
         userRepository.save(user);
         return Header.OK(versionCheckResponse);
@@ -216,17 +219,13 @@ public class UserController {
         String[] appSegments = appVersion.split("\\.");
         String[] latestSegments = latestAppVersion.split("\\.");
 
-        for (int i = 0; i < Math.min(appSegments.length, latestSegments.length); i++) {
-            int appSegment = Integer.parseInt(appSegments[i]);
-            int latestSegment = Integer.parseInt(latestSegments[i]);
-            if (appSegment < latestSegment) {
-                return true;
-            } else if (appSegment > latestSegment) {
-                return false;
-            }
-        }
+        int appX = Integer.parseInt(appSegments[0]);
+        int appY = Integer.parseInt(appSegments[1]);
+        int latestX = Integer.parseInt(latestSegments[0]);
+        int latestY = Integer.parseInt(latestSegments[1]);
 
-        return appSegments.length < latestSegments.length;
+        return appX < latestX || (appX == latestX && appY < latestY);
     }
+
 
 }

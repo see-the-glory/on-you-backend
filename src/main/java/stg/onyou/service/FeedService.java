@@ -288,9 +288,6 @@ public class FeedService {
                 .flatMap( parentId -> commentRepository.findById(parentId))
                 .orElseGet(() -> null);
 
-//        Comment parentComment = commentRepository.findById(commentCreateRequest.getParentId())
-//                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
         Comment comment = Comment.builder()
                     .feed(feed)
                     .user(user)
@@ -301,7 +298,8 @@ public class FeedService {
                     .parent(Optional.ofNullable(parentComment).orElse(null))
                     .build();
 
-        // parent가 있을 경우 Parent comment를 작성한 사람에 대해서 prefer이 있는 것으로 간주
+        // parent가 있을 경우 Parent comment를 작성한 사람에 대해서 prefer이 있는 것으로 간주,
+        // 그리고 대댓글 단 대상자에게 push, noti 주기
         if(parentComment != null){
             UserPreference userPreference = UserPreference.builder()
                     .user(user)
@@ -311,6 +309,47 @@ public class FeedService {
                     .build();
 
             userPreferenceRepository.save(userPreference);
+
+            Action action = Action.builder()
+                    .actionFeed(feed)
+                    .actionType(ActionType.COMMENT_REPLY)
+                    .actioner(user)
+                    .isProcessDone(false)
+                    .created(LocalDateTime.now())
+                    .build();
+
+            User recipient = parentComment.getUser();
+            UserNotification userNotification = UserNotification.builder()
+                    .action(action)
+                    .recipient(recipient)
+                    .created(LocalDateTime.now())
+                    .build();
+
+            userNotificationRepository.save(userNotification);
+
+            try {
+                if( recipient.getUserPushAlarm()=='Y' && recipient.getTargetToken()!=null
+                        && !recipient.equals(user)){
+
+                    MessageMetaData data = MessageMetaData.builder()
+                            .type(ActionType.SCHEDULE_CREATE)
+                            .actionId(action.getId())
+                            .feedId(feed.getId())
+                            .commentId(comment.getId())
+                            .build();
+
+
+                    Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                            recipient.getTargetToken(),
+                            "새로운 답글",
+                            user.getName()+"님의 답글이 달렸습니다.",
+                            data);
+
+                    fcm.send(fcmMessage);
+                }
+            } catch (FirebaseMessagingException e) {
+                e.printStackTrace();
+            }
         }
 
         //Action Builder : FEED_CREATE에 대한 Action 저장
@@ -325,6 +364,13 @@ public class FeedService {
         UserNotification userNotification = UserNotification.builder()
                 .action(action)
                 .recipient(feed.getUser())
+                .created(LocalDateTime.now())
+                .build();
+
+        UserPreference userPreference = UserPreference.builder()
+                .user(user)
+                .preferType(PreferType.FEED_COMMENT)
+                .preferUser(feed.getUser())
                 .created(LocalDateTime.now())
                 .build();
 
@@ -354,6 +400,7 @@ public class FeedService {
         commentRepository.save(comment);
         actionRepository.save(action);
         userNotificationRepository.save(userNotification);
+        userPreferenceRepository.save(userPreference);
     }
 
     public List<CommentResponse> getComments(Long feedId) {
