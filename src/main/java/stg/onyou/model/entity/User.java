@@ -44,6 +44,7 @@ public class User implements UserDetails {
     private char userPushAlarm;
     private char clubPushAlarm;
     private LocalDateTime lastLoginDate;
+    private String appVersion;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
