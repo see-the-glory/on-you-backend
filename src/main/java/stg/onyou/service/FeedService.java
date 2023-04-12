@@ -332,7 +332,7 @@ public class FeedService {
                         && !recipient.equals(user)){
 
                     MessageMetaData data = MessageMetaData.builder()
-                            .type(ActionType.SCHEDULE_CREATE)
+                            .type(ActionType.COMMENT_REPLY)
                             .actionId(action.getId())
                             .feedId(feed.getId())
                             .commentId(comment.getId())
@@ -352,7 +352,7 @@ public class FeedService {
             }
         }
 
-        //Action Builder : FEED_CREATE에 대한 Action 저장
+        //Action Builder : FEED_COMMENT에 대한 Action 저장
         Action action = Action.builder()
                 .actionFeed(feed)
                 .actionType(ActionType.FEED_COMMENT)
