@@ -257,7 +257,54 @@ public class FeedService {
         actionRepository.save(action);
         clubNotificationRepository.save(clubNotification);
 
+        // mention이 있을 경우 mention된 user에게 알림/푸시
+        request.getMentionUserList().stream()
+                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, feed));
+
         return feed;
+    }
+
+    private void notifyMentionUser(User mentionedUser, User mentioner, Feed feed) {
+        //Action Builder : FEED_CREATE에 대한 Action 저장
+        Action action = Action.builder()
+                .actionFeed(feed)
+                .actionType(ActionType.MENTION_USER)
+                .actioner(mentioner)
+                .isProcessDone(false)
+                .created(LocalDateTime.now())
+                .build();
+
+
+        UserNotification userNotification = UserNotification.builder()
+                .recipient(mentionedUser)
+                .created(LocalDateTime.now())
+                .action(action)
+                .build();
+
+        try {
+            if( mentionedUser.getClubPushAlarm()=='Y' && mentionedUser.getTargetToken()!=null){
+
+                MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.MENTION_USER)
+                        .actionId(action.getId())
+                        .feedId(feed.getId())
+                        .build();
+
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                        feed.getUser().getTargetToken(),
+                        "새로운 맨",
+                        mentioner.getName()+"님이 회원 님을 맨션했습니다.",
+                        data);
+
+                fcm.send(fcmMessage);
+            }
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+
+        actionRepository.save(action);
+        userNotificationRepository.save(userNotification);
     }
 
     @Transactional
