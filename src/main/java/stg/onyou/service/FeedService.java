@@ -320,6 +320,8 @@ public class FeedService {
                     .created(LocalDateTime.now())
                     .build();
 
+            actionRepository.save(action);
+
             User recipient = parentComment.getUser();
             UserNotification userNotification = UserNotification.builder()
                     .action(action)
