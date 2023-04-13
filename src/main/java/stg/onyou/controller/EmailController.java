@@ -48,15 +48,25 @@ public class EmailController {
 
     @PostMapping("/api/mail/validCheck")
     public Header<String> validCheckString(@Valid @RequestBody CheckStringRequest checkStringRequest) {
-
         String redisKey = "check:" + checkStringRequest.getEmail();
         String savedCheckString = (String) redisTemplate.opsForValue().get(redisKey);
 
-        if( checkStringRequest.getCheckString() != savedCheckString ){
+        if (savedCheckString == null) {
             throw new CustomException(ErrorCode.CHECK_STRING_NOT_FOUND);
         }
-        return Header.OK("이메일 인증이 확인되었습니다.");
 
+        // Redis 캐시에서 인증번호가 만료되지 않았는지 확인합니다.
+        Long ttl = redisTemplate.getExpire(redisKey);
+        if (ttl == null || ttl <= 0L) {
+            throw new CustomException(ErrorCode.CHECK_STRING_EXPIRED);
+        }
+
+        if (!checkStringRequest.getCheckString().equals(savedCheckString)) {
+            throw new CustomException(ErrorCode.CHECK_STRING_MISMATCH);
+        }
+
+        return Header.OK("이메일 인증이 확인되었습니다.");
     }
+
 
 }
