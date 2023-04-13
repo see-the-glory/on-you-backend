@@ -432,7 +432,10 @@ public class FeedService {
 
             List<Comment> replies = new ArrayList<>();
             if(comment.getParent()==null){
-                replies = commentRepository.findByParentId(comment.getId());
+                replies = commentRepository.findByParentId(comment.getId())
+                        .stream()
+                        .filter(reply -> reply.getDelYn() == 'n')
+                        .collect(Collectors.toList());
             }
 
             for (Comment reply : replies) {
