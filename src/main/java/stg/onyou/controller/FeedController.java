@@ -141,8 +141,9 @@ public class FeedController {
     }
 
     @GetMapping("/api/feeds/{id}/comments")
-    public Header<List<CommentResponse>> getCommentList(@PathVariable Long id) {
-        return Header.OK(feedService.getComments(id));
+    public Header<List<CommentResponse>> getCommentList(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        return Header.OK(feedService.getComments(id, userId));
     }
 
     @PostMapping("/api/feeds/{id}/likes")

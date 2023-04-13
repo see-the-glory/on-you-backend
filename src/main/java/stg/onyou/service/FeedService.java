@@ -66,6 +66,8 @@ public class FeedService {
     private final FeedHashtagRepository feedHashtagRepository;
     @Autowired
     private final HashtagRepository hashtagRepository;
+    @Autowired
+    private final CommentLikesRepository commentLikesRepository;
     private final FirebaseMessaging fcm;
 
     /**
@@ -403,7 +405,8 @@ public class FeedService {
         userPreferenceRepository.save(userPreference);
     }
 
-    public List<CommentResponse> getComments(Long feedId) {
+    public List<CommentResponse> getComments(Long feedId, Long userId) {
+
         List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedId(feedId).stream()
                 .filter(comment -> comment.getDelYn() == 'n')
                 .collect(Collectors.toList());
@@ -421,6 +424,7 @@ public class FeedService {
             commentResponse.setLikeCount(
                     comment.getLikes().size()
             );
+            commentResponse.setLikeYn(isLikes(userId, comment.getId()));
 
             List<CommentResponse> replyResponses = new ArrayList<>();
 
@@ -438,6 +442,7 @@ public class FeedService {
                         .userName(reply.getUser().getName())
                         .content(reply.getContent())
                         .likeCount(reply.getLikes().size())
+                        .likeYn((isLikes(userId, reply.getId())))
                         .created(reply.getCreated())
                         .build();
 
@@ -461,6 +466,14 @@ public class FeedService {
             result.add(feedHashtag.getHashtag().getHashtag());
         }
         return result;
+    }
+
+    private boolean isLikes(Long userId, Long commentId) {
+        if(commentLikesRepository.findLikesByUserIdAndCommentId(userId, commentId).isPresent()){
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

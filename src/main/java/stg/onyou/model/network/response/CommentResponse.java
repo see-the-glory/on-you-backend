@@ -14,13 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CommentResponse {
-    Long userId;
-    Long commentId;
-    String thumbnail;
-    String userName;
-    String content;
-    Integer likeCount;
-    List<CommentResponse> replies;
+    private Long userId;
+    private Long commentId;
+    private String thumbnail;
+    private String userName;
+    private String content;
+    private Integer likeCount;
+    private boolean likeYn;
+    private List<CommentResponse> replies;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
-    LocalDateTime created;
+    private LocalDateTime created;
 }
