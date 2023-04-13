@@ -104,7 +104,6 @@ public class FeedService {
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)
-                .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
 
@@ -428,6 +427,13 @@ public class FeedService {
             );
             commentResponse.setLikeYn(isLikes(userId, comment.getId()));
 
+            List<LikeUserResponse> likeUserResponseList =
+                    comment.getLikes().stream()
+                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .collect(Collectors.toList());
+
+            commentResponse.setLikeUserResponseList(likeUserResponseList);
+
             List<CommentResponse> replyResponses = new ArrayList<>();
 
             List<Comment> replies = new ArrayList<>();
@@ -448,6 +454,11 @@ public class FeedService {
                         .content(reply.getContent())
                         .likeCount(reply.getLikes().size())
                         .likeYn((isLikes(userId, reply.getId())))
+                        .likeUserResponseList(
+                                reply.getLikes().stream()
+                                        .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                                        .collect(Collectors.toList())
+                        )
                         .created(reply.getCreated())
                         .build();
 
