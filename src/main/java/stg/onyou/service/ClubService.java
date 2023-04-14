@@ -613,7 +613,7 @@ public class ClubService {
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         approvedUser.getTargetToken(),
                         "가입 결과",
-                        club.getName()+"가입이 수락되었습니다.",
+                        club.getName()+" 가입이 수락되었습니다.",
                         data);
 
                 fcm.send(fcmMessage);

@@ -104,7 +104,6 @@ public class FeedService {
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)
-                .hasNext(hasNextElement(findFeedList, page, userId))
                 .responses(findFeedList)
                 .build();
 
@@ -258,7 +257,55 @@ public class FeedService {
         actionRepository.save(action);
         clubNotificationRepository.save(clubNotification);
 
+        // mention이 있을 경우 mention된 user에게 알림/푸시
+        request.getMentionUserList().stream()
+                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, feed, null));
+
         return feed;
+    }
+
+    private void notifyMentionUser(User mentionedUser, User mentioner, Feed feed, Comment comment) {
+        //Action Builder : FEED_CREATE에 대한 Action 저장
+        Action action = Action.builder()
+                .actionFeed(feed)
+                .actionType(ActionType.MENTION_USER)
+                .actioner(mentioner)
+                .isProcessDone(false)
+                .created(LocalDateTime.now())
+                .build();
+
+
+        UserNotification userNotification = UserNotification.builder()
+                .recipient(mentionedUser)
+                .created(LocalDateTime.now())
+                .action(action)
+                .build();
+
+        try {
+            if( mentionedUser.getClubPushAlarm()=='Y' && mentionedUser.getTargetToken()!=null){
+
+                MessageMetaData data = MessageMetaData.builder()
+                        .type(ActionType.MENTION_USER)
+                        .actionId(action.getId())
+                        .feedId(Optional.ofNullable(feed).map(Feed::getId).orElse(null))
+                        .commentId(Optional.ofNullable(comment).map(Comment::getId).orElse(null))
+                        .build();
+
+                Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                        feed.getUser().getTargetToken(),
+                        "새로운 맨션",
+                        mentioner.getName()+"님이 회원 님을 맨션했습니다.",
+                        data);
+
+                fcm.send(fcmMessage);
+            }
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+
+        actionRepository.save(action);
+        userNotificationRepository.save(userNotification);
     }
 
     @Transactional
@@ -282,7 +329,7 @@ public class FeedService {
 //    }
 
     @Transactional
-    public void commentFeed(Long userId, Long feedId, CommentCreateRequest commentCreateRequest) {
+    public void createComment(Long userId, Long feedId, CommentCreateRequest commentCreateRequest) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -405,6 +452,13 @@ public class FeedService {
         actionRepository.save(action);
         userNotificationRepository.save(userNotification);
         userPreferenceRepository.save(userPreference);
+
+
+        // mention이 있을 경우 mention된 user에게 알림/푸시
+        commentCreateRequest.getMentionUserList().stream()
+                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, null, comment));
+
     }
 
     public List<CommentResponse> getComments(Long feedId, Long userId) {
@@ -428,11 +482,21 @@ public class FeedService {
             );
             commentResponse.setLikeYn(isLikes(userId, comment.getId()));
 
+            List<LikeUserResponse> likeUserResponseList =
+                    comment.getLikes().stream()
+                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .collect(Collectors.toList());
+
+            commentResponse.setLikeUserResponseList(likeUserResponseList);
+
             List<CommentResponse> replyResponses = new ArrayList<>();
 
             List<Comment> replies = new ArrayList<>();
             if(comment.getParent()==null){
-                replies = commentRepository.findByParentId(comment.getId());
+                replies = commentRepository.findByParentId(comment.getId())
+                        .stream()
+                        .filter(reply -> reply.getDelYn() == 'n')
+                        .collect(Collectors.toList());
             }
 
             for (Comment reply : replies) {
@@ -445,6 +509,11 @@ public class FeedService {
                         .content(reply.getContent())
                         .likeCount(reply.getLikes().size())
                         .likeYn((isLikes(userId, reply.getId())))
+                        .likeUserResponseList(
+                                reply.getLikes().stream()
+                                        .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                                        .collect(Collectors.toList())
+                        )
                         .created(reply.getCreated())
                         .build();
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -22,6 +23,7 @@ public class CommentResponse {
     private Integer likeCount;
     private boolean likeYn;
     private List<CommentResponse> replies;
+    List<LikeUserResponse> likeUserResponseList;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 }
