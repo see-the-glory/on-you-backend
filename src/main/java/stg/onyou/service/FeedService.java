@@ -260,12 +260,12 @@ public class FeedService {
         // mention이 있을 경우 mention된 user에게 알림/푸시
         request.getMentionUserList().stream()
                 .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
-                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, feed));
+                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, feed, null));
 
         return feed;
     }
 
-    private void notifyMentionUser(User mentionedUser, User mentioner, Feed feed) {
+    private void notifyMentionUser(User mentionedUser, User mentioner, Feed feed, Comment comment) {
         //Action Builder : FEED_CREATE에 대한 Action 저장
         Action action = Action.builder()
                 .actionFeed(feed)
@@ -288,12 +288,13 @@ public class FeedService {
                 MessageMetaData data = MessageMetaData.builder()
                         .type(ActionType.MENTION_USER)
                         .actionId(action.getId())
-                        .feedId(feed.getId())
+                        .feedId(Optional.ofNullable(feed).map(Feed::getId).orElse(null))
+                        .commentId(Optional.ofNullable(comment).map(Comment::getId).orElse(null))
                         .build();
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
                         feed.getUser().getTargetToken(),
-                        "새로운 맨",
+                        "새로운 맨션",
                         mentioner.getName()+"님이 회원 님을 맨션했습니다.",
                         data);
 
@@ -451,6 +452,13 @@ public class FeedService {
         actionRepository.save(action);
         userNotificationRepository.save(userNotification);
         userPreferenceRepository.save(userPreference);
+
+
+        // mention이 있을 경우 mention된 user에게 알림/푸시
+        commentCreateRequest.getMentionUserList().stream()
+                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, null, comment));
+
     }
 
     public List<CommentResponse> getComments(Long feedId, Long userId) {
