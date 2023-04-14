@@ -329,7 +329,7 @@ public class FeedService {
 //    }
 
     @Transactional
-    public void commentFeed(Long userId, Long feedId, CommentCreateRequest commentCreateRequest) {
+    public void createComment(Long userId, Long feedId, CommentCreateRequest commentCreateRequest) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 

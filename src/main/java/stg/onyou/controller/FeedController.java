@@ -132,11 +132,11 @@ public class FeedController {
      * FEED 에 댓글 추가
      */
     @PostMapping("/api/feeds/{feedId}/comment")
-    public Header<String> commentFeed(@PathVariable Long feedId,
+    public Header<String> createComment(@PathVariable Long feedId,
                                       @Valid @RequestBody CommentCreateRequest commentCreateRequest,
                                       HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        feedService.commentFeed(userId, feedId, commentCreateRequest);
+        feedService.createComment(userId, feedId, commentCreateRequest);
         return Header.OK("댓글 등록 완료");
     }
 
