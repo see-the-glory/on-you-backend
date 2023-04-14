@@ -59,7 +59,7 @@ public class UserController {
         return userService.selectUser(userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/userInfo")
     public Header<UserResponse> getUserInfo(@PathVariable Long userId,  HttpServletRequest httpServletRequest) {
         return userService.selectUser(userId);
     }
