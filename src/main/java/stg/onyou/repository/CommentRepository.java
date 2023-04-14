@@ -6,6 +6,6 @@ import stg.onyou.model.entity.Comment;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByParentIdIsNullAndFeedId(Long feedId);
-    List<Comment> findByParentId(Long id);
+    List<Comment> findByParentIdIsNullAndFeedIdOrderByCreatedDesc(Long feedId);
+    List<Comment> findByParentIdOrderByCreatedDesc(Long id);
 }

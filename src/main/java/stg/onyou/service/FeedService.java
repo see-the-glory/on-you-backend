@@ -463,7 +463,7 @@ public class FeedService {
 
     public List<CommentResponse> getComments(Long feedId, Long userId) {
 
-        List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedId(feedId).stream()
+        List<Comment> comments = commentRepository.findByParentIdIsNullAndFeedIdOrderByCreatedDesc(feedId).stream()
                 .filter(comment -> comment.getDelYn() == 'n')
                 .collect(Collectors.toList());
 
@@ -493,7 +493,7 @@ public class FeedService {
 
             List<Comment> replies = new ArrayList<>();
             if(comment.getParent()==null){
-                replies = commentRepository.findByParentId(comment.getId())
+                replies = commentRepository.findByParentIdOrderByCreatedDesc(comment.getId())
                         .stream()
                         .filter(reply -> reply.getDelYn() == 'n')
                         .collect(Collectors.toList());
