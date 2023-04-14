@@ -26,11 +26,14 @@ public class MyPageResponse {
     private boolean isBirthdayPublic;
     private List<ClubDTO> clubs;
     private boolean isFeedPublic;
+    private List<FeedResponse> myFeedList;
 
     @Data
     public static class ClubDTO {
         private Long id;
         private String name;
+        private Long recruitNumber;
+        private List<CategoryResponse> categories;
         private boolean isPublic;
     }
 }

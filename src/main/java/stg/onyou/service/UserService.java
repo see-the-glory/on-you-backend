@@ -13,6 +13,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
+import stg.onyou.model.network.request.UpdateMyPageRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
@@ -349,5 +350,9 @@ public class UserService {
                 .build();
 
         return pushAlarmResponse;
+    }
+
+    public void updateMyPage(UpdateMyPageRequest updateMyPageRequest, Long userId) {
+
     }
 }
