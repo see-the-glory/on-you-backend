@@ -27,10 +27,7 @@ import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -257,9 +254,11 @@ public class FeedService {
         actionRepository.save(action);
         clubNotificationRepository.save(clubNotification);
 
-        // mention이 있을 경우 mention된 user에게 알림/푸시
-        request.getMentionUserList().stream()
-                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+         // mention이 있을 경우 mention된 user에게 알림/푸시
+        Optional.ofNullable(request.getMentionUserList())
+                .orElse(Collections.emptyList()).stream()
+                .map( uid -> userRepository.findById(uid)
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
                 .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, feed, null));
 
         return feed;
@@ -455,9 +454,12 @@ public class FeedService {
 
 
         // mention이 있을 경우 mention된 user에게 알림/푸시
-        commentCreateRequest.getMentionUserList().stream()
-                .map( uid -> userRepository.findById(uid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
-                .forEach( mentionedUser -> notifyMentionUser(mentionedUser, user, null, comment));
+
+        Optional.ofNullable(commentCreateRequest.getMentionUserList())
+                .orElse(Collections.emptyList()).stream()
+                .map(uid -> userRepository.findById(uid)
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .forEach(mentionedUser -> notifyMentionUser(mentionedUser, user, null, comment));
 
     }
 
