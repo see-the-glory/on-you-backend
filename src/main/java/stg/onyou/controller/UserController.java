@@ -3,6 +3,7 @@ package stg.onyou.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class UserController {
         return userService.selectUser(userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/userInfo")
     public Header<UserResponse> getUserInfo(@PathVariable Long userId,  HttpServletRequest httpServletRequest) {
         return userService.selectUser(userId);
     }
@@ -71,6 +72,14 @@ public class UserController {
         Long userId = userService.getUserId(httpServletRequest);
         userService.updateUser(thumbnailFile, userUpdateRequest, userId);
         return Header.OK("User 정보 변경 완료");
+    }
+
+    @PutMapping("/myPage")
+    public Header<Object> updateMyPageInfo(@RequestBody @Valid UpdateMyPageRequest updateMyPageRequest,
+                                         HttpServletRequest httpServletRequest) throws Exception {
+        Long userId = userService.getUserId(httpServletRequest);
+        userService.updateMyPage(updateMyPageRequest, userId);
+        return Header.OK("MyPage 정보 변경 완료");
     }
 
     @PostMapping("/findId")
@@ -195,16 +204,17 @@ public class UserController {
         return userService.duplicateEmailCheck(duplicateEmailCheck.getEmail());
     }
 
-    @PostMapping("/versionRequest")
-    public Header<VersionCheckResponse> versionRequest(HttpServletRequest httpServletRequest, @Valid @RequestBody VersionCheckRequest versionCheckRequest){
+    @PostMapping("/metaInfo")
+    public Header<VersionCheckResponse> metaInfoRequest(HttpServletRequest httpServletRequest, @Valid @RequestBody MetaInfoRequest metaInfoRequest){
         Long userId = userService.getUserId(httpServletRequest);
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.setAppVersion(versionCheckRequest.getCurrentVersion());
+        user.setAppVersion(metaInfoRequest.getCurrentVersion());
+        user.setDeviceInfo(metaInfoRequest.getDeviceInfo());
 
         String latestVersion = versionRepository.findById(1L).get().getLatestVersion();
 
         VersionCheckResponse versionCheckResponse= new VersionCheckResponse();
-        if( isAppVersionLessThanLatest(versionCheckRequest.getCurrentVersion(), latestVersion) ){
+        if( isAppVersionLessThanLatest(metaInfoRequest.getCurrentVersion(), latestVersion) ){
             versionCheckResponse.setUpdateRequired('Y');
         } else {
             versionCheckResponse.setUpdateRequired('N');

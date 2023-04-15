@@ -31,6 +31,10 @@ public class Action {
     private Feed actionFeed;
 
     @ManyToOne
+    @JoinColumn(name="action_comment_id")
+    private Comment actionComment;
+
+    @ManyToOne
     @JoinColumn(name="actioner_id")
     private User actioner;
     @ManyToOne

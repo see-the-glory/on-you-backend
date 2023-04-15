@@ -13,6 +13,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
+import stg.onyou.model.network.request.UpdateMyPageRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
@@ -67,7 +68,7 @@ public class UserService {
     }
 
     private UserResponse selectUserResponse(User user) {
-        List<InterestCategory> interests = user.getInterests().stream().map(Interest::getCategory).collect(Collectors.toList());
+
         UserResponse userResponse = UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -81,7 +82,6 @@ public class UserService {
                 .created(user.getCreated())
                 .thumbnail(user.getThumbnail())
                 .phoneNumber(user.getPhoneNumber())
-                .interests(interests)
                 .build();
 
         return userResponse;
@@ -350,5 +350,9 @@ public class UserService {
                 .build();
 
         return pushAlarmResponse;
+    }
+
+    public void updateMyPage(UpdateMyPageRequest updateMyPageRequest, Long userId) {
+
     }
 }
