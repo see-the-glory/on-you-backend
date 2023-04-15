@@ -24,6 +24,10 @@ public class ClubNotificationResponse {
     private ActionType actionType;
     private String message;
     private boolean isProcessDone;
+
+    private boolean isRead;
+    private boolean processDone;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 

@@ -18,6 +18,7 @@ import stg.onyou.model.enums.ActionType;
 import stg.onyou.model.enums.PreferType;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
+import stg.onyou.model.network.Header;
 import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
@@ -66,6 +67,8 @@ public class FeedService {
     private final FeedHashtagRepository feedHashtagRepository;
     @Autowired
     private final HashtagRepository hashtagRepository;
+    @Autowired
+    private final LikesService likesService;
     @Autowired
     private final CommentLikesRepository commentLikesRepository;
     private final FirebaseMessaging fcm;
@@ -480,7 +483,7 @@ public class FeedService {
             commentResponse.setLikeCount(
                     comment.getLikes().size()
             );
-            commentResponse.setLikeYn(isLikes(userId, comment.getId()));
+            commentResponse.setLikeYn(isLikesComment(userId, comment.getId()));
 
             List<LikeUserResponse> likeUserResponseList =
                     comment.getLikes().stream()
@@ -508,7 +511,7 @@ public class FeedService {
                         .userName(reply.getUser().getName())
                         .content(reply.getContent())
                         .likeCount(reply.getLikes().size())
-                        .likeYn((isLikes(userId, reply.getId())))
+                        .likeYn(isLikesComment(userId, reply.getId()))
                         .likeUserResponseList(
                                 reply.getLikes().stream()
                                         .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
@@ -539,7 +542,7 @@ public class FeedService {
         return result;
     }
 
-    private boolean isLikes(Long userId, Long commentId) {
+    private boolean isLikesComment(Long userId, Long commentId) {
         if(commentLikesRepository.findLikesByUserIdAndCommentId(userId, commentId).isPresent()){
             return true;
         } else {
@@ -547,4 +550,32 @@ public class FeedService {
         }
     }
 
+    public Header<FeedLinkResponse> getFeed(Long userId, Long feedId) {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+
+        List<LikeUserResponse> likeUserResponseList =
+                feed.getLikes().stream()
+                        .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                        .collect(Collectors.toList());
+
+        FeedLinkResponse feedLinkResponse = FeedLinkResponse.builder()
+                .clubId(feed.getClub().getId())
+                .clubName(feed.getClub().getName())
+                .userId(feed.getUser().getId())
+                .userName(feed.getUser().getName())
+                .content(feed.getContent())
+                .imageUrls(feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList()))
+                .likeYn(likesService.isLikes(userId, feed.getId()))
+                .likesCount((long) getLikesCount(feedId))
+                .commentCount(feed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count())
+                .thumbnail(feed.getUser().getThumbnail())
+                .likeUserList(likeUserResponseList)
+                .commentList(getComments(feedId, userId))
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+                .build();
+
+        return Header.OK(feedLinkResponse);
+
+    }
 }

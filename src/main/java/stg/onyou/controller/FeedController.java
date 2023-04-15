@@ -16,6 +16,7 @@ import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedReportRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.CommentResponse;
+import stg.onyou.model.network.response.FeedLinkResponse;
 import stg.onyou.model.network.response.FeedPageResponse;
 import stg.onyou.model.network.response.FeedResponse;
 import stg.onyou.service.*;
@@ -84,6 +85,12 @@ public class FeedController {
         feedService.upload(feed);
 
         return Header.OK("Feed 생성 완료");
+    }
+
+    @GetMapping("/api/feeds/{feedId}")
+    public Header<FeedLinkResponse> getFeed(@PathVariable Long feedId, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        return feedService.getFeed(userId, feedId);
     }
 
     @PutMapping("/api/feeds/{id}")
