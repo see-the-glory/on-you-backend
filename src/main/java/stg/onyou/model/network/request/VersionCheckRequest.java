@@ -11,7 +11,8 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VersionCheckRequest {
+public class MetaInfoRequest {
 //    @NotEmpty
     private String currentVersion;
+    private String deviceInfo;
 }

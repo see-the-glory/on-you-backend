@@ -204,16 +204,17 @@ public class UserController {
         return userService.duplicateEmailCheck(duplicateEmailCheck.getEmail());
     }
 
-    @PostMapping("/versionRequest")
-    public Header<VersionCheckResponse> versionRequest(HttpServletRequest httpServletRequest, @Valid @RequestBody VersionCheckRequest versionCheckRequest){
+    @PostMapping("/metaInfo")
+    public Header<VersionCheckResponse> metaInfoRequest(HttpServletRequest httpServletRequest, @Valid @RequestBody MetaInfoRequest metaInfoRequest){
         Long userId = userService.getUserId(httpServletRequest);
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.setAppVersion(versionCheckRequest.getCurrentVersion());
+        user.setAppVersion(metaInfoRequest.getCurrentVersion());
+        user.setDeviceInfo(metaInfoRequest.getDeviceInfo());
 
         String latestVersion = versionRepository.findById(1L).get().getLatestVersion();
 
         VersionCheckResponse versionCheckResponse= new VersionCheckResponse();
-        if( isAppVersionLessThanLatest(versionCheckRequest.getCurrentVersion(), latestVersion) ){
+        if( isAppVersionLessThanLatest(metaInfoRequest.getCurrentVersion(), latestVersion) ){
             versionCheckResponse.setUpdateRequired('Y');
         } else {
             versionCheckResponse.setUpdateRequired('N');
