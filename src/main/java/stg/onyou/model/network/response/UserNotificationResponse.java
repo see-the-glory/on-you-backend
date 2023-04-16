@@ -35,7 +35,7 @@ public class UserNotificationResponse {
     private LocalDateTime created;
 
     @QueryProjection
-    public UserNotificationResponse(Long actionId, Long actionerId, Long actioneeId, Long actionClubId, Long actionFeedId, Long actionCommentId, ActionType actionType, String message, boolean isProcessDone, LocalDateTime created){
+    public UserNotificationResponse(Long actionId, Long actionerId, Long actioneeId, Long actionClubId, Long actionFeedId, Long actionCommentId, ActionType actionType, String message, boolean isProcessDone, boolean isRead, LocalDateTime created){
         this.actionId = actionId;
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
@@ -45,6 +45,8 @@ public class UserNotificationResponse {
         this.actionType = actionType;
         this.message = message;
         this.isProcessDone = isProcessDone;
+        this.isRead = isRead;
+        this.processDone = isProcessDone;
         this.created = created;
     }
 }
