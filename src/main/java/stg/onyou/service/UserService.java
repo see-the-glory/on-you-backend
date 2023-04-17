@@ -1,5 +1,7 @@
 package stg.onyou.service;
 
+import lombok.Data;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.enums.AlarmType;
+import stg.onyou.model.enums.ApplyStatus;
 import stg.onyou.model.enums.InterestCategory;
 import stg.onyou.model.enums.Role;
 import stg.onyou.model.entity.*;
@@ -19,7 +22,9 @@ import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,6 +57,11 @@ public class UserService {
     private FirebaseCloudMessageService firebaseCloudMessageService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ClubCategoryRepository clubCategoryRepository;
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -353,6 +363,54 @@ public class UserService {
     }
 
     public void updateMyPage(UpdateMyPageRequest updateMyPageRequest, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        user.setAbout(updateMyPageRequest.getAbout());
+        user.setEmailPublic(updateMyPageRequest.isEmailPublic());
+        user.setContactPublic(updateMyPageRequest.isContactPublic());
+        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
+        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
+        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
+
+        userRepository.save(user);
+    }
+
+    public Header<MyPageResponse> getMyPageInfo(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<MyPageResponse.ClubDTO> myClubList = userClubRepository.findByUserId(userId)
+                .stream()
+                .filter(userClub -> userClub.getRole()!=Role.PENDING)
+                .filter(userClub -> userClub.getApplyStatus()!=ApplyStatus.APPLIED)
+                .map( userClub -> MyPageResponse.ClubDTO.builder()
+                        .id(userClub.getClub().getId())
+                        .name(userClub.getClub().getName())
+                        .recruitNumber((long) userClub.getClub().getRecruitNumber())
+                        .categories(
+                                clubCategoryRepository.findByClub(userClub.getClub())
+                                    .stream()
+                                    .map(clubCategory -> clubCategory.getCategory())
+                                    .map(category -> modelMapper.map(category, CategoryResponse.class))
+                                    .collect(Collectors.toList())
+                        )
+                        .role(userClub.getRole())
+                        .build()
+                ).
+                collect(Collectors.toList());
+
+        MyPageResponse myPageResponse = MyPageResponse.builder()
+                .about(user.getAbout())
+                .email(user.getEmail())
+                .isEmailPublic(user.isEmailPublic())
+                .contact(user.getPhoneNumber())
+                .isContactPublic(user.isContactPublic())
+                .birthday(LocalDate.parse(user.getBirthday(), DateTimeFormatter.ISO_DATE))
+                .isBirthdayPublic(user.isBirthdayPublic())
+                .isClubPublic(user.isClubPublic())
+                .isFeedPublic(user.isFeedPublic())
+                .clubs(myClubList)
+                .build();
+
+        return Header.OK(myPageResponse);
     }
 }

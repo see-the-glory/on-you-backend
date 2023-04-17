@@ -5,14 +5,15 @@ import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
 import stg.onyou.model.entity.Action;
+import stg.onyou.model.entity.User;
+import stg.onyou.model.entity.UserAction;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.UserNotificationResponse;
-import stg.onyou.repository.ActionRepository;
-import stg.onyou.repository.ClubNotificationQRepositoryImpl;
-import stg.onyou.repository.UserNotificationQRepositoryImpl;
+import stg.onyou.repository.*;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,6 +26,10 @@ public class NotificationService {
     private ClubNotificationQRepositoryImpl clubNotificationQRepositoryImpl;
     @Autowired
     private ActionRepository actionRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserActionRepository userActionRepository;
 
 
     /**
@@ -41,14 +46,24 @@ public class NotificationService {
         return Header.OK(clubNotificationList);
     }
 
-    public void readAction(Long actionId) {
+    public void readAction(Long actionId, Long userId) {
 
         Action action = actionRepository.findById(actionId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
                 );
 
-        action.setProcessDone(true);
-        actionRepository.save(action);
+        User user = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        UserAction userAction = UserAction.builder()
+                .user(user)
+                .action(action)
+                .created(LocalDateTime.now())
+                .build();
+
+        userActionRepository.save(userAction);
     }
 }

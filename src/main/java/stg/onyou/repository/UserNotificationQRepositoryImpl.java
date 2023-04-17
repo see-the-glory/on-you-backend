@@ -1,14 +1,12 @@
 package stg.onyou.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
-import stg.onyou.exception.CustomException;
-import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.entity.Club;
 import stg.onyou.model.entity.UserNotification;
-import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.QUserNotificationResponse;
 import stg.onyou.model.network.response.UserNotificationResponse;
 
@@ -18,6 +16,7 @@ import java.util.Optional;
 
 import static stg.onyou.model.entity.QUser.user;
 import static stg.onyou.model.entity.QClub.club;
+import static stg.onyou.model.entity.QUserAction.userAction;
 import static stg.onyou.model.entity.QUserNotification.userNotification;
 import static stg.onyou.model.entity.QAction.action;
 
@@ -34,21 +33,28 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
     @Override
     public List<UserNotificationResponse> findUserNotificationList(Long userId) {
 
-        List<UserNotificationResponse> notificationResponseList = queryFactory
-                .select(new QUserNotificationResponse(
-                    action.id,
-                    action.actioner.id,
-                    action.actionee.id,
-                    action.actionClub.id,
-                    action.actionFeed.id,
-                    action.actionComment.id,
-                    action.actionType,
-                    action.message,
-                    action.isProcessDone,
-                    action.created
-                ))
+        List<UserNotificationResponse> notificationResponseList = queryFactory.select(
+                new QUserNotificationResponse(
+                        action.id,
+                        action.actioner.id,
+                        action.actionee.id,
+                        action.actionClub.id,
+                        action.actionFeed.id,
+                        action.actionComment.id,
+                        action.actionType,
+                        action.message,
+                        action.isProcessDone,
+                        Expressions.cases()
+                                .when(userAction.action.id.isNull()).then(false)
+                                .otherwise(true).as("isRead"),
+                        action.processDone,
+                        action.created
+                )
+        )
                 .from(userNotification)
                 .innerJoin(userNotification.action, action)
+                .leftJoin(userAction)
+                .on(userAction.action.id.eq(action.id))
                 .where(
                         userNotification.recipient.id.eq(userId),
                         action.created.goe(LocalDateTime.now().minusDays(7))

@@ -7,9 +7,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import stg.onyou.model.network.request.UserCreateRequest;
+import stg.onyou.model.network.response.MyPageResponse;
 
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +48,12 @@ public class User implements UserDetails {
     private LocalDateTime lastLoginDate;
     private String appVersion;
     private String deviceInfo;
+    private String about;
+    private boolean isEmailPublic;
+    private boolean isContactPublic;
+    private boolean isBirthdayPublic;
+    private boolean isClubPublic;
+    private boolean isFeedPublic;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore

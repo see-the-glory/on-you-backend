@@ -1,5 +1,6 @@
 package stg.onyou.repository;
 
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -7,12 +8,15 @@ import org.springframework.stereotype.Repository;
 import stg.onyou.model.entity.UserNotification;
 import stg.onyou.model.network.response.ClubNotificationResponse;
 import stg.onyou.model.network.response.QClubNotificationResponse;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static stg.onyou.model.entity.QClubNotification.clubNotification;
 import static stg.onyou.model.entity.QAction.action;
 import static stg.onyou.model.entity.QUser.user;
+import static stg.onyou.model.entity.QUserAction.userAction;
 
 @Repository
 public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
@@ -35,11 +39,20 @@ public class ClubNotificationQRepositoryImpl extends QuerydslRepositorySupport {
                         action.actionType,
                         action.message,
                         action.isProcessDone,
+                        Expressions.cases()
+                                .when(userAction.action.id.isNull()).then(false)
+                                .otherwise(true).as("isRead"),
+                        action.processDone,
                         action.created
                 ))
                 .from(clubNotification)
                 .innerJoin(clubNotification.action, action)
-                .where(clubNotification.club.id.eq(clubId))
+                .leftJoin(userAction)
+                .on(userAction.action.id.eq(action.id))
+                .where(
+                        clubNotification.club.id.eq(clubId),
+                        action.created.goe(LocalDateTime.now().minusDays(28))
+                )
                 .fetch();
 
         notificationResponseList.forEach(notification -> {
