@@ -433,7 +433,7 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
-                    .isProcessDone(true)
+                    .processDone(true)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -453,7 +453,7 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
-                    .isProcessDone(false)
+                    .processDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -789,7 +789,6 @@ public class ClubService {
                 .actionClub(club)
                 .actionType(ActionType.SCHEDULE_CREATE)
                 .actioner(user)
-                .isProcessDone(false)
                 .created(LocalDateTime.now())
                 .build();
 

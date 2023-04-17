@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import stg.onyou.model.enums.ApplyStatus;
+import stg.onyou.model.enums.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,15 +26,17 @@ public class MyPageResponse {
     private LocalDate birthday;
     private boolean isBirthdayPublic;
     private List<ClubDTO> clubs;
+    private boolean isClubPublic;
     private boolean isFeedPublic;
-    private List<FeedResponse> myFeedList;
+//    private List<FeedResponse> myFeedList;
 
     @Data
+    @Builder
     public static class ClubDTO {
         private Long id;
         private String name;
         private Long recruitNumber;
         private List<CategoryResponse> categories;
-        private boolean isPublic;
+        private Role role;
     }
 }

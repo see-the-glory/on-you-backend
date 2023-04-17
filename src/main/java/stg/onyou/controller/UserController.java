@@ -74,6 +74,12 @@ public class UserController {
         return Header.OK("User 정보 변경 완료");
     }
 
+    @GetMapping("/myPage")
+    public Header<MyPageResponse> getMyPageInfo(HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        return userService.getMyPageInfo(userId);
+    }
+
     @PutMapping("/myPage")
     public Header<Object> updateMyPageInfo(@RequestBody @Valid UpdateMyPageRequest updateMyPageRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {

@@ -20,12 +20,6 @@ public class UpdateMyPageRequest {
     private boolean isEmailPublic;
     private boolean isContactPublic;
     private boolean isBirthdayPublic;
-    private List<UpdateMyPageRequest.ClubDTO> clubs;
+    private boolean isClubPublic;
     private boolean isFeedPublic;
-
-    @Data
-    public static class ClubDTO {
-        private Long id;
-        private boolean isPublic;
-    }
 }

@@ -221,7 +221,6 @@ public class FeedService {
                  .actionClub(club)
                  .actionType(ActionType.FEED_CREATE)
                  .actioner(user)
-                 .isProcessDone(false)
                  .created(now)
                  .build();
 
@@ -268,12 +267,11 @@ public class FeedService {
     }
 
     private void notifyMentionUser(User mentionedUser, User mentioner, Feed feed, Comment comment) {
-        //Action Builder : FEED_CREATE에 대한 Action 저장
+
         Action action = Action.builder()
                 .actionFeed(feed)
                 .actionType(ActionType.MENTION_USER)
                 .actioner(mentioner)
-                .isProcessDone(false)
                 .created(LocalDateTime.now())
                 .build();
 
@@ -365,7 +363,6 @@ public class FeedService {
                     .actionFeed(feed)
                     .actionType(ActionType.COMMENT_REPLY)
                     .actioner(user)
-                    .isProcessDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -410,7 +407,6 @@ public class FeedService {
                 .actionFeed(feed)
                 .actionType(ActionType.FEED_COMMENT)
                 .actioner(user)
-                .isProcessDone(false)
                 .created(LocalDateTime.now())
                 .build();
 
