@@ -573,8 +573,8 @@ public class FeedService {
                 .thumbnail(feed.getUser().getThumbnail())
                 .likeUserList(likeUserResponseList)
                 .commentList(getComments(feedId, userId))
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
+                .created(feed.getCreated())
+                .updated(feed.getUpdated())
                 .build();
 
         return Header.OK(feedLinkResponse);
