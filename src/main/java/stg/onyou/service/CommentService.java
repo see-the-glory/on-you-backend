@@ -61,6 +61,7 @@ public class CommentService {
     public void deleteById(Long id){
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setDelYn('y');
+        commentRepository.save(comment);
     }
 
     public Comment findById(Long id){
