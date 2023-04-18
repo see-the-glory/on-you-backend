@@ -25,13 +25,13 @@ public class ClubNotificationResponse {
     private String message;
     private boolean isProcessDone;
     private boolean isRead;
-    private boolean processDone;
+    private boolean isDone;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime created;
 
     @QueryProjection
-    public ClubNotificationResponse(Long actionId, Long actionerId, Long actioneeId, ActionType actionType, String message, boolean isProcessDone, boolean isRead, boolean processDone, LocalDateTime created){
+    public ClubNotificationResponse(Long actionId, Long actionerId, Long actioneeId, ActionType actionType, String message, boolean isProcessDone, boolean isRead, boolean isDone, LocalDateTime created){
         this.actionId = actionId;
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
@@ -39,7 +39,7 @@ public class ClubNotificationResponse {
         this.message = message;
         this.isProcessDone = isProcessDone;
         this.isRead = isRead;
-        this.processDone = isProcessDone;
+        this.isDone = isDone;
         this.created = created;
     }
 }
