@@ -454,8 +454,6 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
-                    .isProcessDone(false)
-                    .isDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
