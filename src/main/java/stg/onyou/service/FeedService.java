@@ -220,6 +220,7 @@ public class FeedService {
                  .actionFeed(feed)
                  .actionClub(club)
                  .actionType(ActionType.FEED_CREATE)
+                 .isProcessDone(false)
                  .actioner(user)
                  .created(now)
                  .build();
@@ -271,6 +272,7 @@ public class FeedService {
         Action action = Action.builder()
                 .actionFeed(feed)
                 .actionType(ActionType.MENTION_USER)
+                .isProcessDone(false)
                 .actioner(mentioner)
                 .created(LocalDateTime.now())
                 .build();
@@ -362,6 +364,7 @@ public class FeedService {
             Action action = Action.builder()
                     .actionFeed(feed)
                     .actionType(ActionType.COMMENT_REPLY)
+                    .isProcessDone(false)
                     .actioner(user)
                     .created(LocalDateTime.now())
                     .build();
@@ -406,6 +409,7 @@ public class FeedService {
         Action action = Action.builder()
                 .actionFeed(feed)
                 .actionType(ActionType.FEED_COMMENT)
+                .isProcessDone(false)
                 .actioner(user)
                 .created(LocalDateTime.now())
                 .build();

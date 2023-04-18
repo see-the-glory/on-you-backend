@@ -46,6 +46,19 @@ public class NotificationService {
         return Header.OK(clubNotificationList);
     }
 
+    public void oldReadAction(Long actionId) {
+
+        Action action = actionRepository.findById(actionId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACTION_NOT_FOUND)
+                );
+
+
+        action.setProcessDone(true);
+
+        actionRepository.save(action);
+    }
+
     public void readAction(Long actionId, Long userId) {
 
         Action action = actionRepository.findById(actionId)

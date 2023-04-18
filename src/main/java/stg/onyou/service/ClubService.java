@@ -433,7 +433,8 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
-                    .processDone(true)
+                    .isDone(true)
+                    .isProcessDone(true)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -453,7 +454,8 @@ public class ClubService {
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
-                    .processDone(false)
+                    .isProcessDone(false)
+                    .isDone(false)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -584,6 +586,7 @@ public class ClubService {
                 .actionee(approvedUser)
                 .actionClub(club)
                 .actionType(ActionType.APPROVE)
+                .isProcessDone(false)
                 .created(LocalDateTime.now())
                 .build();
 
@@ -671,6 +674,7 @@ public class ClubService {
                 .actionee(rejectedUser)
                 .actionClub(club)
                 .actionType(ActionType.REJECT)
+                .isProcessDone(false)
                 .message(clubRejectRequest.getMessage())
                 .created(LocalDateTime.now())
                 .build();
@@ -788,6 +792,7 @@ public class ClubService {
         Action action = Action.builder()
                 .actionClub(club)
                 .actionType(ActionType.SCHEDULE_CREATE)
+                .isProcessDone(false)
                 .actioner(user)
                 .created(LocalDateTime.now())
                 .build();

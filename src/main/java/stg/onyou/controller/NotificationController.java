@@ -40,6 +40,12 @@ public class NotificationController {
     }
 
     @PostMapping("/{actionId}/read")
+    public Header<String> oldReadAction(@PathVariable Long actionId){
+        notificationService.oldReadAction(actionId);
+        return Header.OK("읽음 처리 완료");
+    }
+
+    @PostMapping("/{actionId}/readAction")
     public Header<String> readAction(@PathVariable Long actionId, HttpServletRequest httpServletRequest){
         Long userId = userService.getUserId(httpServletRequest);
         notificationService.readAction(actionId, userId);

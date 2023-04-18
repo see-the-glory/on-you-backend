@@ -52,7 +52,7 @@ public class Action {
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private boolean isProcessDone;
 
-    private boolean processDone;
+    private boolean isDone;
     private LocalDateTime created;
 
     @OneToMany(mappedBy = "action",  cascade = CascadeType.REMOVE)
