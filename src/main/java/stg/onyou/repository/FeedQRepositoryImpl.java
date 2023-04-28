@@ -47,6 +47,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
     }
 
     private void fillAdditionalData(List<FeedResponse> feedResult, Long userId) {
+
         for(FeedResponse f : feedResult) {
             Feed tempFeed = feedRepository.findById(f.getId()).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
 

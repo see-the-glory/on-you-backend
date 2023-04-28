@@ -351,51 +351,102 @@ public class FeedService {
 
         // parent가 있을 경우 Parent comment를 작성한 사람에 대해서 prefer이 있는 것으로 간주,
         // 그리고 대댓글 단 대상자에게 push, noti 주기
-        if(parentComment != null){
-            UserPreference userPreference = UserPreference.builder()
-                    .user(user)
-                    .preferType(PreferType.COMMENT_REPLY)
-                    .preferUser(parentComment.getUser())
-                    .created(LocalDateTime.now())
-                    .build();
+        if(parentComment != null) {
 
-            userPreferenceRepository.save(userPreference);
+            User recipient = parentComment.getUser();
 
+            if (!recipient.equals(user)) {
+
+                UserPreference userPreference = UserPreference.builder()
+                        .user(user)
+                        .preferType(PreferType.COMMENT_REPLY)
+                        .preferUser(parentComment.getUser())
+                        .created(LocalDateTime.now())
+                        .build();
+
+                userPreferenceRepository.save(userPreference);
+
+                Action action = Action.builder()
+                        .actionFeed(feed)
+                        .actionType(ActionType.COMMENT_REPLY)
+                        .isProcessDone(false)
+                        .actioner(user)
+                        .created(LocalDateTime.now())
+                        .build();
+
+                actionRepository.save(action);
+
+
+                UserNotification userNotification = UserNotification.builder()
+                        .action(action)
+                        .recipient(recipient)
+                        .created(LocalDateTime.now())
+                        .build();
+
+                userNotificationRepository.save(userNotification);
+
+                try {
+                    if (recipient.getUserPushAlarm() == 'Y' && recipient.getTargetToken() != null) {
+
+                        MessageMetaData data = MessageMetaData.builder()
+                                .type(ActionType.COMMENT_REPLY)
+                                .actionId(action.getId())
+                                .feedId(feed.getId())
+                                .commentId(comment.getId())
+                                .build();
+
+
+                        Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                                recipient.getTargetToken(),
+                                "새로운 답글",
+                                user.getName() + "님의 답글이 달렸습니다.",
+                                data);
+
+                        fcm.send(fcmMessage);
+                    }
+                } catch (FirebaseMessagingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if( !feed.getUser().equals(user)) {
+            //Action Builder : FEED_COMMENT에 대한 Action 저장
             Action action = Action.builder()
                     .actionFeed(feed)
-                    .actionType(ActionType.COMMENT_REPLY)
+                    .actionType(ActionType.FEED_COMMENT)
                     .isProcessDone(false)
                     .actioner(user)
                     .created(LocalDateTime.now())
                     .build();
 
-            actionRepository.save(action);
-
-            User recipient = parentComment.getUser();
             UserNotification userNotification = UserNotification.builder()
                     .action(action)
-                    .recipient(recipient)
+                    .recipient(feed.getUser())
                     .created(LocalDateTime.now())
                     .build();
 
-            userNotificationRepository.save(userNotification);
+            UserPreference userPreference = UserPreference.builder()
+                    .user(user)
+                    .preferType(PreferType.FEED_COMMENT)
+                    .preferUser(feed.getUser())
+                    .created(LocalDateTime.now())
+                    .build();
 
             try {
-                if( recipient.getUserPushAlarm()=='Y' && recipient.getTargetToken()!=null
-                        && !recipient.equals(user)){
+                if (feed.getUser().getUserPushAlarm() == 'Y' && feed.getUser().getTargetToken() != null) {
 
                     MessageMetaData data = MessageMetaData.builder()
-                            .type(ActionType.COMMENT_REPLY)
+                            .type(ActionType.FEED_COMMENT)
                             .actionId(action.getId())
                             .feedId(feed.getId())
                             .commentId(comment.getId())
                             .build();
 
-
                     Message fcmMessage = firebaseCloudMessageService.makeMessage(
-                            recipient.getTargetToken(),
-                            "새로운 답글",
-                            user.getName()+"님의 답글이 달렸습니다.",
+                            feed.getUser().getTargetToken(),
+                            "새로운 댓글",
+                            user.getName() + "님의 댓글이 달렸습니다.",
                             data);
 
                     fcm.send(fcmMessage);
@@ -403,61 +454,16 @@ public class FeedService {
             } catch (FirebaseMessagingException e) {
                 e.printStackTrace();
             }
-        }
 
-        //Action Builder : FEED_COMMENT에 대한 Action 저장
-        Action action = Action.builder()
-                .actionFeed(feed)
-                .actionType(ActionType.FEED_COMMENT)
-                .isProcessDone(false)
-                .actioner(user)
-                .created(LocalDateTime.now())
-                .build();
-
-        UserNotification userNotification = UserNotification.builder()
-                .action(action)
-                .recipient(feed.getUser())
-                .created(LocalDateTime.now())
-                .build();
-
-        UserPreference userPreference = UserPreference.builder()
-                .user(user)
-                .preferType(PreferType.FEED_COMMENT)
-                .preferUser(feed.getUser())
-                .created(LocalDateTime.now())
-                .build();
-
-        try {
-            if( feed.getUser().getUserPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null
-                && !feed.getUser().equals(user)){
-
-                MessageMetaData data = MessageMetaData.builder()
-                        .type(ActionType.FEED_COMMENT)
-                        .actionId(action.getId())
-                        .feedId(feed.getId())
-                        .commentId(comment.getId())
-                        .build();
-
-                Message fcmMessage = firebaseCloudMessageService.makeMessage(
-                        feed.getUser().getTargetToken(),
-                        "새로운 댓글",
-                        user.getName()+"님의 댓글이 달렸습니다.",
-                        data);
-
-                fcm.send(fcmMessage);
-            }
-        } catch (FirebaseMessagingException e) {
-            e.printStackTrace();
+            actionRepository.save(action);
+            userNotificationRepository.save(userNotification);
+            userPreferenceRepository.save(userPreference);
         }
 
         commentRepository.save(comment);
-        actionRepository.save(action);
-        userNotificationRepository.save(userNotification);
-        userPreferenceRepository.save(userPreference);
 
 
         // mention이 있을 경우 mention된 user에게 알림/푸시
-
         Optional.ofNullable(commentCreateRequest.getMentionUserList())
                 .orElse(Collections.emptyList()).stream()
                 .map(uid -> userRepository.findById(uid)
