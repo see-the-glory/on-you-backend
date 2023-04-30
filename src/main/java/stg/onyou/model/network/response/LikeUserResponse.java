@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class LikeUserResponse {
-        private String thumbnail;
+        private Long userId;
         private String userName;
+        private String thumbnail;
         private LocalDateTime likeDate;
 }

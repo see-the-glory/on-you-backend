@@ -15,10 +15,7 @@ import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
 import stg.onyou.model.network.request.FeedReportRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
-import stg.onyou.model.network.response.CommentResponse;
-import stg.onyou.model.network.response.FeedLinkResponse;
-import stg.onyou.model.network.response.FeedPageResponse;
-import stg.onyou.model.network.response.FeedResponse;
+import stg.onyou.model.network.response.*;
 import stg.onyou.service.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -151,6 +148,16 @@ public class FeedController {
     public Header<List<CommentResponse>> getCommentList(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
         return Header.OK(feedService.getComments(id, userId));
+    }
+
+    @GetMapping("/api/comments/{id}/likeUserList")
+    public Header<List<LikeUserResponse>> getCommentLikeUserList(@PathVariable Long id) {
+        return Header.OK(feedService.getCommentLikeUserList(id));
+    }
+
+    @GetMapping("/api/feeds/{id}/likeUserList")
+    public Header<List<LikeUserResponse>> getFeedLikeUserList(@PathVariable Long id) {
+        return Header.OK(feedService.getFeedLikeUserList(id));
     }
 
     @PostMapping("/api/feeds/{id}/likes")
