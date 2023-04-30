@@ -71,7 +71,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
 
             List<LikeUserResponse> likeUserResponseList =
                     tempFeed.getLikes().stream()
-                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(),like.getUser().getThumbnail(), like.getCreated()))
                             .collect(Collectors.toList());
 
             f.setLikeUserList(likeUserResponseList);

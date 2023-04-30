@@ -340,18 +340,18 @@ public class FeedService {
                 .orElseGet(() -> null);
 
         Comment comment = Comment.builder()
-                    .feed(feed)
-                    .user(user)
-                    .content(commentCreateRequest.getContent())
-                    .created(LocalDateTime.now())
-                    .updated(LocalDateTime.now())
-                    .delYn('n')
-                    .parent(Optional.ofNullable(parentComment).orElse(null))
-                    .build();
+                .feed(feed)
+                .user(user)
+                .content(commentCreateRequest.getContent())
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+                .delYn('n')
+                .parent(Optional.ofNullable(parentComment).orElse(null))
+                .build();
 
         // parent가 있을 경우 Parent comment를 작성한 사람에 대해서 prefer이 있는 것으로 간주,
         // 그리고 대댓글 단 대상자에게 push, noti 주기
-        if(parentComment != null) {
+        if(parentComment != null) {     // 답글인 경우.
 
             User recipient = parentComment.getUser();
 
@@ -408,60 +408,59 @@ public class FeedService {
                     e.printStackTrace();
                 }
             }
-        }
+        } else {    // 답글아닌 댓글인 경우
+            if( !feed.getUser().equals(user)) {
+                //Action Builder : FEED_COMMENT에 대한 Action 저장
+                Action action = Action.builder()
+                        .actionFeed(feed)
+                        .actionType(ActionType.FEED_COMMENT)
+                        .isProcessDone(false)
+                        .actioner(user)
+                        .created(LocalDateTime.now())
+                        .build();
 
-        if( !feed.getUser().equals(user)) {
-            //Action Builder : FEED_COMMENT에 대한 Action 저장
-            Action action = Action.builder()
-                    .actionFeed(feed)
-                    .actionType(ActionType.FEED_COMMENT)
-                    .isProcessDone(false)
-                    .actioner(user)
-                    .created(LocalDateTime.now())
-                    .build();
+                UserNotification userNotification = UserNotification.builder()
+                        .action(action)
+                        .recipient(feed.getUser())
+                        .created(LocalDateTime.now())
+                        .build();
 
-            UserNotification userNotification = UserNotification.builder()
-                    .action(action)
-                    .recipient(feed.getUser())
-                    .created(LocalDateTime.now())
-                    .build();
+                UserPreference userPreference = UserPreference.builder()
+                        .user(user)
+                        .preferType(PreferType.FEED_COMMENT)
+                        .preferUser(feed.getUser())
+                        .created(LocalDateTime.now())
+                        .build();
 
-            UserPreference userPreference = UserPreference.builder()
-                    .user(user)
-                    .preferType(PreferType.FEED_COMMENT)
-                    .preferUser(feed.getUser())
-                    .created(LocalDateTime.now())
-                    .build();
+                try {
+                    if (feed.getUser().getUserPushAlarm() == 'Y' && feed.getUser().getTargetToken() != null) {
 
-            try {
-                if (feed.getUser().getUserPushAlarm() == 'Y' && feed.getUser().getTargetToken() != null) {
+                        MessageMetaData data = MessageMetaData.builder()
+                                .type(ActionType.FEED_COMMENT)
+                                .actionId(action.getId())
+                                .feedId(feed.getId())
+                                .commentId(comment.getId())
+                                .build();
 
-                    MessageMetaData data = MessageMetaData.builder()
-                            .type(ActionType.FEED_COMMENT)
-                            .actionId(action.getId())
-                            .feedId(feed.getId())
-                            .commentId(comment.getId())
-                            .build();
+                        Message fcmMessage = firebaseCloudMessageService.makeMessage(
+                                feed.getUser().getTargetToken(),
+                                "새로운 댓글",
+                                user.getName() + "님의 댓글이 달렸습니다.",
+                                data);
 
-                    Message fcmMessage = firebaseCloudMessageService.makeMessage(
-                            feed.getUser().getTargetToken(),
-                            "새로운 댓글",
-                            user.getName() + "님의 댓글이 달렸습니다.",
-                            data);
-
-                    fcm.send(fcmMessage);
+                        fcm.send(fcmMessage);
+                    }
+                } catch (FirebaseMessagingException e) {
+                    e.printStackTrace();
                 }
-            } catch (FirebaseMessagingException e) {
-                e.printStackTrace();
-            }
 
-            actionRepository.save(action);
-            userNotificationRepository.save(userNotification);
-            userPreferenceRepository.save(userPreference);
+                actionRepository.save(action);
+                userNotificationRepository.save(userNotification);
+                userPreferenceRepository.save(userPreference);
+            }
         }
 
         commentRepository.save(comment);
-
 
         // mention이 있을 경우 mention된 user에게 알림/푸시
         Optional.ofNullable(commentCreateRequest.getMentionUserList())
@@ -495,7 +494,7 @@ public class FeedService {
 
             List<LikeUserResponse> likeUserResponseList =
                     comment.getLikes().stream()
-                            .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                            .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(),like.getUser().getThumbnail(), like.getCreated()))
                             .collect(Collectors.toList());
 
             commentResponse.setLikeUserResponseList(likeUserResponseList);
@@ -522,7 +521,7 @@ public class FeedService {
                         .likeYn(isLikesComment(userId, reply.getId()))
                         .likeUserResponseList(
                                 reply.getLikes().stream()
-                                        .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                                        .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(), like.getUser().getThumbnail(), like.getCreated()))
                                         .collect(Collectors.toList())
                         )
                         .created(reply.getCreated())
@@ -563,7 +562,7 @@ public class FeedService {
 
         List<LikeUserResponse> likeUserResponseList =
                 feed.getLikes().stream()
-                        .map(like -> new LikeUserResponse(like.getUser().getThumbnail(), like.getUser().getName(), like.getCreated()))
+                        .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(), like.getUser().getThumbnail(), like.getCreated()))
                         .collect(Collectors.toList());
 
         FeedLinkResponse feedLinkResponse = FeedLinkResponse.builder()
@@ -585,5 +584,29 @@ public class FeedService {
 
         return Header.OK(feedLinkResponse);
 
+    }
+
+    public List<LikeUserResponse> getCommentLikeUserList(Long id) {
+
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        List<LikeUserResponse> likeUserResponseList =
+                comment.getLikes().stream()
+                        .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(), like.getUser().getThumbnail(), like.getCreated()))
+                        .collect(Collectors.toList());
+
+        return likeUserResponseList;
+    }
+
+    public List<LikeUserResponse> getFeedLikeUserList(Long id) {
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
+
+        List<LikeUserResponse> likeUserResponseList =
+                feed.getLikes().stream()
+                        .map(like -> new LikeUserResponse(like.getUser().getId(), like.getUser().getName(), like.getUser().getThumbnail(), like.getCreated()))
+                        .collect(Collectors.toList());
+
+        return likeUserResponseList;
     }
 }
