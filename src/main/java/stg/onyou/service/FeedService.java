@@ -609,4 +609,16 @@ public class FeedService {
 
         return likeUserResponseList;
     }
+
+    public FeedPageResponse getMyFeedList(Pageable page, String cursor, Long userId) {
+
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findMyFeedList(page, cursor, userId);
+
+        FeedPageResponse response = FeedPageResponse.builder()
+                .hasData(findFeedList.getTotalElements()!=0?true:false)
+                .responses(findFeedList)
+                .build();
+
+        return response;
+    }
 }

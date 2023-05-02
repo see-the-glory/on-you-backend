@@ -182,4 +182,42 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                 .lt(cursor);
     }
 
+    public Page<FeedResponse> findMyFeedList(Pageable page, String cursor, Long userId) {
+
+        StringTemplate stringTemplate = getCustomStringTemplate();
+
+        List<FeedResponse> feedResult = queryFactory
+                .select(new QFeedResponse(
+                        feed.id,
+                        feed.club.id,
+                        feed.club.name,
+                        feed.user.id,
+                        feed.user.name,
+                        feed.content,
+                        feed.user.thumbnail,
+                        feed.created,
+                        feed.updated,
+                        StringExpressions.lpad(stringTemplate, 20, '0')
+                                .concat(StringExpressions.lpad(feed.id.stringValue(), 10, '0'))
+                ))
+                .from(feed)
+                .leftJoin(userBlock)
+                .on(feed.user.id.eq(userBlock.blockee.id)
+                        .and(userBlock.blocker.id.eq(userId)))
+                .where(
+                        userBlock.blockee.id.isNull(),
+                        feed.delYn.eq('n'),
+                        feed.reportCount.lt(5),
+                        feed.user.id.eq(userId),
+                        cursorCompare(page, cursor)
+                )
+                .orderBy(new OrderSpecifier(Order.DESC, feed.created))
+                .limit(page.getPageSize())
+                .fetch();
+
+        fillAdditionalData(feedResult, userId);
+
+        long total = feedResult.size();
+        return new PageImpl<>(feedResult, page, total);
+    }
 }

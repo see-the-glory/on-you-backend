@@ -64,6 +64,19 @@ public class FeedController {
 
     }
 
+    @GetMapping("/api/feeds/my")
+    public FeedPageResponse getMyFeedList(
+            @RequestParam(required = false) String cursor,
+            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            HttpServletRequest httpServletRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        return feedService.getMyFeedList(pageable, cursor, userId);
+
+    }
+
+
+
     @PostMapping("/api/feeds")
     public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFiles,
                                      @RequestPart(value = "feedCreateRequest") FeedCreateRequest request,
