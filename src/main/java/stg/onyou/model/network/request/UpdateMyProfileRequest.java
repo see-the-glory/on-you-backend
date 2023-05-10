@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import stg.onyou.model.network.response.FeedResponse;
-import stg.onyou.model.network.response.MyPageResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,9 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateMyPageRequest {
+public class UpdateMyProfileRequest {
 
     private String about;
+    private String thumbnail;
+    private String backgroundImage;
     private boolean isEmailPublic;
     private boolean isContactPublic;
     private boolean isBirthdayPublic;

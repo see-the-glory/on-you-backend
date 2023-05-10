@@ -7,7 +7,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import stg.onyou.model.network.request.UserCreateRequest;
-import stg.onyou.model.network.response.MyPageResponse;
 
 
 import javax.persistence.*;
@@ -35,6 +34,7 @@ public class User implements UserDetails {
     private Organization organization;
     private String birthday;
     private String thumbnail;
+    private String backgroundImage;
     private String sex;
     @Column(unique=true)
     private String email;

@@ -16,7 +16,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
 import stg.onyou.model.network.request.PushAlarmUpdateRequest;
-import stg.onyou.model.network.request.UpdateMyPageRequest;
+import stg.onyou.model.network.request.UpdateMyProfileRequest;
 import stg.onyou.model.network.request.UserCreateRequest;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
@@ -362,43 +362,30 @@ public class UserService {
         return pushAlarmResponse;
     }
 
-    public void updateMyPage(UpdateMyPageRequest updateMyPageRequest, Long userId) {
+    public void updateMyProfile(UpdateMyProfileRequest updateMyProfileRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        user.setAbout(updateMyPageRequest.getAbout());
-        user.setEmailPublic(updateMyPageRequest.isEmailPublic());
-        user.setContactPublic(updateMyPageRequest.isContactPublic());
-        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
-        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
-        user.setBirthdayPublic(updateMyPageRequest.isBirthdayPublic());
+        user.setAbout(updateMyProfileRequest.getAbout());
+        user.setThumbnail(updateMyProfileRequest.getThumbnail());
+        user.setBackgroundImage(updateMyProfileRequest.getBackgroundImage());
+        user.setEmailPublic(updateMyProfileRequest.isEmailPublic());
+        user.setContactPublic(updateMyProfileRequest.isContactPublic());
+        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
+        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
+        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
 
         userRepository.save(user);
     }
 
-    public Header<MyPageResponse> getMyPageInfo(Long userId) {
+    public Header<ProfileResponse> getMyProfile(Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        List<MyPageResponse.ClubDTO> myClubList = userClubRepository.findByUserId(userId)
-                .stream()
-                .filter(userClub -> userClub.getRole()!=Role.PENDING)
-                .filter(userClub -> userClub.getApplyStatus()!=ApplyStatus.APPLIED)
-                .map( userClub -> MyPageResponse.ClubDTO.builder()
-                        .id(userClub.getClub().getId())
-                        .name(userClub.getClub().getName())
-                        .recruitNumber((long) userClub.getClub().getRecruitNumber())
-                        .categories(
-                                clubCategoryRepository.findByClub(userClub.getClub())
-                                    .stream()
-                                    .map(clubCategory -> clubCategory.getCategory())
-                                    .map(category -> modelMapper.map(category, CategoryResponse.class))
-                                    .collect(Collectors.toList())
-                        )
-                        .role(userClub.getRole())
-                        .build()
-                ).
-                collect(Collectors.toList());
+        List<ProfileResponse.ClubDTO> myClubList = getUserClubList(userId);
 
-        MyPageResponse myPageResponse = MyPageResponse.builder()
+        ProfileResponse myPageResponse = ProfileResponse.builder()
+                .name(user.getName())
+                .thumbnail(user.getThumbnail())
+                .backgroundImage(user.getBackgroundImage())
                 .about(user.getAbout())
                 .email(user.getEmail())
                 .isEmailPublic(user.isEmailPublic())
@@ -412,5 +399,46 @@ public class UserService {
                 .build();
 
         return Header.OK(myPageResponse);
+    }
+
+    public Header<ProfileResponse> getUserProfile(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<ProfileResponse.ClubDTO> userClubList = getUserClubList(userId);
+
+        ProfileResponse myPageResponse = ProfileResponse.builder()
+                .name(user.getName())
+                .thumbnail(user.getThumbnail())
+                .backgroundImage(user.getBackgroundImage())
+                .about(user.getAbout())
+                .email(user.getEmail())
+                .contact(user.getPhoneNumber())
+                .birthday(LocalDate.parse(user.getBirthday(), DateTimeFormatter.ISO_DATE))
+                .clubs(userClubList)
+                .build();
+
+        return Header.OK(myPageResponse);
+
+    }
+
+    private List<ProfileResponse.ClubDTO> getUserClubList(Long userId){
+        return userClubRepository.findByUserId(userId)
+                .stream()
+                .filter(userClub -> userClub.getRole()!=Role.PENDING)
+                .filter(userClub -> userClub.getApplyStatus()!=ApplyStatus.APPLIED)
+                .map( userClub -> ProfileResponse.ClubDTO.builder()
+                        .id(userClub.getClub().getId())
+                        .name(userClub.getClub().getName())
+                        .recruitNumber((long) userClub.getClub().getRecruitNumber())
+                        .categories(
+                                clubCategoryRepository.findByClub(userClub.getClub())
+                                        .stream()
+                                        .map(clubCategory -> clubCategory.getCategory())
+                                        .map(category -> modelMapper.map(category, CategoryResponse.class))
+                                        .collect(Collectors.toList())
+                        )
+                        .role(userClub.getRole())
+                        .build()
+                ).collect(Collectors.toList());
     }
 }

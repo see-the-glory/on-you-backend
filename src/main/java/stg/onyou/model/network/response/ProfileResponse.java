@@ -16,8 +16,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MyPageResponse {
+public class ProfileResponse {
 
+    private String name;
+    private String thumbnail;
+    private String backgroundImage;
     private String about;
     private String email;
     private boolean isEmailPublic;

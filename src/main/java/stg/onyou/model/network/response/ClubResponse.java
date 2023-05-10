@@ -26,6 +26,7 @@ public class ClubResponse {
     private List<CategoryResponse> categories;
     private int maxNumber;
     private int recruitNumber;
+    private int feedNumber;
     private String thumbnail;
     private RecruitStatus recruitStatus; //BEGIN, RECRUIT, CLOSED
     private String isApprovedRequired; // "Y", "N"
