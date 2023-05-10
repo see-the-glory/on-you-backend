@@ -60,9 +60,9 @@ public class UserController {
         return userService.selectUser(userId);
     }
 
-    @GetMapping("/{userId}/userInfo")
-    public Header<UserResponse> getUserInfo(@PathVariable Long userId,  HttpServletRequest httpServletRequest) {
-        return userService.selectUser(userId);
+    @GetMapping("/{userId}/profile")
+    public Header<ProfileResponse> getUserProfile(@PathVariable Long userId,  HttpServletRequest httpServletRequest) {
+        return userService.getUserProfile(userId);
     }
 
     @PutMapping("")
@@ -74,17 +74,17 @@ public class UserController {
         return Header.OK("User 정보 변경 완료");
     }
 
-    @GetMapping("/myPage")
-    public Header<MyPageResponse> getMyPageInfo(HttpServletRequest httpServletRequest) {
+    @GetMapping("/myProfile")
+    public Header<ProfileResponse> getMyProfile(HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        return userService.getMyPageInfo(userId);
+        return userService.getMyProfile(userId);
     }
 
-    @PutMapping("/myPage")
-    public Header<Object> updateMyPageInfo(@RequestBody @Valid UpdateMyPageRequest updateMyPageRequest,
+    @PutMapping("/myProfile")
+    public Header<Object> updateMyProfile(@RequestBody @Valid UpdateMyProfileRequest updateMyProfileRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
-        userService.updateMyPage(updateMyPageRequest, userId);
+        userService.updateMyProfile(updateMyProfileRequest, userId);
         return Header.OK("MyPage 정보 변경 완료");
     }
 

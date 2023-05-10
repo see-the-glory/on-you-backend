@@ -1080,6 +1080,7 @@ public class ClubService {
                 .thumbnail(club.getThumbnail())
                 .recruitNumber(club.getRecruitNumber())
                 .recruitStatus(club.getRecruitStatus())
+                .feedNumber(club.getFeedNumber())
                 .isApprovedRequired(club.getIsApproveRequired())
                 .categories(categoryResponseList)
                 .contactPhone(club.getContactPhone())

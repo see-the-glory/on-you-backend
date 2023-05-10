@@ -2,6 +2,7 @@ package stg.onyou.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
@@ -42,7 +43,12 @@ public class LikesService {
                 .ifPresentOrElse(
                         likes -> feedLikesRepository.deleteById(likes.getId()),
                         () -> {
-                            feedLikesRepository.save(like);
+
+                            try {
+                                feedLikesRepository.save(like);
+                            } catch (DataIntegrityViolationException ex) {
+                                throw new CustomException(ErrorCode.DUPLICATE_LIKE);
+                            }
 
                             UserPreference userPreference = UserPreference.builder()
                                     .user(user)
