@@ -243,4 +243,18 @@ public class ClubController {
 
     }
 
+    @GetMapping("/{clubId}/guestComment")
+    public Header<List<GuestCommentResponse>> getGuestCommentList(@PathVariable Long clubId){
+        return clubService.getGuestCommentList(clubId);
+    }
+
+    @PostMapping("/{clubId}/guestComment")
+    public Header<String> createGuestComment(@RequestBody GuestCommentCreateRequest guestCommentCreateRequest, @PathVariable Long clubId, HttpServletRequest httpServletRequest){
+
+        Long userId = userService.getUserId(httpServletRequest);
+        clubService.createGuestComment(guestCommentCreateRequest, clubId, userId);
+
+        return Header.OK("방명록 생성 완료");
+
+    }
 }

@@ -39,7 +39,7 @@ public enum ErrorCode {
 
     // 404 NOT_FOUND : Resource 를 찾을 수 없음
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),
-    CLUB_NOT_FOUND(NOT_FOUND, "존재하지않는 모입니다."),
+    CLUB_NOT_FOUND(NOT_FOUND, "존재하지 않는 모임입니다."),
     FEED_NOT_FOUND(NOT_FOUND, "존재하지 않는 FEED입니다."),
     HASHTAG_NOT_FOUND(NOT_FOUND, "존재하지 않는 해시태그입니다."),
     CATEGORY_NOT_FOUND(NOT_FOUND, "카테고리가 존재하지 않습니다."),

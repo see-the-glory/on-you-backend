@@ -65,6 +65,8 @@ public class ClubService {
     private UserNotificationRepository userNotificationRepository;
     @Autowired
     private ClubNotificationRepository clubNotificationRepository;
+    @Autowired
+    private GuestCommentRepository guestCommentRepository;
     private final FirebaseMessaging fcm;
 
     public ClubService(FirebaseMessaging fcm) {
@@ -1238,4 +1240,23 @@ public class ClubService {
                 .orElse(Header.OK(DuplicateCheckResponse.builder().isDuplicated('N').build()));
     }
 
+    public void createGuestComment(GuestCommentCreateRequest guestCommentCreateRequest, Long clubId, Long userId) {
+
+        GuestComment guestComment = GuestComment.builder()
+                .content(guestCommentCreateRequest.getContent())
+                .user(userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .club(clubRepository.findById(clubId).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND)))
+                .created(LocalDateTime.now())
+                .build();
+
+        guestCommentRepository.save(guestComment);
+    }
+
+    public Header<List<GuestCommentResponse>> getGuestCommentList(Long clubId) {
+        Club club = clubRepository.findById(clubId).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
+        List<GuestComment> guestCommentList = guestCommentRepository.findByClub(club);
+        return Header.OK(guestCommentList.stream().map(
+                guestComment -> new GuestCommentResponse(guestComment.getUser().getId(), guestComment.getUser().getName(), guestComment.getUser().getThumbnail(), guestComment.getContent(), guestComment.getCreated())
+        ).collect(Collectors.toList()));
+    }
 }
