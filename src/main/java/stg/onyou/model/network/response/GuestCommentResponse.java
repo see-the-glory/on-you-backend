@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class GuestCommentResponse {
+    private Long id;
     private Long userId;
     private String userName;
     private String thumbnail;

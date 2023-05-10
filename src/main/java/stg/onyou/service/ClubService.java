@@ -1256,7 +1256,21 @@ public class ClubService {
         Club club = clubRepository.findById(clubId).orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
         List<GuestComment> guestCommentList = guestCommentRepository.findByClub(club);
         return Header.OK(guestCommentList.stream().map(
-                guestComment -> new GuestCommentResponse(guestComment.getUser().getId(), guestComment.getUser().getName(), guestComment.getUser().getThumbnail(), guestComment.getContent(), guestComment.getCreated())
+                guestComment -> new GuestCommentResponse(guestComment.getId(), guestComment.getUser().getId(), guestComment.getUser().getName(), guestComment.getUser().getThumbnail(), guestComment.getContent(), guestComment.getCreated())
         ).collect(Collectors.toList()));
+    }
+
+    public void deleteGuestComment(Long guestCommentId, Long userId) {
+        GuestComment guestComment = guestCommentRepository.findById(guestCommentId).orElseThrow(()-> new CustomException(ErrorCode.GUEST_COMMENT_NOT_FOUND));
+
+        List<User> adminList = getAdminList(guestComment.getClub());
+
+        if(userId == guestComment.getUser().getId() ||  // 방명록의 작성자이거나
+                adminList.stream().anyMatch(user -> user.getId().equals(userId))){  //방명록이 속한 모임의 관리자만 삭제가능
+            guestCommentRepository.deleteById(guestCommentId);
+        } else {
+            throw new CustomException(ErrorCode.NO_PERMISSION);
+        }
+
     }
 }

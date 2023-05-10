@@ -237,7 +237,7 @@ public class ClubController {
     }
 
     @PostMapping("/duplicateCheck")
-    public Header<DuplicateCheckResponse> duplicateCheck(@RequestBody DuplicateCheckRequest duplicateCheckRequest){
+    public Header<DuplicateCheckResponse> duplicateCheck(@Valid @RequestBody DuplicateCheckRequest duplicateCheckRequest){
 
         return clubService.duplicateCheck(duplicateCheckRequest.getClubName());
 
@@ -249,12 +249,22 @@ public class ClubController {
     }
 
     @PostMapping("/{clubId}/guestComment")
-    public Header<String> createGuestComment(@RequestBody GuestCommentCreateRequest guestCommentCreateRequest, @PathVariable Long clubId, HttpServletRequest httpServletRequest){
+    public Header<String> createGuestComment(@Valid @RequestBody GuestCommentCreateRequest guestCommentCreateRequest, @PathVariable Long clubId, HttpServletRequest httpServletRequest){
 
         Long userId = userService.getUserId(httpServletRequest);
         clubService.createGuestComment(guestCommentCreateRequest, clubId, userId);
 
         return Header.OK("방명록 생성 완료");
+
+    }
+
+    @DeleteMapping("/guestComment/{guestCommentId}")
+    public Header<String> deleteGuestComment(@PathVariable Long guestCommentId, HttpServletRequest httpServletRequest){
+
+        Long userId = userService.getUserId(httpServletRequest);
+        clubService.deleteGuestComment(guestCommentId, userId);
+
+        return Header.OK("방명록 삭제 완료");
 
     }
 }
