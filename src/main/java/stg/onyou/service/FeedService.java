@@ -110,20 +110,6 @@ public class FeedService {
         return response;
     }
 
-    private boolean hasNextElement(Page<FeedResponse> findFeedList, Pageable page, Long userId) {
-
-        List<FeedResponse> feedResponseList = findFeedList.toList();
-        if(feedResponseList.size()==0){
-            return false;
-        }
-
-        FeedResponse lastElement = feedResponseList.get(feedResponseList.size()-1);
-
-        Page<FeedResponse> hasNextList = feedQRepositoryImpl.findFeedList(page, lastElement.getCustomCursor(), userId);
-
-        return hasNextList.getTotalElements() == 0 ? false : true;
-    }
-
 
     /**
      * 특정그룹 내 전체 feed public feed 조회
@@ -613,6 +599,18 @@ public class FeedService {
     public FeedPageResponse getMyFeedList(Pageable page, String cursor, Long userId) {
 
         Page<FeedResponse> findFeedList = feedQRepositoryImpl.findMyFeedList(page, cursor, userId);
+
+        FeedPageResponse response = FeedPageResponse.builder()
+                .hasData(findFeedList.getTotalElements()!=0?true:false)
+                .responses(findFeedList)
+                .build();
+
+        return response;
+    }
+
+    public FeedPageResponse selectFeedListByUser(Pageable page, String cursor, Long userId) {
+
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByUser(page, cursor, userId);
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)

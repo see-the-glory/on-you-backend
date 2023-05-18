@@ -64,6 +64,17 @@ public class FeedController {
 
     }
 
+    @GetMapping("/api/users/{userId}/feeds")
+    public FeedPageResponse selectFeedListByUser(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String cursor,
+            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            HttpServletRequest httpServletRequest) {
+
+        return feedService.selectFeedListByUser(pageable, cursor, userId);
+
+    }
+
     @GetMapping("/api/feeds/my")
     public FeedPageResponse getMyFeedList(
             @RequestParam(required = false) String cursor,
