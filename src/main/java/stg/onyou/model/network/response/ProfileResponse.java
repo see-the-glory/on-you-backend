@@ -23,6 +23,7 @@ public class ProfileResponse {
     private String backgroundImage;
     private String about;
     private String email;
+    private Long feedNumber;
     private boolean isEmailPublic;
     private String contact;
     private boolean isContactPublic;
@@ -38,6 +39,7 @@ public class ProfileResponse {
     public static class ClubDTO {
         private Long id;
         private String name;
+        private String thumbnail;
         private Long recruitNumber;
         private List<CategoryResponse> categories;
         private Role role;

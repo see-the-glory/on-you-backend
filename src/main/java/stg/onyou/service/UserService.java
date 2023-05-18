@@ -382,6 +382,8 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<ProfileResponse.ClubDTO> myClubList = getUserClubList(userId);
 
+        Long feedNumber = getUserFeedNumber(userId);
+
         ProfileResponse myPageResponse = ProfileResponse.builder()
                 .name(user.getName())
                 .thumbnail(user.getThumbnail())
@@ -390,6 +392,7 @@ public class UserService {
                 .email(user.getEmail())
                 .isEmailPublic(user.isEmailPublic())
                 .contact(user.getPhoneNumber())
+                .feedNumber(feedNumber)
                 .isContactPublic(user.isContactPublic())
                 .birthday(LocalDate.parse(user.getBirthday(), DateTimeFormatter.ISO_DATE))
                 .isBirthdayPublic(user.isBirthdayPublic())
@@ -406,6 +409,12 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<ProfileResponse.ClubDTO> userClubList = getUserClubList(userId);
 
+        Long feedNumber = getUserFeedNumber(userId);
+
+        Optional<LocalDate> parsedBirthday = Optional.ofNullable(user)
+                .map(User::getBirthday)
+                .map(birthday -> LocalDate.parse(birthday, DateTimeFormatter.ISO_DATE));
+
         ProfileResponse myPageResponse = ProfileResponse.builder()
                 .name(user.getName())
                 .thumbnail(user.getThumbnail())
@@ -413,12 +422,20 @@ public class UserService {
                 .about(user.getAbout())
                 .email(user.getEmail())
                 .contact(user.getPhoneNumber())
-                .birthday(LocalDate.parse(user.getBirthday(), DateTimeFormatter.ISO_DATE))
+                .feedNumber(feedNumber)
+                .birthday(parsedBirthday.orElse(null))
                 .clubs(userClubList)
                 .build();
 
         return Header.OK(myPageResponse);
 
+    }
+
+    private Long getUserFeedNumber(Long userId) {
+        return feedRepository.findByUserId(userId)
+                .stream()
+                .filter(feed -> feed.getDelYn()!='y')
+                .count();
     }
 
     private List<ProfileResponse.ClubDTO> getUserClubList(Long userId){
@@ -437,6 +454,7 @@ public class UserService {
                                         .map(category -> modelMapper.map(category, CategoryResponse.class))
                                         .collect(Collectors.toList())
                         )
+                        .thumbnail(userClub.getClub().getThumbnail())
                         .role(userClub.getRole())
                         .build()
                 ).collect(Collectors.toList());
