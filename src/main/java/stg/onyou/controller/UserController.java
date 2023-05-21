@@ -81,10 +81,12 @@ public class UserController {
     }
 
     @PutMapping("/myProfile")
-    public Header<Object> updateMyProfile(@RequestBody @Valid UpdateMyProfileRequest updateMyProfileRequest,
+    public Header<Object> updateMyProfile(@RequestPart(value = "thumbnail") MultipartFile thumbnailFile,
+                                          @RequestPart(value = "backgroundImage") MultipartFile backGroundImageFile,
+                                          @RequestBody @Valid UpdateMyProfileRequest updateMyProfileRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
-        userService.updateMyProfile(updateMyProfileRequest, userId);
+        userService.updateMyProfile(thumbnailFile, backGroundImageFile, updateMyProfileRequest, userId);
         return Header.OK("MyPage 정보 변경 완료");
     }
 

@@ -362,12 +362,15 @@ public class UserService {
         return pushAlarmResponse;
     }
 
-    public void updateMyProfile(UpdateMyProfileRequest updateMyProfileRequest, Long userId) {
+    public void updateMyProfile(MultipartFile thumbnailFile, MultipartFile backgroundImageFile, UpdateMyProfileRequest updateMyProfileRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        String thumbnailUrl = awsS3Service.uploadFile(thumbnailFile);
+        String backgroundImageUrl =  awsS3Service.uploadFile(backgroundImageFile);
+
+        user.setThumbnail(thumbnailUrl);
         user.setAbout(updateMyProfileRequest.getAbout());
-        user.setThumbnail(updateMyProfileRequest.getThumbnail());
-        user.setBackgroundImage(updateMyProfileRequest.getBackgroundImage());
+        user.setBackgroundImage(backgroundImageUrl);
         user.setEmailPublic(updateMyProfileRequest.isEmailPublic());
         user.setContactPublic(updateMyProfileRequest.isContactPublic());
         user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());

@@ -15,8 +15,6 @@ import java.util.List;
 public class UpdateMyProfileRequest {
 
     private String about;
-    private String thumbnail;
-    private String backgroundImage;
     private boolean isEmailPublic;
     private boolean isContactPublic;
     private boolean isBirthdayPublic;
