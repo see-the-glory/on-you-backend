@@ -44,7 +44,7 @@ public class FeedController {
     @GetMapping("/api/feeds")
     public FeedPageResponse selectFeedList(
             @RequestParam(required = false) String cursor,
-            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            @PageableDefault(sort="created", size = 9) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
@@ -56,7 +56,7 @@ public class FeedController {
     public FeedPageResponse selectFeedListByClub(
             @PathVariable Long clubId,
             @RequestParam(required = false) String cursor,
-            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            @PageableDefault(sort="created", size = 9) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);
@@ -68,17 +68,18 @@ public class FeedController {
     public FeedPageResponse selectFeedListByUser(
             @PathVariable Long userId,
             @RequestParam(required = false) String cursor,
-            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            @PageableDefault(sort="created", size = 9) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
-        return feedService.selectFeedListByUser(pageable, cursor, userId);
+        Long myId = userService.getUserId(httpServletRequest);
+        return feedService.selectFeedListByUser(pageable, cursor, userId, myId);
 
     }
 
     @GetMapping("/api/feeds/my")
     public FeedPageResponse getMyFeedList(
             @RequestParam(required = false) String cursor,
-            @PageableDefault(sort="created", size = 10) Pageable pageable,
+            @PageableDefault(sort="created", size = 9) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
         Long userId = userService.getUserId(httpServletRequest);

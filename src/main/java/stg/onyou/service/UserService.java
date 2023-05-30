@@ -374,8 +374,6 @@ public class UserService {
         user.setEmailPublic(updateMyProfileRequest.isEmailPublic());
         user.setContactPublic(updateMyProfileRequest.isContactPublic());
         user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
-        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
-        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
 
         userRepository.save(user);
     }

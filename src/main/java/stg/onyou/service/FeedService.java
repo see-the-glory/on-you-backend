@@ -608,9 +608,9 @@ public class FeedService {
         return response;
     }
 
-    public FeedPageResponse selectFeedListByUser(Pageable page, String cursor, Long userId) {
+    public FeedPageResponse selectFeedListByUser(Pageable page, String cursor, Long userId, Long myId) {
 
-        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByUser(page, cursor, userId);
+        Page<FeedResponse> findFeedList = feedQRepositoryImpl.findFeedListByUser(page, cursor, userId, myId);
 
         FeedPageResponse response = FeedPageResponse.builder()
                 .hasData(findFeedList.getTotalElements()!=0?true:false)
