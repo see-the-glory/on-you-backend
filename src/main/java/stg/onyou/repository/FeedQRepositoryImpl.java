@@ -221,7 +221,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
         return new PageImpl<>(feedResult, page, total);
     }
 
-    public Page<FeedResponse> findFeedListByUser(Pageable page, String cursor, Long userId) {
+    public Page<FeedResponse> findFeedListByUser(Pageable page, String cursor, Long userId, Long myId) {
 
         StringTemplate stringTemplate = getCustomStringTemplate();
 
@@ -251,7 +251,7 @@ public class FeedQRepositoryImpl extends QuerydslRepositorySupport implements Fe
                 .limit(page.getPageSize())
                 .fetch();
 
-        fillAdditionalData(feedResult, userId);
+        fillAdditionalData(feedResult, myId);
 
         long total = feedResult.size();
         return new PageImpl<>(feedResult, page, total);

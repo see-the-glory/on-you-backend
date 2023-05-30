@@ -71,7 +71,8 @@ public class FeedController {
             @PageableDefault(sort="created", size = 10) Pageable pageable,
             HttpServletRequest httpServletRequest) {
 
-        return feedService.selectFeedListByUser(pageable, cursor, userId);
+        Long myId = userService.getUserId(httpServletRequest);
+        return feedService.selectFeedListByUser(pageable, cursor, userId, myId);
 
     }
 
