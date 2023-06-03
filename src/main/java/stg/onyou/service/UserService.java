@@ -131,17 +131,20 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void updateUser(MultipartFile thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
+    public void updateUser(Optional<MultipartFile> thumbnailFile, UserUpdateRequest userUpdateRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
+
+        Optional<String> thumbnailUrl = thumbnailFile.map(awsS3Service::uploadFile);
+
+        thumbnailUrl.ifPresent(url -> user.setThumbnail(url));
+
         user.setName(userUpdateRequest.getName());
         user.setBirthday(userUpdateRequest.getBirthday());
         user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
-        String url = awsS3Service.uploadFile(thumbnailFile);
-        user.setThumbnail(url);
         user.setUpdated(LocalDateTime.now());
         userRepository.save(user);
     }
@@ -362,20 +365,29 @@ public class UserService {
         return pushAlarmResponse;
     }
 
-    public void updateMyProfile(MultipartFile thumbnailFile, MultipartFile backgroundImageFile, UpdateMyProfileRequest updateMyProfileRequest, Long userId) {
+    public Header<ProfileResponse> updateMyProfile(Optional<MultipartFile> thumbnailFile, Optional<MultipartFile> backgroundImageFile, UpdateMyProfileRequest updateMyProfileRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String thumbnailUrl = awsS3Service.uploadFile(thumbnailFile);
-        String backgroundImageUrl =  awsS3Service.uploadFile(backgroundImageFile);
+        Optional<String> thumbnailUrl = thumbnailFile
+                .map(awsS3Service::uploadFile);
 
-        user.setThumbnail(thumbnailUrl);
+        thumbnailUrl.ifPresent(url -> user.setThumbnail(url));
+
+        Optional<String> backgroundImageUrl = backgroundImageFile
+                .map(awsS3Service::uploadFile);
+
+        backgroundImageUrl.ifPresent(url -> user.setBackgroundImage(url));
+
         user.setAbout(updateMyProfileRequest.getAbout());
-        user.setBackgroundImage(backgroundImageUrl);
-        user.setEmailPublic(updateMyProfileRequest.isEmailPublic());
-        user.setContactPublic(updateMyProfileRequest.isContactPublic());
-        user.setBirthdayPublic(updateMyProfileRequest.isBirthdayPublic());
+        user.setIsEmailPublic(updateMyProfileRequest.getIsBirthdayPublic());
+        user.setIsContactPublic(updateMyProfileRequest.getIsContactPublic());
+        user.setIsBirthdayPublic(updateMyProfileRequest.getIsBirthdayPublic());
+        user.setIsClubPublic(updateMyProfileRequest.getIsClubPublic());
+        user.setIsFeedPublic(updateMyProfileRequest.getIsFeedPublic());
 
         userRepository.save(user);
+
+        return this.getMyProfile(userId);
     }
 
     public Header<ProfileResponse> getMyProfile(Long userId) {
@@ -385,20 +397,23 @@ public class UserService {
 
         Long feedNumber = getUserFeedNumber(userId);
 
+        Optional<String> birthdayOptional = Optional.ofNullable(user.getBirthday());
+        LocalDate birthday = birthdayOptional.map(date -> LocalDate.parse(date, DateTimeFormatter.ISO_DATE)).orElse(null);
+
         ProfileResponse myPageResponse = ProfileResponse.builder()
                 .name(user.getName())
                 .thumbnail(user.getThumbnail())
                 .backgroundImage(user.getBackgroundImage())
                 .about(user.getAbout())
                 .email(user.getEmail())
-                .isEmailPublic(user.isEmailPublic())
+                .isEmailPublic(user.getIsEmailPublic())
                 .contact(user.getPhoneNumber())
                 .feedNumber(feedNumber)
-                .isContactPublic(user.isContactPublic())
-                .birthday(LocalDate.parse(user.getBirthday(), DateTimeFormatter.ISO_DATE))
-                .isBirthdayPublic(user.isBirthdayPublic())
-                .isClubPublic(user.isClubPublic())
-                .isFeedPublic(user.isFeedPublic())
+                .isContactPublic(user.getIsContactPublic())
+                .birthday(birthday)
+                .isBirthdayPublic(user.getIsBirthdayPublic())
+                .isClubPublic(user.getIsClubPublic())
+                .isFeedPublic(user.getIsFeedPublic())
                 .clubs(myClubList)
                 .build();
 

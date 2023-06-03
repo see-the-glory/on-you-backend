@@ -15,9 +15,9 @@ import java.util.List;
 public class UpdateMyProfileRequest {
 
     private String about;
-    private boolean isEmailPublic;
-    private boolean isContactPublic;
-    private boolean isBirthdayPublic;
-    private boolean isClubPublic;
-    private boolean isFeedPublic;
+    private char isEmailPublic;
+    private char isContactPublic;
+    private char isBirthdayPublic;
+    private char isClubPublic;
+    private char isFeedPublic;
 }
