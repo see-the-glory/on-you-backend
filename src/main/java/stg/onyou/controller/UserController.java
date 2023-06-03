@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PutMapping("")
-    public Header<Object> updateUserInfo(@RequestPart(value = "file") MultipartFile thumbnailFile,
+    public Header<Object> updateUserInfo(@RequestPart(value = "thumbnail") Optional<MultipartFile> thumbnailFile,
                                          @RequestPart(value = "userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
@@ -81,13 +81,12 @@ public class UserController {
     }
 
     @PutMapping("/myProfile")
-    public Header<Object> updateMyProfile(@RequestPart(value = "thumbnail") MultipartFile thumbnailFile,
-                                          @RequestPart(value = "backgroundImage") MultipartFile backGroundImageFile,
+    public Header<ProfileResponse> updateMyProfile(@RequestPart(value = "thumbnail") Optional<MultipartFile> thumbnailFile,
+                                          @RequestPart(value = "backgroundImage") Optional<MultipartFile> backGroundImageFile,
                                           @RequestPart(value = "updateMyProfileRequest") UpdateMyProfileRequest updateMyProfileRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
-        userService.updateMyProfile(thumbnailFile, backGroundImageFile, updateMyProfileRequest, userId);
-        return Header.OK("MyPage 정보 변경 완료");
+        return userService.updateMyProfile(thumbnailFile, backGroundImageFile, updateMyProfileRequest, userId);
     }
 
     @PostMapping("/findId")
