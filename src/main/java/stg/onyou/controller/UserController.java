@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PutMapping("")
-    public Header<Object> updateUserInfo(@RequestPart(value = "thumbnail") Optional<MultipartFile> thumbnailFile,
+    public Header<Object> updateUserInfo(@RequestPart(value = "file") Optional<MultipartFile> thumbnailFile,
                                          @RequestPart(value = "userUpdateRequest") UserUpdateRequest userUpdateRequest,
                                          HttpServletRequest httpServletRequest) throws Exception {
         Long userId = userService.getUserId(httpServletRequest);
