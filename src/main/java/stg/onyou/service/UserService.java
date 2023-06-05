@@ -441,6 +441,11 @@ public class UserService {
                 .feedNumber(feedNumber)
                 .birthday(parsedBirthday.orElse(null))
                 .clubs(userClubList)
+                .isBirthdayPublic(user.getIsBirthdayPublic())
+                .isContactPublic(user.getIsContactPublic())
+                .isEmailPublic(user.getIsEmailPublic())
+                .isFeedPublic(user.getIsFeedPublic())
+                .isClubPublic(user.getIsClubPublic())
                 .build();
 
         return Header.OK(myPageResponse);
