@@ -1,5 +1,6 @@
 package stg.onyou.service;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -85,21 +86,21 @@ public class ClubService {
                 );
     }
 
-    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId) {
+    public ClubPageResponse selectClubList(Pageable page, ClubCondition clubCondition, String customCursor, Long userId, String keyword) {
 
-        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId);
+        Page<ClubConditionResponse> findClubList = clubQRepository.findClubSearchList(page, clubCondition, customCursor, userId, keyword);
 
 
         ClubPageResponse response = ClubPageResponse.builder()
                 .hasData(findClubList.getTotalElements()!=0?true:false)
-                .hasNext(hasNextElement(findClubList, page, clubCondition, userId))
+                .hasNext(hasNextElement(findClubList, page, clubCondition, userId, keyword))
                 .responses(findClubList)
                 .build();
 
         return response;
     }
 
-    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition, Long userId) {
+    private boolean hasNextElement(Page<ClubConditionResponse> findClubList, Pageable page, ClubCondition clubCondition, Long userId, String keyword) {
 
         List<ClubConditionResponse> clubConditionResponseList = findClubList.toList();
         if(clubConditionResponseList.size()==0){
@@ -107,7 +108,7 @@ public class ClubService {
         }
         ClubConditionResponse lastElement = clubConditionResponseList.get(clubConditionResponseList.size()-1);
 
-        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor(), userId);
+        Page<ClubConditionResponse> hasNextList = clubQRepository.findClubSearchList(page, clubCondition, lastElement.getCustomCursor(), userId, keyword);
 
 
         return hasNextList.getTotalElements() == 0 ? false : true;
@@ -1273,4 +1274,5 @@ public class ClubService {
         }
 
     }
+
 }
