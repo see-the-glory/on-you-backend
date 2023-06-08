@@ -22,7 +22,6 @@ import stg.onyou.model.network.Header;
 import stg.onyou.model.network.MessageMetaData;
 import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
-import stg.onyou.model.network.request.FeedSearch;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.*;
 import stg.onyou.repository.*;
@@ -121,13 +120,13 @@ public class FeedService {
                 );
         return club.getFeeds();
     }
-
-    /**
-     * FeedSearch
-     */
-    public List<Feed> findAllByString(FeedSearch feedSearch) {
-        return feedRepository.findAllString(feedSearch.getContent(), feedSearch.getHashtag());
-    }
+//
+//    /**
+//     * FeedSearch
+//     */
+//    public List<Feed> findAllByString(FeedSearch feedSearch) {
+//        return feedRepository.findAllString(feedSearch.getContent(), feedSearch.getHashtag());
+//    }
 
     /**
      * 특정 feed id -> feed 정보 값을 return

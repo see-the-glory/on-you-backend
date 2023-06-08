@@ -62,6 +62,7 @@ public class ClubController {
         @RequestParam(defaultValue = "0", required = false) int showMy,
         @RequestParam(defaultValue = "0", required = false) int min,
         @RequestParam(defaultValue = "1000", required = false) int max,
+        @RequestParam(defaultValue = "") String keyword,
         @PageableDefault (sort="created", size = 8) Pageable pageable,
         HttpServletRequest httpServletRequest){
 
@@ -76,7 +77,7 @@ public class ClubController {
                 .max(max)
                 .build();
 
-        return clubService.selectClubList(pageable, clubCondition, cursor, userId);
+        return clubService.selectClubList(pageable, clubCondition, cursor, userId, keyword);
     }
 
     @GetMapping("/{id}/role")

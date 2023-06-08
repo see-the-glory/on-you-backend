@@ -44,14 +44,14 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
     }
 
     @Override
-    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String cursor, Long userId) {
+    public Page<ClubConditionResponse> findClubSearchList(Pageable page, ClubCondition clubCondition, String cursor, Long userId, String keyword) {
 
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, cursor, currentUser);
+        List<ClubConditionResponse> clubResult = findClubList(page, clubCondition, cursor, currentUser, keyword);
 
         clubResult.forEach(
                 club -> club.setCategories(setCategory(club))
@@ -76,7 +76,7 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                 .fetch();
     }
 
-    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String cursor, User currentUser) {
+    private List<ClubConditionResponse> findClubList(Pageable page, ClubCondition clubCondition, String cursor, User currentUser, String keyword) {
 
         String customSortType = getCustomSortType(page); //
         StringTemplate stringTemplate = getCustomStringTemplate(customSortType);
@@ -110,12 +110,22 @@ public class ClubQRepositoryImpl extends QuerydslRepositorySupport implements Cl
                         showMyClub(clubCondition, currentUser),
                         showRecruitingOnly(clubCondition),
                         showMemberBetween(clubCondition),
+                        showKeywordSearch(keyword),
                         club.delYn.eq('N')
                 )
                 .groupBy(club)
                 .orderBy(clubSort(page, clubCondition, cursorForEachRow))
                 .limit(page.getPageSize())
                 .fetch();
+    }
+
+    private BooleanExpression showKeywordSearch(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return null; // Skip the condition if the keyword is null or empty
+        }
+        return club.name.like("%" + keyword + "%")
+                .or(club.longDesc.like("%" + keyword + "%"))
+                .or(club.shortDesc.like("%" + keyword + "%"));
     }
 
     private BooleanExpression showRequestedCategory(ClubCondition clubCondition){
