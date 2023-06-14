@@ -63,7 +63,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setDelYn('y');
 
-        List<Comment> childComments = commentRepository.findByParentId(comment.getId());
+        List<Comment> childComments = commentRepository.findByParentIdAndDelYn(comment.getId(), 'n');
 
         childComments.forEach(
                 comments -> {
