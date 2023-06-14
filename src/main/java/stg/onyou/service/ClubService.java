@@ -479,8 +479,8 @@ public class ClubService {
 
                                 MessageMetaData data = MessageMetaData.builder()
                                         .type(ActionType.APPLY)
-                                        .actionId(action.getId())
-                                        .clubId(club.getId())
+                                        .actionId(action != null ? action.getId() : null)
+                                        .clubId(club != null ? club.getId() : null)
                                         .build();
 
                                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -610,8 +610,8 @@ public class ClubService {
 
                 MessageMetaData data = MessageMetaData.builder()
                         .type(ActionType.APPROVE)
-                        .actionId(action.getId())
-                        .clubId(club.getId())
+                        .actionId(action != null ? action.getId() : null)
+                        .clubId(club != null ? club.getId() : null)
                         .build();
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -698,7 +698,7 @@ public class ClubService {
 
                 MessageMetaData data = MessageMetaData.builder()
                         .type(ActionType.REJECT)
-                        .actionId(action.getId())
+                        .actionId(action != null ? action.getId() : null)
                         .build();
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -798,6 +798,8 @@ public class ClubService {
                 .created(LocalDateTime.now())
                 .build();
 
+        actionRepository.save(action);
+
         userClubRepository.findAllByClubId(club.getId())
                 .forEach(
                         uc -> {
@@ -817,8 +819,8 @@ public class ClubService {
 
                                     MessageMetaData data = MessageMetaData.builder()
                                             .type(ActionType.SCHEDULE_CREATE)
-                                            .actionId(action.getId())
-                                            .clubId(club.getId())
+                                            .actionId(action != null ? action.getId() : null)
+                                            .clubId(club != null ? club.getId() : null)
                                             .build();
 
 
@@ -846,7 +848,6 @@ public class ClubService {
         clubNotificationRepository.save(clubNotification);
 
         clubScheduleRepository.save(clubSchedule);
-        actionRepository.save(action);
     }
 
 

@@ -217,14 +217,19 @@ public class FeedService {
                 .action(action)
                 .build();
 
+
+        feedRepository.save(feed);
+        actionRepository.save(action);
+        clubNotificationRepository.save(clubNotification);
+
         try {
             if( feed.getUser().getClubPushAlarm()=='Y' && feed.getUser().getTargetToken()!=null){
 
                 MessageMetaData data = MessageMetaData.builder()
                         .type(ActionType.FEED_CREATE)
-                        .actionId(action.getId())
-                        .feedId(feed.getId())
-                        .clubId(club.getId())
+                        .actionId(action != null ? action.getId() : null)  // action이 null이 아니면 action.getId(), 그렇지 않으면 null
+                        .feedId(feed != null ? feed.getId() : null)        // feed가 null이 아니면 feed.getId(), 그렇지 않으면 null
+                        .clubId(club != null ? club.getId() : null)        // club이 null이 아니면 club.getId(), 그렇지 않으면 null
                         .build();
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -238,9 +243,6 @@ public class FeedService {
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
-        feedRepository.save(feed);
-        actionRepository.save(action);
-        clubNotificationRepository.save(clubNotification);
 
          // mention이 있을 경우 mention된 user에게 알림/푸시
         Optional.ofNullable(request.getMentionUserList())
@@ -269,14 +271,17 @@ public class FeedService {
                 .action(action)
                 .build();
 
+
+        actionRepository.save(action);
+
         try {
             if( mentionedUser.getClubPushAlarm()=='Y' && mentionedUser.getTargetToken()!=null){
 
                 MessageMetaData data = MessageMetaData.builder()
                         .type(ActionType.MENTION_USER)
-                        .actionId(action.getId())
-                        .feedId(Optional.ofNullable(feed).map(Feed::getId).orElse(null))
-                        .commentId(Optional.ofNullable(comment).map(Comment::getId).orElse(null))
+                        .actionId(action != null ? action.getId() : null)
+                        .feedId(feed != null ? feed.getId() : null)
+                        .commentId(comment != null ? comment.getId() : null)
                         .build();
 
                 Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -291,7 +296,6 @@ public class FeedService {
             e.printStackTrace();
         }
 
-        actionRepository.save(action);
         userNotificationRepository.save(userNotification);
     }
 
@@ -375,9 +379,9 @@ public class FeedService {
 
                         MessageMetaData data = MessageMetaData.builder()
                                 .type(ActionType.COMMENT_REPLY)
-                                .actionId(action.getId())
-                                .feedId(feed.getId())
-                                .commentId(comment.getId())
+                                .actionId(action != null ? action.getId() : null)
+                                .feedId(feed != null ? feed.getId() : null)
+                                .commentId(comment != null ? comment.getId() : null)
                                 .build();
 
 
@@ -404,11 +408,15 @@ public class FeedService {
                         .created(LocalDateTime.now())
                         .build();
 
+                actionRepository.save(action);
+
                 UserNotification userNotification = UserNotification.builder()
                         .action(action)
                         .recipient(feed.getUser())
                         .created(LocalDateTime.now())
                         .build();
+
+                userNotificationRepository.save(userNotification);
 
                 UserPreference userPreference = UserPreference.builder()
                         .user(user)
@@ -417,14 +425,16 @@ public class FeedService {
                         .created(LocalDateTime.now())
                         .build();
 
+                userPreferenceRepository.save(userPreference);
+
                 try {
                     if (feed.getUser().getUserPushAlarm() == 'Y' && feed.getUser().getTargetToken() != null) {
 
                         MessageMetaData data = MessageMetaData.builder()
                                 .type(ActionType.FEED_COMMENT)
-                                .actionId(action.getId())
-                                .feedId(feed.getId())
-                                .commentId(comment.getId())
+                                .actionId(action != null ? action.getId() : null)
+                                .feedId(feed != null ? feed.getId() : null)
+                                .commentId(comment != null ? comment.getId() : null)
                                 .build();
 
                         Message fcmMessage = firebaseCloudMessageService.makeMessage(
@@ -439,9 +449,6 @@ public class FeedService {
                     e.printStackTrace();
                 }
 
-                actionRepository.save(action);
-                userNotificationRepository.save(userNotification);
-                userPreferenceRepository.save(userPreference);
             }
         }
 
