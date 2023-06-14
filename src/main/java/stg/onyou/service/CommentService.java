@@ -14,6 +14,7 @@ import stg.onyou.repository.*;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +62,15 @@ public class CommentService {
     public void deleteById(Long id){
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setDelYn('y');
+
+        List<Comment> childComments = commentRepository.findByParentId(comment.getId());
+
+        childComments.forEach(
+                comments -> {
+                    comments.setDelYn('y');
+                }
+        );
+        commentRepository.saveAll(childComments);
         commentRepository.save(comment);
     }
 
