@@ -2,6 +2,7 @@ package stg.onyou.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicInsert
 @Entity
 @Builder
 public class User implements UserDetails {
@@ -49,15 +51,10 @@ public class User implements UserDetails {
     private String appVersion;
     private String deviceInfo;
     private String about;
-    @Column(columnDefinition = "CHAR(1) default 'N'")
     private char isEmailPublic;
-    @Column(columnDefinition = "CHAR(1) default 'N'")
     private char isContactPublic;
-    @Column(columnDefinition = "CHAR(1) default 'N'")
     private char isBirthdayPublic;
-    @Column(columnDefinition = "CHAR(1) default 'Y'")
     private char isClubPublic;
-    @Column(columnDefinition = "CHAR(1) default 'Y'")
     private char isFeedPublic;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
