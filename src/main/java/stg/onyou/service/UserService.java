@@ -379,7 +379,7 @@ public class UserService {
         backgroundImageUrl.ifPresent(url -> user.setBackgroundImage(url));
 
         user.setAbout(updateMyProfileRequest.getAbout());
-        user.setIsEmailPublic(updateMyProfileRequest.getIsBirthdayPublic());
+        user.setIsEmailPublic(updateMyProfileRequest.getIsEmailPublic());
         user.setIsContactPublic(updateMyProfileRequest.getIsContactPublic());
         user.setIsBirthdayPublic(updateMyProfileRequest.getIsBirthdayPublic());
         user.setIsClubPublic(updateMyProfileRequest.getIsClubPublic());
