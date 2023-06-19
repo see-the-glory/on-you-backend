@@ -24,14 +24,14 @@ public class ProfileResponse {
     private String about;
     private String email;
     private Long feedNumber;
-    private char isEmailPublic;
+    private String isEmailPublic;
     private String contact;
-    private char isContactPublic;
+    private String isContactPublic;
     private LocalDate birthday;
-    private char isBirthdayPublic;
+    private String isBirthdayPublic;
     private List<ClubDTO> clubs;
-    private char isClubPublic;
-    private char isFeedPublic;
+    private String isClubPublic;
+    private String isFeedPublic;
 //    private List<FeedResponse> myFeedList;
 
     @Data
