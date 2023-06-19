@@ -47,11 +47,6 @@ public class Action {
 
     @Enumerated(EnumType.STRING)
     private Role changedRole;
-
-    @Column(columnDefinition = "TINYINT")
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean isProcessDone;
-
     private boolean isDone;
     private LocalDateTime created;
 
