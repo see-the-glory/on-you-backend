@@ -430,14 +430,13 @@ public class ClubService {
             }
             clubRepository.save(club);
 
-            // 바로 가입되는 가입요청의 경우 Action의 isProcessDone을 바로 true로 리턴
+            // 바로 가입되는 가입요청의 경우 Action의 isDone을 바로 true로 리턴
             Action action = Action.builder()
                     .actioner(user)
                     .actionClub(club)
                     .actionType(ActionType.APPLY)
                     .message(clubApplyRequest.getMessage())
                     .isDone(true)
-                    .isProcessDone(true)
                     .created(LocalDateTime.now())
                     .build();
 
@@ -587,14 +586,14 @@ public class ClubService {
                 .actionee(approvedUser)
                 .actionClub(club)
                 .actionType(ActionType.APPROVE)
-                .isProcessDone(false)
+                .isDone(false)
                 .created(LocalDateTime.now())
                 .build();
 
         actionRepository.save(action);
 
-        // processDone 설정
-        processedAction.setProcessDone(true);
+        // apply action에 대해서 done으로 설정
+        processedAction.setDone(true);
         actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
@@ -675,14 +674,14 @@ public class ClubService {
                 .actionee(rejectedUser)
                 .actionClub(club)
                 .actionType(ActionType.REJECT)
-                .isProcessDone(false)
+                .isDone(false)
                 .message(clubRejectRequest.getMessage())
                 .created(LocalDateTime.now())
                 .build();
 
         actionRepository.save(action);
 
-        processedAction.setProcessDone(true);
+        processedAction.setDone(true);
         actionRepository.save(processedAction);
 
         UserNotification userNotification = UserNotification.builder()
@@ -793,7 +792,6 @@ public class ClubService {
         Action action = Action.builder()
                 .actionClub(club)
                 .actionType(ActionType.SCHEDULE_CREATE)
-                .isProcessDone(false)
                 .actioner(user)
                 .created(LocalDateTime.now())
                 .build();

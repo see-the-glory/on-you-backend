@@ -43,7 +43,6 @@ public class UserNotificationQRepositoryImpl extends QuerydslRepositorySupport i
                         action.actionComment.id,
                         action.actionType,
                         action.message,
-                        action.isProcessDone,
                         Expressions.cases()
                                 .when(userAction.action.id.isNull()).then(false)
                                 .otherwise(true).as("isRead"),

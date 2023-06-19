@@ -23,7 +23,6 @@ public class ClubNotificationResponse {
     private String actioneeName;
     private ActionType actionType;
     private String message;
-    private boolean isProcessDone;
     private boolean isRead;
     private boolean isDone;
 
@@ -31,13 +30,12 @@ public class ClubNotificationResponse {
     private LocalDateTime created;
 
     @QueryProjection
-    public ClubNotificationResponse(Long actionId, Long actionerId, Long actioneeId, ActionType actionType, String message, boolean isProcessDone, boolean isRead, boolean isDone, LocalDateTime created){
+    public ClubNotificationResponse(Long actionId, Long actionerId, Long actioneeId, ActionType actionType, String message, boolean isRead, boolean isDone, LocalDateTime created){
         this.actionId = actionId;
         this.actionerId = actionerId;
         this.actioneeId = actioneeId;
         this.actionType = actionType;
         this.message = message;
-        this.isProcessDone = isProcessDone;
         this.isRead = isRead;
         this.isDone = isDone;
         this.created = created;
