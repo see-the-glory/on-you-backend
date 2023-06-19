@@ -51,11 +51,11 @@ public class User implements UserDetails {
     private String appVersion;
     private String deviceInfo;
     private String about;
-    private char isEmailPublic;
-    private char isContactPublic;
-    private char isBirthdayPublic;
-    private char isClubPublic;
-    private char isFeedPublic;
+    private String isEmailPublic;
+    private String isContactPublic;
+    private String isBirthdayPublic;
+    private String isClubPublic;
+    private String isFeedPublic;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore

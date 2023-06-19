@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
-import stg.onyou.model.enums.AlarmType;
-import stg.onyou.model.enums.ApplyStatus;
-import stg.onyou.model.enums.InterestCategory;
-import stg.onyou.model.enums.Role;
+import stg.onyou.model.enums.*;
 import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.FindPwRequest;
@@ -61,6 +58,7 @@ public class UserService {
     private ClubCategoryRepository clubCategoryRepository;
     @Autowired
     private ModelMapper modelMapper;
+    private UserAccountLogRepository userAccountLogRepository;
 
 
     @Autowired
@@ -211,6 +209,14 @@ public class UserService {
 
         // user 삭제
         userRepository.deleteById(userId);
+
+        UserAccountLog userAccountLog = UserAccountLog.builder()
+                .userId(userId)
+                .logType(AccountLogType.WITHDRAW)
+                .created(LocalDateTime.now())
+                .build();
+
+        userAccountLogRepository.save(userAccountLog);
     }
 
     public String getMaskedEmail(String email) {
