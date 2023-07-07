@@ -98,6 +98,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "blockee", cascade = CascadeType.REMOVE)
     private List<UserBlock> blockees = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<GuestComment> guestComments = new ArrayList<>();
+
     public User(UserCreateRequest userCreateRequest) {
         birthday = userCreateRequest.getBirthday();
         sex = userCreateRequest.getSex();
