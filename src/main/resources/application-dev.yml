@@ -12,6 +12,8 @@ spring:
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
     host: redis-dev-service
+#    host: 127.0.0.1
+#    port: 6379
   jpa:
     hibernate:
       ddl-auto: validate
@@ -28,8 +30,11 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
   datasource:
-    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
-    username: onyou
+#    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
+#    username: onyou
+#    url: jdbc:mysql://192.168.137.7:3306/onyou-dev?useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
+    password: ENC(22UtFZXo3fj9iXZpwb1NdYWFnxmswVgf)
+    username: onyoudevuser
     url: jdbc:mysql://192.168.137.7:3306/onyou-dev?useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
   mvc:
     pathmatch:
