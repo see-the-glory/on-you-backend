@@ -35,7 +35,7 @@ spring:
 #    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
     password: ${DB_PASSWORD}
     username: ${DB_USERNAME}
-    url: jdbc:mysql://192.168.137.7:3306/onyou-dev?useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://192.168.137.7:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
