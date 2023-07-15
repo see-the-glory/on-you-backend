@@ -33,7 +33,7 @@ spring:
 #    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
 #    username: onyou
 #    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
-    password: ${DB_PASSWORD.trim()}
+    password: onyoudevuser
     username: ${DB_USERNAME.trim()}
     url: jdbc:mysql://192.168.137.7:3306/onyou-dev?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
   mvc:
