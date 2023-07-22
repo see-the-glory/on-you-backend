@@ -12,8 +12,7 @@ spring:
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
     host: redis-dev-service
-#    host: 127.0.0.1
-#   port: 6379
+    port: 6379
   jpa:
     hibernate:
       ddl-auto: validate
