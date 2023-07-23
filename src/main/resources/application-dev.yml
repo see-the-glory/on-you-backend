@@ -11,7 +11,7 @@ spring:
     host: smtp.gmail.com
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
-    host: redis-dev-service
+    host: onyou.tplinkdns.com
     port: 6379
   jpa:
     hibernate:
