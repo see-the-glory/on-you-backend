@@ -11,8 +11,8 @@ spring:
     host: smtp.gmail.com
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
-    host: 127.0.0.1
-    port: '6379'
+    host: 192.168.137.7
+    port: 6379
   jpa:
     hibernate:
       ddl-auto: validate
@@ -29,9 +29,12 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
   datasource:
-    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
-    username: onyou
-    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
+#    password: ENC(fCXVXJIiBNltL1k8iwJcgGo7jJDb79cb)
+#    username: onyou
+#    url: jdbc:mysql://onyou.ccnmi4nbea4z.ap-northeast-2.rds.amazonaws.com:3306/onyou-dev?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
+    password: ${DB_PASSWORD}
+    username: ${DB_USERNAME}
+    url: jdbc:mysql://onyou.company:3306/onyou-dev?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&zeroDateTimeBehavior=convertToNull
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -76,18 +79,10 @@ mail:
   transport:
     protocol: smtp
 
-#server:
-#  port: 8443
-#  ssl:
-#    key-store: classpath:onyou-keystore.p12
-#    key-store-password: onyou0815
-#    key-store-type: PKCS12
-#    key-alias: kanu-keystore
-#  http:
-#    port: 8080
-#    ssl:
-#      enabled: true
-#      key-store: classpath:onyou-keystore.p12
-#      key-store-password: onyou0815
-#      key-store-type: PKCS12
-#      key-alias: kanu-keystore
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:/keystore.p12
+    key-store-password: ${keystore-password}
+    key-store-type: PKCS12
+    key-alias: onyou
