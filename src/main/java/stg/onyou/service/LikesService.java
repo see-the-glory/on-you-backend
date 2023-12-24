@@ -41,8 +41,8 @@ public class LikesService {
 
         feedLikesRepository.findLikesByUserIdAndFeedId(userId, feedId)
                 .ifPresentOrElse(
-                        likes -> feedLikesRepository.deleteById(likes.getId()),
-                        () -> {
+                        likes -> feedLikesRepository.deleteById(likes.getId()), // if present
+                        () -> {  //if not present
 
                             try {
                                 feedLikesRepository.save(like);
