@@ -11,7 +11,7 @@ spring:
     host: smtp.gmail.com
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
-    host: 192.168.137.7
+    host: 172.31.47.126
     port: 6379
   jpa:
     hibernate:
