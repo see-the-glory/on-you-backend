@@ -11,11 +11,11 @@ spring:
     host: smtp.gmail.com
     password: e92CiLxZgi0iolmLLUCgdq0nfbtVvlz68CSE3p/YX8k=
   redis:
-    host: 127.0.0.1
+    host: 192.168.137.7
     port: 6379
   jpa:
     hibernate:
-      ddl-auto:
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: 'true'
