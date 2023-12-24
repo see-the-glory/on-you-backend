@@ -54,6 +54,7 @@ public enum ErrorCode {
     ACCOUNT_NOT_FOUND(NOT_FOUND, "등록되지 않은 아이디입니다."),
     CHECK_STRING_NOT_FOUND(NOT_FOUND, "유효하지 않은 인증번호입니다."),
     GUEST_COMMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 방명록입니다."),
+    BOARD_NOT_FOUND(NOT_FOUND, "존재하지 않는 게시판입니다"),
 
 
     // 503 : Internal server error
