@@ -13,7 +13,7 @@ import stg.onyou.model.entity.*;
 import stg.onyou.model.network.Header;
 import stg.onyou.model.network.request.CommentCreateRequest;
 import stg.onyou.model.network.request.FeedCreateRequest;
-import stg.onyou.model.network.request.FeedReportRequest;
+import stg.onyou.model.network.request.ReportRequest;
 import stg.onyou.model.network.request.FeedUpdateRequest;
 import stg.onyou.model.network.response.*;
 import stg.onyou.service.*;
@@ -150,10 +150,10 @@ public class FeedController {
      * FEED 신고
      */
     @PostMapping("/api/feeds/{id}/report")
-    public Header<String> reportFeed(@PathVariable Long id, @Valid @RequestBody FeedReportRequest feedReportRequest, HttpServletRequest httpServletRequest) {
+    public Header<String> reportFeed(@PathVariable Long id, @Valid @RequestBody ReportRequest reportRequest, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
 
-        String result = reportService.reportFeed(userId, id, feedReportRequest.getReason());
+        String result = reportService.reportFeed(userId, id, reportRequest.getReason());
         return Header.OK(result);
     }
 
@@ -188,7 +188,7 @@ public class FeedController {
     @PostMapping("/api/feeds/{id}/likes")
     public Header<Object> likeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        likesService.addLikes(userId, id);
+        likesService.addLikesFeed(userId, id);
         return Header.OK();
     }
 
