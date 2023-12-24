@@ -15,6 +15,7 @@ public class BoardResponse {
     private Long id;
     private Long userId;
     private String content;
+    private String imageUrl;
     private boolean likeYn;
     private Long likesCount;
     private Long commentCount;

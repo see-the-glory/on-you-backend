@@ -561,7 +561,7 @@ public class FeedService {
                 .userName(feed.getUser().getName())
                 .content(feed.getContent())
                 .imageUrls(feed.getFeedImages().stream().map(FeedImage::getUrl).collect(Collectors.toList()))
-                .likeYn(likesService.isLikes(userId, feed.getId()))
+                .likeYn(likesService.isLikesFeed(userId, feed.getId()))
                 .likesCount((long) getLikesCount(feedId))
                 .commentCount(feed.getComments().stream().filter(comments -> comments.getDelYn()=='n').count())
                 .thumbnail(feed.getUser().getThumbnail())

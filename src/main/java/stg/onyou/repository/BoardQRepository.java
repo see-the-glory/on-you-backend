@@ -9,6 +9,6 @@ import stg.onyou.model.network.response.FeedResponse;
 @Repository
 public interface BoardQRepository {
 
-//    Page<BoardResponse> findBoardList(Pageable page, String customCursor, Long userId);
+    Page<BoardResponse> findBoardList(Pageable page, String customCursor, Long userId);
 
 }

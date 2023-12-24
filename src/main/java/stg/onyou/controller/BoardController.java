@@ -33,17 +33,18 @@ public class BoardController {
     private final UserService userService;
     private final ReportService reportService;
     private final BoardService boardService;
+    private final LikesService likesService;
 
-//    @GetMapping("/api/boards")
-//    public BoardPageResponse selectBoardList(
-//            @RequestParam(required = false) String cursor,
-//            @PageableDefault(sort="created", size = 9) Pageable pageable,
-//            HttpServletRequest httpServletRequest) {
-//
-//        Long userId = userService.getUserId(httpServletRequest);
-//        return boardService.selectBoardList(pageable, cursor, userId);
-//
-//    }
+    @GetMapping("/api/boards")
+    public BoardPageResponse selectBoardList(
+            @RequestParam(required = false) String cursor,
+            @PageableDefault(sort="created", size = 9) Pageable pageable,
+            HttpServletRequest httpServletRequest) {
+
+        Long userId = userService.getUserId(httpServletRequest);
+        return boardService.selectBoardList(pageable, cursor, userId);
+
+    }
 
 //    @GetMapping("/api/boards/my")
 //    public FeedPageResponse getMyBoardList(
@@ -104,5 +105,12 @@ public class BoardController {
 
         String result = reportService.reportBoard(userId, id, reportRequest.getReason());
         return Header.OK(result);
+    }
+
+    @PostMapping("/api/boards/{id}/likes")
+    public Header<String> likeBoard(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        likesService.addLikesBoard(userId, id);
+        return Header.OK("게시판 좋아요/해제 완료");
     }
 }

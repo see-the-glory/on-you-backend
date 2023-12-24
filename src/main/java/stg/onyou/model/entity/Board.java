@@ -6,6 +6,8 @@ import stg.onyou.model.enums.BoardCategory;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,7 +32,6 @@ public class Board {
 
     private int viewCount;
     private int reportCount;
-    private int likeCount;
     private int commentCount;
 
     @NotNull
@@ -39,5 +40,8 @@ public class Board {
     private LocalDateTime created;
     @NotNull
     private LocalDateTime updated;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
+    private List<BoardLikes> likes = new ArrayList<>();
 
 }

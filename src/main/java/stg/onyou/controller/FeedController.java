@@ -188,7 +188,7 @@ public class FeedController {
     @PostMapping("/api/feeds/{id}/likes")
     public Header<Object> likeFeed(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         Long userId = userService.getUserId(httpServletRequest);
-        likesService.addLikes(userId, id);
+        likesService.addLikesFeed(userId, id);
         return Header.OK();
     }
 

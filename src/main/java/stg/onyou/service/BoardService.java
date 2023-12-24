@@ -59,10 +59,6 @@ public class BoardService {
     @Autowired
     private final UserPreferenceRepository userPreferenceRepository;
     @Autowired
-    private final FeedHashtagRepository feedHashtagRepository;
-    @Autowired
-    private final HashtagRepository hashtagRepository;
-    @Autowired
     private final LikesService likesService;
     @Autowired
     private final CommentLikesRepository commentLikesRepository;
@@ -77,30 +73,6 @@ public class BoardService {
 
         boardRepository.save(board);
     }
-
-    /**
-     * 특정 feed (id) 삭제
-     */
-//    public void deleteById(Long id, Long userId) {
-//
-//        Feed feed = feedRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.FEED_NOT_FOUND));
-//        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-//
-//        if( feed.getUser().getId().equals(userId) || isManagerOfClub(user, feed.getClub())){ // 삭제자가 feed의 생성자거나 Club의 매니저이상인 경우만 삭제 가능
-//            feed.setDelYn('y');
-//            feed.getComments().forEach(
-//                    comment -> {
-//                        comment.setDelYn('y');
-//                        commentRepository.save(comment);
-//                    }
-//            );
-//        } else {
-//            throw new CustomException(ErrorCode.NO_AUTH_DELETE_FEED);
-//        }
-//
-//        feedRepository.save(feed);
-//
-//    }
 
 //    public void createLikeFeed(Long userId, Long feedId) {
 //        Feed feed = feedRepository.findOne(feedId);
@@ -355,17 +327,17 @@ public class BoardService {
 //        return response;
 //    }
 
-//    public BoardPageResponse selectBoardList(Pageable page, String cursor, Long userId) {
-//
-//        Page<BoardResponse> foundBoardList = boardQRepositoryImpl.findBoardList(page, cursor, userId);
-//
-//        BoardPageResponse response = BoardPageResponse.builder()
-//                .hasData(foundBoardList.getTotalElements()!=0?true:false)
-//                .responses(foundBoardList)
-//                .build();
-//
-//        return response;
-//    }
+    public BoardPageResponse selectBoardList(Pageable page, String cursor, Long userId) {
+
+        Page<BoardResponse> foundBoardList = boardQRepositoryImpl.findBoardList(page, cursor, userId);
+
+        BoardPageResponse response = BoardPageResponse.builder()
+                .hasData(foundBoardList.getTotalElements()!=0?true:false)
+                .responses(foundBoardList)
+                .build();
+
+        return response;
+    }
 
     public void createBoard(BoardCreateRequest request, Long userId, String url) {
 
