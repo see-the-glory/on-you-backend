@@ -56,7 +56,7 @@ public class EmailController {
 //        String redisKey = "check:" + checkStringRequest.getEmail();
 //        String savedCheckString = (String) redisTemplate.opsForValue().get(redisKey);
 
-        EmailCheck emailCheck = emailCheckRepository.findByEmail(checkStringRequest.getEmail())
+        EmailCheck emailCheck = emailCheckRepository.findLatestByEmail(checkStringRequest.getEmail())
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.EMAIL_CHECK_NOT_FOUND)
                 );
