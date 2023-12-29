@@ -122,9 +122,10 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
 
         String jwtToken = jwtTokenProvider.createToken(member.getUsername());
-        String redisKey = REDIS_PREFIX + member.getEmail();
-        redisTemplate.opsForValue().set(redisKey, jwtToken);
+//        String redisKey = REDIS_PREFIX + member.getEmail();
+//        redisTemplate.opsForValue().set(redisKey, jwtToken);
 
+        member.setJwt(jwtToken);
         member.setLastLoginDate(LocalDateTime.now());
         userRepository.save(member);
 
