@@ -56,6 +56,7 @@ public class User implements UserDetails {
     private String isBirthdayPublic;
     private String isClubPublic;
     private String isFeedPublic;
+    private String jwt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
