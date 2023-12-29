@@ -12,6 +12,5 @@ import java.util.Optional;
 
 public interface EmailCheckRepository extends JpaRepository<EmailCheck, Long> {
 
-    @Query("SELECT ec FROM EmailCheck ec WHERE ec.email = :email ORDER BY ec.created DESC")
     Optional<EmailCheck> findFirstByEmailOrderByCreatedDesc(String email);;
 }
