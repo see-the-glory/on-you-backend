@@ -10,10 +10,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import stg.onyou.exception.CustomException;
 import stg.onyou.exception.ErrorCode;
+import stg.onyou.model.entity.EmailCheck;
 import stg.onyou.model.entity.User;
+import stg.onyou.repository.EmailCheckRepository;
 import stg.onyou.repository.UserRepository;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +28,7 @@ public class EmailService {
     private JavaMailSender emailSender;
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
+    private EmailCheckRepository emailCheckRepository;
     private static SimpleMailMessage message = new SimpleMailMessage();
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -77,9 +81,17 @@ public class EmailService {
 
         emailSender.send(message);
 
+        EmailCheck emailCheck = EmailCheck.builder()
+                .email(email)
+                .checkString(checkString)
+                .created(LocalDateTime.now())
+                .build();
+
+        emailCheckRepository.save(emailCheck);
+
         // 메일로 보낸 checkString을 value로, email을 key로 해서 redis캐시에 저장.
-        String redisKey = "check:" + email;
-        redisTemplate.opsForValue().set(redisKey, checkString);
-        redisTemplate.expire(redisKey, 180L, TimeUnit.SECONDS); //3분 지나면 redis에서 삭제처리.
+//        String redisKey = "check:" + email;
+//        redisTemplate.opsForValue().set(redisKey, checkString);
+//        redisTemplate.expire(redisKey, 180L, TimeUnit.SECONDS); //3분 지나면 redis에서 삭제처리.
     }
 }
