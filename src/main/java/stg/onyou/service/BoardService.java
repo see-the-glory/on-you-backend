@@ -63,6 +63,12 @@ public class BoardService {
     @Autowired
     private final CommentLikesRepository commentLikesRepository;
 
+
+    public Header<BoardResponse> getBoard(Long userId, Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        return Header.OK(toDto(board, userId));
+    }
+
     /**
      * 특정 feed 수정
      */
@@ -73,6 +79,8 @@ public class BoardService {
 
         boardRepository.save(board);
     }
+
+
 
 //    public void createLikeFeed(Long userId, Long feedId) {
 //        Feed feed = feedRepository.findOne(feedId);
@@ -378,6 +386,27 @@ public class BoardService {
 
         board.setDelYn('Y');
         boardRepository.save(board);
+    }
+
+    private BoardResponse toDto(Board board, Long userId) {
+        boolean likeYn = likesService.isLikesBoard(userId, board.getId());
+
+        return BoardResponse.builder()
+                .id(board.getId())
+                .userId(board.getUser().getId())
+                .content(board.getContent())
+                .imageUrl(board.getImageUrl())
+                .likeYn(likeYn)
+                .likesCount((long)getLikesCount(board.getId()))
+                .commentCount((long)board.getCommentCount())
+                .created(board.getCreated())
+                .updated(board.getUpdated())
+                .build();
+    }
+
+    public int getLikesCount(Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        return board.getLikes().size();
     }
 
 }

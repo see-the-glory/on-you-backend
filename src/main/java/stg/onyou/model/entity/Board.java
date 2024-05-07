@@ -2,6 +2,8 @@ package stg.onyou.model.entity;
 
 import lombok.*;
 import stg.onyou.model.enums.BoardCategory;
+import stg.onyou.model.network.response.BoardResponse;
+import stg.onyou.service.LikesService;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
