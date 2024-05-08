@@ -71,11 +71,11 @@ public class BoardController {
         return Header.OK("Board 생성 완료");
     }
 
-//    @GetMapping("/api/boards/{boardId}")
-//    public Header<BoardResponse> getBoard(@PathVariable Long boardId, HttpServletRequest httpServletRequest) {
-//        Long userId = userService.getUserId(httpServletRequest);
-//        return boardService.getBoard(userId, boardId);
-//    }
+    @GetMapping("/api/boards/{boardId}")
+    public Header<BoardResponse> getBoard(@PathVariable Long boardId, HttpServletRequest httpServletRequest) {
+        Long userId = userService.getUserId(httpServletRequest);
+        return boardService.getBoard(userId, boardId);
+    }
 
     @PutMapping("/api/boards/{id}")
     public Header<String> updateBoard(@PathVariable Long id,

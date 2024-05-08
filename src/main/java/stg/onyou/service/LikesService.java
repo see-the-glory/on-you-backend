@@ -94,8 +94,8 @@ public class LikesService {
     }
 
     // '좋아요' 유무
-    public boolean isLikesBoard(Long userId, Long feedId) {
-        if(boardLikesRepository.findLikesByUserIdAndBoardId(userId, feedId).isPresent()){
+    public boolean isLikesBoard(Long userId, Long boardId) {
+        if(boardLikesRepository.findLikesByUserIdAndBoardId(userId, boardId).isPresent()){
             return true;
         } else {
             return false;
