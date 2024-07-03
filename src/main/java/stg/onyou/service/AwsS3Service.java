@@ -68,18 +68,6 @@ public class AwsS3Service {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
-//    public void deleteFile(List<FeedImage> feedImages) {
-//        feedImages.forEach(feedImage -> {
-//            amazonS3.deleteObject(new DeleteObjectRequest(bucket, feedImage.getUrl()));
-//            feedImageRepository.delete(feedImage);
-//        });
-//    }
-
-//    public void deleteFile(Long userId, String storedFileName) {
-//        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, "Feed/" + userId.toString() + "/" + storedFileName));
-//    }
-
-
     private String createFileName(String fileName) { // 먼저 파일 업로드 시, 파일명을 난수화하기 위해 random으로 돌립니다.
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
