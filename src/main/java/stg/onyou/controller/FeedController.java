@@ -95,8 +95,8 @@ public class FeedController {
                                      HttpServletRequest httpServletRequest
     ) {
 
-        log.debug("FeedCreateRequest: ", request);
-        log.debug("multipartFiles: ", multipartFiles);
+        log.debug("FeedCreateRequest: {} ", request);
+        log.debug("multipartFiles: {}", multipartFiles);
 
         Long userId = userService.getUserId(httpServletRequest);
         List<FeedImage> feedImages = new ArrayList<>();
