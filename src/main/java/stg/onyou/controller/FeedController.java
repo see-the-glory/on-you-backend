@@ -99,15 +99,15 @@ public class FeedController {
         log.debug("multipartFiles: {}", multipartFiles);
 
         Long userId = userService.getUserId(httpServletRequest);
+
         List<FeedImage> feedImages = new ArrayList<>();
+
         Feed feed = feedService.createFeed(request, userId, feedImages);
+
         for (MultipartFile multipartFile : multipartFiles) {
             String url = awsS3Service.uploadFile(multipartFile);
             feedService.addFeedImage(feed, url);
         }
-        List<FeedHashtag> feedHashtagList = hashtagService.addHashtagToFeed(feed);
-        feed.setFeedHashtags(feedHashtagList);
-        feedService.upload(feed);
 
         return Header.OK("Feed 생성 완료");
     }
