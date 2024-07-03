@@ -66,6 +66,8 @@ public class FeedService {
     @Autowired
     private final LikesService likesService;
     @Autowired
+    private final HashtagService hashtagService;
+    @Autowired
     private final CommentLikesRepository commentLikesRepository;
     private final FirebaseMessaging fcm;
 
@@ -216,6 +218,8 @@ public class FeedService {
                 .action(action)
                 .build();
 
+        List<FeedHashtag> feedHashtagList = hashtagService.addHashtagToFeed(feed);
+        feed.setFeedHashtags(feedHashtagList);
 
         feedRepository.save(feed);
         actionRepository.save(action);
