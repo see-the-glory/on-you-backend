@@ -91,9 +91,12 @@ public class FeedController {
 
     @PostMapping("/api/feeds")
     public Header<Object> createFeed(@RequestPart(value = "file") List<MultipartFile> multipartFiles,
-                                     @RequestPart(value = "feedCreateRequest") FeedCreateRequest request,
+                                     @RequestPart(value = "feedCreateRequest") @Valid FeedCreateRequest request,
                                      HttpServletRequest httpServletRequest
     ) {
+
+        log.debug("FeedCreateRequest: ", request);
+        log.debug("multipartFiles: ", multipartFiles);
 
         Long userId = userService.getUserId(httpServletRequest);
         List<FeedImage> feedImages = new ArrayList<>();
