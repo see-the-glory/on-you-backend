@@ -29,7 +29,8 @@ public class HashtagService {
         String[] splitString = feed.getContent().split(" ");
         List<FeedHashtag> result = new ArrayList<>();
         for (String str : splitString) {
-            if (str.charAt(0) == '#') {
+            // 빈 문자열인지 확인하고 처리
+            if (!str.isEmpty() && str.charAt(0) == '#') {
                 String hashtag = str.substring(1);
                 Optional<Hashtag> findHashtag = hashtagRepository.findByHashtag(hashtag);
                 if (findHashtag.isPresent()) {
@@ -38,19 +39,22 @@ public class HashtagService {
                             .hashtag(findHashtag.orElseThrow(() -> new CustomException(ErrorCode.HASHTAG_NOT_FOUND)))
                             .build();
                     feedHashtagRepository.save(feedHashtag);
+                    result.add(feedHashtag);
                 } else {
                     Hashtag hashtagObj = Hashtag.builder()
-                                    .hashtag(hashtag).build();
+                            .hashtag(hashtag).build();
                     hashtagRepository.save(hashtagObj);
                     FeedHashtag feedHashtag = FeedHashtag.builder()
                             .hashtag(hashtagObj)
                             .feed(feed)
                             .build();
                     feedHashtagRepository.save(feedHashtag);
+                    result.add(feedHashtag);
                 }
             }
         }
         return result;
     }
+
 
 }
