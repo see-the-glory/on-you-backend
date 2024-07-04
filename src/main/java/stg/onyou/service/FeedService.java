@@ -218,8 +218,8 @@ public class FeedService {
                 .action(action)
                 .build();
 
-        List<FeedHashtag> feedHashtagList = hashtagService.addHashtagToFeed(feed);
-        feed.setFeedHashtags(feedHashtagList);
+//        List<FeedHashtag> feedHashtagList = hashtagService.addHashtagToFeed(feed);
+//        feed.setFeedHashtags(feedHashtagList);
 
         feedRepository.save(feed);
         actionRepository.save(action);

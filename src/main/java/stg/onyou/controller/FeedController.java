@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -104,10 +105,19 @@ public class FeedController {
 
         Feed feed = feedService.createFeed(request, userId, feedImages);
 
-        for (MultipartFile multipartFile : multipartFiles) {
-            String url = awsS3Service.uploadFile(multipartFile);
-            feedService.addFeedImage(feed, url);
-        }
+
+        // 파일 업로드를 병렬 처리
+        List<CompletableFuture<String>> uploadFutures = multipartFiles.stream()
+                .map(file -> CompletableFuture.supplyAsync(() -> awsS3Service.uploadFile(file)))
+                .collect(Collectors.toList());
+
+        // 모든 파일 업로드가 완료될 때까지 대기
+        List<String> urls = uploadFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        // 피드에 이미지 추가
+        urls.forEach(url -> feedService.addFeedImage(feed, url));
 
         return Header.OK("Feed 생성 완료");
     }
